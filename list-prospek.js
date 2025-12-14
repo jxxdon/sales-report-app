@@ -51,7 +51,7 @@ function loadProspek(keyword = "") {
   prospekList.innerHTML =
     "<p style='text-align:center;padding:40px;color:#999;'>Memuat data...</p>";
 
-  const search = keyword.toLowerCase();
+  const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
 
   const q = isAdmin
