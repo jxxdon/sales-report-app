@@ -1,14 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Login Sales</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Sales 🌟</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+    .login-container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 {
+      color: #5d5af8;
+      margin-bottom: 10px;
+      font-size: 1.8em;
+    }
+    p.subtitle {
+      color: #777;
+      margin-bottom: 30px;
+      font-size: 1em;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin: 20px 0 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #ddd;
+      border-radius: 14px;
+      font-size: 1.1em;
+      box-sizing: border-box;
+      transition: all 0.3s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #7f7eff;
+      box-shadow: 0 0 0 4px rgba(127, 126, 255, 0.2);
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(to right, #7f7eff, #5d5af8);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 25px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(93, 90, 248, 0.3);
+      transition: all 0.3s;
+    }
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(93, 90, 248, 0.4);
+    }
+    .logo {
+      font-size: 4em;
+      margin-bottom: 10px;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
-  <h2>Login</h2>
-  <input id="username" placeholder="Username"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
-  <button onclick="login()">Login</button>
 
-  <script src="login.js"></script>
+<div class="login-container">
+  <div class="logo">📊</div>
+  <h2>Sales Prospek</h2>
+  <p class="subtitle">Masuk untuk mulai mencatat prospek hari ini!</p>
+
+  <label>Username</label>
+  <input id="username" placeholder="Masukkan username" autocomplete="username">
+
+  <label>Password</label>
+  <input id="password" type="password" placeholder="Masukkan password" autocomplete="current-password">
+
+  <button onclick="login()">🚀 Masuk</button>
+
+  <div class="footer">
+    &copy; 2025 Team Sales Palembang
+  </div>
+</div>
+
+<script src="login.js"></script>
 </body>
 </html>
