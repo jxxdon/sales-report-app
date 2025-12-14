@@ -1,75 +1,268 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daftar Prospek</title>
 
-  <!-- JS TETAP -->
+  <style>
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+
+    .btn-back {
+      background: #e0e0e0;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: .9em;
+    }
+
+    /* SEARCH */
+    #searchInput {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      margin-bottom: 14px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    /* SUMMARY */
+    .summary {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .summary-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: .9em;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    }
+
+    /* SHORTLIST */
+    .shortlist {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .short-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: .85em;
+      cursor: pointer;
+      background: #e0e0e0;
+    }
+
+    /* LIST */
+    .list-container {
+      margin-top: 8px;
+    }
+
+    .prospek-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.06);
+    }
+
+    .nama {
+      font-weight: 700;
+      font-size: 1.05em;
+      margin-bottom: 6px;
+    }
+
+    .info {
+      color: #444;
+      font-size: .95em;
+      margin-bottom: 8px;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status {
+      font-size: .8em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      color: #1565c0;
+      white-space: nowrap;
+    }
+
+    .status-personal {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-open {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 40px;
+    }
+
+    /* MODAL */
+    #detailModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 520px;
+      padding: 16px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .close {
+      cursor: pointer;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    #progressList {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    #commentInput {
+      width: 100%;
+      min-height: 70px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    #btnPostComment {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #5d5af8;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+  </style>
+
   <script type="module" src="list-prospek.js"></script>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- HEADER (TIDAK DIUBAH) -->
+  <!-- HEADER -->
   <div class="header">
     <button class="btn-back" onclick="history.back()">← Kembali</button>
     <h2>📋 Daftar Prospek</h2>
     <div></div>
   </div>
 
-  <!-- ===== TAMBAHAN BARU (TIDAK MERUSAK) ===== -->
+  <!-- SEARCH -->
+  <input
+    id="searchInput"
+    type="text"
+    placeholder="Cari nama atau nomor telepon…"
+  />
 
-  <!-- SUMMARY -->
-  <div style="margin-bottom:12px; font-size:.9em; color:#555;">
-    <div>Total Prospek : <span id="totalProspek">0</span></div>
-    <div>Total Survey : <span id="totalSurvey">0</span></div>
-    <div>Total Booking : <span id="totalBooking">0</span></div>
+  <!-- SUMMARY (DIBAWAH JUDUL) -->
+  <div class="summary">
+    <div class="summary-box">Total Prospek: <b id="totalProspek">0</b></div>
+    <div class="summary-box">Total Survey: <b id="totalSurvey">0</b></div>
+    <div class="summary-box">Total Booking: <b id="totalBooking">0</b></div>
   </div>
 
   <!-- SHORTLIST PROGRESS -->
-  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-    <button data-progress="" class="short-btn active">Semua</button>
-    <button data-progress="Survey" class="short-btn">Survey</button>
-    <button data-progress="Booking" class="short-btn">Booking</button>
-    <button data-progress="DP" class="short-btn">DP</button>
-    <button data-progress="Closing" class="short-btn">Closing</button>
-    <button data-progress="Lost" class="short-btn">Lost</button>
-    <button data-progress="Batal" class="short-btn">Batal</button>
+  <div class="shortlist" id="shortlistProgress">
+    <!-- tombol progress diisi dari JS -->
   </div>
 
-  <!-- SEARCH (TETAP ADA) -->
-  <input
-    type="text"
-    id="searchInput"
-    placeholder="Cari nama / nomor"
-    style="width:100%; padding:12px; margin-bottom:14px;"
-  >
-
-  <!-- LIST PROSPEK (ASLI, JANGAN DISENTUH) -->
+  <!-- LIST -->
   <div class="list-container">
     <div id="prospekList"></div>
   </div>
 
 </div>
 
-<!-- ===== STYLE KECIL KHUSUS SHORTLIST (INLINE, AMAN) ===== -->
-<style>
-  .short-btn {
-    padding:6px 12px;
-    border-radius:999px;
-    border:1px solid #ccc;
-    background:#f1f1f1;
-    font-size:.85em;
-    cursor:pointer;
-  }
-  .short-btn.active {
-    background:#5d5af8;
-    color:#fff;
-    border-color:#5d5af8;
-  }
-</style>
+<!-- MODAL DETAIL -->
+<div id="detailModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <b>Catatan Prospek</b>
+      <span class="close">&times;</span>
+    </div>
+
+    <div id="detailContent"></div>
+
+    <div id="progressList"></div>
+
+    <textarea id="commentInput" placeholder="Tulis komentar…"></textarea>
+    <button id="btnPostComment">Kirim Komentar</button>
+
+    <div id="commentList"></div>
+  </div>
+</div>
 
 </body>
 </html>
