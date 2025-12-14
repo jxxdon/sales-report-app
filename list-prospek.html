@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Prospek 🌟</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 15px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #5d5af8;
+      margin-bottom: 20px;
+    }
+    .search-box {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #f0f0ff;
+      color: #555;
+      font-weight: 600;
+    }
+    tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tr:hover {
+      background: #f8f9ff;
+    }
+    .status-personal { color: #28a745; font-weight: bold; }
+    .status-open { color: #ffc107; font-weight: bold; }
+    .status-exclusive { color: #dc3545; font-weight: bold; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .close {
+      float: right;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .btn-save { background: #28a745; color: white; }
+    .btn-comment { background: #007bff; color: white; }
+    .comment {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      font-size: 0.95em;
+    }
+    .comment-meta {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📋 Daftar Prospek</h2>
+
+  <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari nama atau nomor telepon...">
+
+  <table id="prospekTable">
+    <thead>
+      <tr>
+        <th>Nama Prospek</th>
+        <th>No Telepon</th>
+        <th>Progres Penjualan</th>
+        <th>Nama Sales</th>
+        <th>Status Prospek</th>
+      </tr>
+    </thead>
+    <tbody id="prospekBody">
+      <!-- Data akan diisi oleh JS -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Detail & Edit -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Detail & Edit Prospek</h3>
+    <div id="detailContent"></div>
+    <hr>
+    <h4>Komentar / Log</h4>
+    <div id="commentsList"></div>
+    <textarea id="newComment" placeholder="Tulis komentar atau update progres..."></textarea>
+    <button class="btn btn-comment" id="btnAddComment">Tambah Komentar</button>
+  </div>
+</div>
+
+<script type="module" src="list-prospek.js"></script>
+</body>
+</html>
