@@ -183,20 +183,27 @@ btnPost.onclick = async () => {
   const text = commentInput.value.trim();
   if (!text) return alert("Komentar kosong");
   if (!selectedProgress) return alert("Pilih progres dulu");
+  if (!currentDocId) return alert("Prospek belum dipilih");
 
-  await updateDoc(doc(db,"prospek",currentDocId), {
-    comments: arrayUnion({
-      progress: selectedProgress,
-      text,
-      user,
-      createdAt: serverTimestamp()
-    })
-  });
+  try {
+    await updateDoc(doc(db, "prospek", currentDocId), {
+      comments: arrayUnion({
+        progress: selectedProgress,
+        text,
+        user,
+        createdAt: new Date() // ✅ FIX FIRESTORE
+      })
+    });
 
-  commentInput.value = "";
-  selectedProgress = null;
-  renderProgress();
+    commentInput.value = "";
+    selectedProgress = null;
+    renderProgress();
+  } catch (err) {
+    console.error(err);
+    alert("Gagal kirim komentar");
+  }
 };
+
 
 /* =====================
    EVENT
