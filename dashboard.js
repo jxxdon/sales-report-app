@@ -48,20 +48,21 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   btnSimpan.textContent = "Menyimpan...";
 
   try {
-    await addDoc(collection(db, "prospek"), {
-      userId: user,               // identifier user yang login
-      namaUser: namaUser,         // opsional, nama sales
+        await addDoc(collection(db, "prospek"), {
+      userId: user,
+      namaUser: namaUser,
       noTelp: noTelp,
       nama: nama,
       asalKota: asalKota,
-      ketertarikan: ketertarikan || null,
-      tipeTertarik: tipeTertarik, // array
+      asalProspek: asalProspek,           // ini yang baru kamu pakai
+      tipeTertarik: tipeTertarik,
       tanggalSurvey: tanggalSurvey,
       catatan: catatan || null,
       statusPenjualan: statusPenjualan || "Prospect",
-      progresPenjualan: progresPenjualan, // array
+      progresPenjualan: progresPenjualan,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
+    });erverTimestamp()
     });
 
     alert("Prospek berhasil disimpan! ✅");
@@ -79,4 +80,5 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     btnSimpan.textContent = "Simpan Prospek";
   }
 });
+
 
