@@ -1,7 +1,8 @@
 import { db } from "./firebase.js";
 import {
-  collection,
-  addDoc,
+  doc,
+  setDoc,
+  getDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -56,9 +57,26 @@ window.addEventListener("DOMContentLoaded", () => {
   document.body.style.paddingTop = "80px";
 });
 
+// ================== NORMALISASI NO TELP (62) ==================
+function normalisasiNoTelp(input) {
+  let nomor = input.replace(/\D/g, ""); // hapus selain angka
+
+  if (nomor.startsWith("0")) {
+    nomor = "62" + nomor.slice(1);
+  } else if (nomor.startsWith("8")) {
+    nomor = "62" + nomor;
+  } else if (nomor.startsWith("620")) {
+    nomor = "62" + nomor.slice(3);
+  }
+
+  return nomor;
+}
+
 // ================== SIMPAN PROSPEK ==================
 document.getElementById("btnSimpan").addEventListener("click", async () => {
-  const noTelp = document.getElementById("noTelp").value.trim();
+  const noTelpRaw = document.getElementById("noTelp").value.trim();
+  const noTelp = normalisasiNoTelp(noTelpRaw);
+
   const nama = document.getElementById("nama").value.trim();
   const asalKota = document.getElementById("asalKota").value;
   const asalProspek = document.getElementById("asalProspek").value;
@@ -68,19 +86,27 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked')
   ).map(cb => cb.value);
 
-  // ===== VALIDASI =====
-  if (!noTelp || !nama || !asalKota) {
+  // ================== VALIDASI ==================
+  if (!noTelpRaw || !nama || !asalKota) {
     alert("No Telepon, Nama, dan Asal Kota wajib diisi!");
     return;
   }
+
+  if (!noTelp.startsWith("62") || noTelp.length < 10) {
+    alert("Nomor telepon tidak valid!");
+    return;
+  }
+
   if (!asalProspek) {
     alert("Asal Prospek wajib dipilih!");
     return;
   }
+
   if (tipeTertarik.length === 0) {
     alert("Minimal pilih 1 produk yang diminati!");
     return;
   }
+
   if (!catatan) {
     alert("Catatan Prospek wajib diisi!");
     return;
@@ -91,7 +117,17 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   btn.textContent = "Menyimpan...";
 
   try {
-    await addDoc(collection(db, "prospek"), {
+    // 🔒 CEK NO TELP UNIK
+    const docRef = doc(db, "prospek", noTelp);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      alert("Nomor telepon ini sudah pernah dimasukkan ❌");
+      return;
+    }
+
+    // ✅ SIMPAN (noTelp = ID dokumen)
+    await setDoc(docRef, {
       userId: user,
       namaUser,
       noTelp,
