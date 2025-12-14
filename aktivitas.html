@@ -6,87 +6,121 @@
   <title>Aktivitas Sales</title>
 
   <style>
+    :root {
+      --bg: #f2f4f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --green: #16a34a;
+      --orange: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #f4f6f8;
+      background: var(--bg);
       font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      color: var(--text);
     }
 
-    .container {
+    .app {
       max-width: 720px;
       margin: auto;
-      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .header {
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    .header h2 {
+    .topbar h2 {
       margin: 0;
-      font-size: 1.3em;
+      font-size: 1.15em;
       font-weight: 700;
     }
 
-    .btn-back {
-      background: #e0e0e0;
+    .back {
+      background: transparent;
       border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
+      color: var(--text);
       font-size: .9em;
+      cursor: pointer;
+    }
+
+    .list {
+      padding: 16px;
     }
 
     .card {
-      background: #ffffff;
-      border-radius: 16px;
+      background: var(--card);
+      border-radius: 14px;
       padding: 14px;
       margin-bottom: 12px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
+      border: 1px solid var(--border);
     }
 
-    .nama {
-      font-weight: 700;
-      margin-bottom: 6px;
-      font-size: 1em;
-    }
-
-    .info {
-      color: #444;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .status-line {
+    .row {
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
     }
 
-    .status {
-      font-size: .8em;
-      padding: 4px 10px;
+    .user {
+      font-weight: 600;
+      font-size: .95em;
+    }
+
+    .badge {
+      font-size: .7em;
+      padding: 3px 8px;
       border-radius: 999px;
-      background: #e3f2fd;
-      color: #1565c0;
+      background: #eef2ff;
+      color: #4338ca;
+      white-space: nowrap;
     }
 
-    .status-input {
-      background: #e8f5e9;
-      color: #2e7d32;
+    .badge.input {
+      background: #dcfce7;
+      color: var(--green);
     }
 
-    .status-comment {
-      background: #fff3e0;
-      color: #ef6c00;
+    .badge.comment {
+      background: #ffedd5;
+      color: var(--orange);
+    }
+
+    .text {
+      font-size: .95em;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .time {
+      font-size: .75em;
+      color: var(--muted);
+      text-align: right;
     }
 
     .empty {
       text-align: center;
-      color: #999;
-      padding: 40px;
+      color: var(--muted);
+      padding: 60px 20px;
+      font-size: .9em;
     }
   </style>
 
@@ -94,15 +128,17 @@
 </head>
 <body>
 
-<div class="container">
+<div class="app">
 
-  <div class="header">
-    <button class="btn-back" onclick="history.back()">← Kembali</button>
-    <h2>📊 Aktivitas Sales</h2>
-    <div style="width:40px"></div>
+  <div class="topbar">
+    <button class="back" onclick="history.back()">← Kembali</button>
+    <h2>Aktivitas Sales</h2>
+    <div style="width:48px"></div>
   </div>
 
-  <div id="activityList"></div>
+  <div class="list" id="activityList">
+    <!-- diisi JS -->
+  </div>
 
 </div>
 
