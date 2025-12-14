@@ -5,8 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aktivitas Sales</title>
 
-  <!-- PAKAI CSS YANG SAMA -->
+  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- CSS KHUSUS HALAMAN INI -->
+  <style>
+    .activity-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      border-left: 6px solid #e0e0e0;
+    }
+
+    .activity-card.input {
+      border-left-color: #28a745;
+    }
+
+    .activity-card.comment {
+      border-left-color: #ff9800;
+    }
+
+    .activity-user {
+      font-weight: 700;
+      font-size: 1.05em;
+      margin-bottom: 6px;
+    }
+
+    .activity-text {
+      color: #333;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .activity-time {
+      font-size: 0.85em;
+      color: #777;
+      text-align: right;
+    }
+  </style>
 
   <script type="module" src="aktivitas.js"></script>
 </head>
@@ -14,17 +52,13 @@
 
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header">
     <button class="btn-back" onclick="history.back()">← Kembali</button>
     <h2>📊 Aktivitas Sales</h2>
     <div></div>
   </div>
 
-  <!-- LIST -->
-  <div class="list-container">
-    <div id="activityList"></div>
-  </div>
+  <div id="activityList"></div>
 
 </div>
 
