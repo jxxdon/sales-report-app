@@ -11,73 +11,68 @@ if (!user) {
   window.location.href = "index.html";
 }
 
-// Tambahkan nama user atau identifier yang lebih jelas (opsional)
 const namaUser = localStorage.getItem("namaUser") || user;
 
-// ==================== TAMBAHAN: TOMBOL LOGOUT ====================
+// ==================== HEADER DENGAN LOGOUT ====================
+window.addEventListener("DOMContentLoaded", () => {
+  // Buat elemen header
+  const header = document.createElement("div");
+  header.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background-color: #343a40;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  `;
 
-// Buat elemen tombol logout secara dinamis (bisa juga ditambahkan langsung di HTML)
-const logoutButton = document.createElement("button");
-logoutButton.textContent = "Logout";
-logoutButton.id = "btnLogout";
-logoutButton.style = `
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  padding: 10px 20px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-`;
-logoutButton.onclick = () => {
-  if (confirm("Apakah Anda yakin ingin keluar?")) {
-    // Hapus data login dari localStorage
-    localStorage.removeItem("user");
-    localStorage.removeItem("namaUser");
-    // Opsional: hapus item lain jika ada
-    // localStorage.clear();
+  // Teks selamat datang
+  const welcome = document.createElement("div");
+  welcome.innerHTML = `<strong>Selamat datang,</strong> ${namaUser}`;
+  welcome.style.fontSize = "18px";
 
-    // Arahkan ke halaman login
-    window.location.href = "index.html";
-  }
-};
+  // Tombol Logout
+  const logoutButton = document.createElement("button");
+  logoutButton.textContent = "Logout";
+  logoutButton.style = `
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  `;
+  logoutButton.onclick = () => {
+    if (confirm("Apakah Anda yakin ingin keluar?")) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("namaUser");
+      window.location.href = "index.html";
+    }
+  };
 
-// Tambahkan tombol ke body (pastikan ditambahkan setelah body loaded)
-if (document.body) {
-  document.body.appendChild(logoutButton);
-} else {
-  window.addEventListener("DOMContentLoaded", () => {
-    document.body.appendChild(logoutButton);
-  });
-}
+  // Masukkan elemen ke header
+  header.appendChild(welcome);
+  header.appendChild(logoutButton);
 
-// Opsional: Tampilkan nama user di suatu tempat (misal header)
-const welcomeText = document.createElement("div");
-welcomeText.textContent = `Selamat datang, ${namaUser}`;
-welcomeText.style = `
-  position: absolute;
-  top: 15px;
-  left: 20px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-`;
-if (document.body) {
-  document.body.appendChild(welcomeText);
-} else {
-  window.addEventListener("DOMContentLoaded", () => {
-    document.body.appendChild(welcomeText);
-  });
-}
+  // Tambahkan header ke body (paling atas)
+  document.body.insertBefore(header, document.body.firstChild);
+
+  // Beri padding-top pada body agar konten tidak tertutup header
+  document.body.style.paddingTop = "80px";
+});
 
 // =================================================================
 
-// Event listener untuk tombol Simpan Prospek (kode lama tetap sama)
+// Kode simpan prospek (tetap sama seperti sebelumnya)
 document.getElementById("btnSimpan").addEventListener("click", async () => {
-  // Ambil nilai input
   const noTelp = document.getElementById("noTelp").value.trim();
   const nama = document.getElementById("nama").value.trim();
   const asalKota = document.getElementById("asalKota").value;
@@ -86,25 +81,21 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   const catatan = document.getElementById("catatan").value.trim();
   const statusPenjualan = document.getElementById("statusPenjualan").value.trim();
 
-  // Checkbox tipe tertarik
   const tipeCheckboxes = document.querySelectorAll('input[type="checkbox"][value^="Volands"], input[type="checkbox"][value^="Carina"], input[type="checkbox"][value^="Nashira"], input[type="checkbox"][value^="Dorado"], input[type="checkbox"][value^="Lyra"], input[type="checkbox"][value^="Myra"], input[type="checkbox"][value^="Arion"], input[type="checkbox"][value^="Leonis"], input[type="checkbox"][value^="Vella"]');
   const tipeTertarik = Array.from(tipeCheckboxes)
     .filter(cb => cb.checked)
     .map(cb => cb.value);
 
-  // Checkbox progres penjualan
   const progresCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
   const progresPenjualan = Array.from(progresCheckboxes)
     .filter(cb => cb.checked)
     .map(cb => cb.value);
 
-  // Validasi wajib
   if (!noTelp || !nama || !asalKota) {
     alert("No Telepon, Nama, dan Asal Kota wajib diisi!");
     return;
   }
 
-  // Disable tombol saat proses simpan
   const btnSimpan = document.getElementById("btnSimpan");
   btnSimpan.disabled = true;
   btnSimpan.textContent = "Menyimpan...";
@@ -127,16 +118,13 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     });
 
     alert("Prospek berhasil disimpan! ✅");
-
-    // Reset form
     document.querySelector("form")?.reset();
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
   } catch (error) {
     console.error("Error menyimpan prospek:", error);
-    alert("Gagal menyimpan prospek ❌\nCek console untuk detail error.\nKemungkinan: Aturan Firestore belum izinkan write.");
+    alert("Gagal menyimpan prospek ❌\nCek console untuk detail error.");
   } finally {
-    // Kembalikan tombol
     btnSimpan.disabled = false;
     btnSimpan.textContent = "Simpan Prospek";
   }
