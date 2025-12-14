@@ -76,13 +76,19 @@ function loadProspek(keyword = "") {
   const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
 
-  const q = isAdmin
-    ? query(collection(db,"prospek"), orderBy("createdAt","desc"))
-    : query(
-        collection(db,"prospek"),
-        where("namaUser","==",user),
-        orderBy("createdAt","desc")
-      );
+  const isSearching = search.length > 0 || phoneSearch.length > 0;
+
+const q = isAdmin || isSearching
+  ? query(
+      collection(db, "prospek"),
+      orderBy("createdAt", "desc")
+    )
+  : query(
+      collection(db, "prospek"),
+      where("namaUser", "==", user),
+      orderBy("createdAt", "desc")
+    );
+
 
   unsubscribe = onSnapshot(q, snap => {
     prospekList.innerHTML = "";
