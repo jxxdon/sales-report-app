@@ -20,10 +20,33 @@
       padding: 25px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
     h2 {
-      text-align: center;
       color: #5d5af8;
-      margin-bottom: 25px;
+      margin: 0;
+    }
+    .btn-back {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 1em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn-back:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
     }
     .search-box {
       width: 100%;
@@ -79,7 +102,7 @@
     .status-open     { background: #fff3cd; color: #856404; }
     .status-exclusive{ background: #f8d7da; color: #721c24; }
 
-    /* Modal tetap sama */
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -99,7 +122,8 @@
       max-height: 90vh;
       overflow-y: auto;
     }
-    .close { float: right; font-size: 1.8em; cursor: pointer; }
+    .close { float: right; font-size: 1.8em; cursor: pointer; color: #aaa; }
+    .close:hover { color: #000; }
     .btn {
       padding: 10px 16px;
       border: none;
@@ -126,13 +150,13 @@
 <body>
 
 <div class="container">
-  <div style="display: flex; align-items: center; margin-bottom: 20px; gap: 15px;">
+  <div class="header">
     <button onclick="window.location.href='dashboard.html'" class="btn-back">
       ← Kembali ke Dashboard
     </button>
+    <h2>📋 Daftar Prospek</h2>
+    <div></div> <!-- spacer biar judul tetap di tengah -->
   </div>
-
-  <h2>📋 Daftar Prospek</h2>
 
   <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari nama atau nomor telepon...">
 
@@ -141,7 +165,7 @@
   </div>
 </div>
 
-<!-- Modal tetap sama -->
+<!-- Modal Detail & Edit -->
 <div id="detailModal" class="modal">
   <div class="modal-content">
     <span class="close">×</span>
