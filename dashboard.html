@@ -138,8 +138,17 @@
     <option>Provinsi Lain</option>
   </select>
 
-  <label>Ketertarikan</label>
-  <input id="ketertarikan" placeholder="Contoh: Sangat Tertarik / Ragu-ragu">
+  <label for="asalProspek">Asal Prospek <span class="text-danger">*</span></label>
+<select id="asalProspek" class="form-control" required>
+  <option value="">-- Pilih Asal Prospek --</option>
+  <option value="Iklan Official">Iklan Official</option>
+  <option value="Sosial Media">Sosial Media</option>
+  <option value="Walk in">Walk in</option>
+  <option value="Referensi">Referensi</option>
+  <option value="Event">Event</option>
+  <option value="Agent">Agent</option>
+  <option value="Database">Database</option>
+</select>
 
   <label>Tertarik Tipe Produk</label>
   <div class="checkbox-group">
@@ -184,4 +193,5 @@
 <script type="module" src="dashboard.js"></script>
 </body>
 </html>
+
 
