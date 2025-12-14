@@ -25,28 +25,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
     h2 {
       color: #5d5af8;
       margin: 0;
     }
-
-    /* RINGKASAN */
-    .summary {
-      display: flex;
-      gap: 12px;
-      margin: 15px 0 20px;
-      font-size: .95em;
-    }
-    .summary div {
-      background:#f3f4ff;
-      padding:8px 12px;
-      border-radius:10px;
-      color:#333;
-      font-weight:600;
-    }
-
     .btn-back {
       background: #6c757d;
       color: white;
@@ -58,9 +42,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: all 0.2s ease;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
+    .btn-back:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
     .search-box {
       width: 100%;
       padding: 14px 16px;
@@ -68,130 +56,137 @@
       border-radius: 12px;
       font-size: 1.1em;
       margin-bottom: 25px;
+      box-sizing: border-box;
     }
-
     .prospek-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
     .prospek-card {
       background: #f8f9ff;
       border-radius: 16px;
       padding: 18px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       border: 1px solid #e0e0ff;
-      cursor:pointer;
     }
-
+    .prospek-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(93,90,248,0.15);
+      border-color: #c0c0ff;
+    }
     .nama {
       font-size: 1.3em;
       font-weight: bold;
       color: #333;
+      margin-bottom: 6px;
     }
-
     .info {
       font-size: 1em;
       color: #555;
-      margin-top: 4px;
+      margin-bottom: 8px;
     }
-
     .status-line {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95em;
+      margin-top: 8px;
     }
-
     .status {
       font-weight: bold;
       padding: 4px 10px;
       border-radius: 8px;
-      font-size:.85em;
     }
+    .status-personal { background: #d4edda; color: #155724; }
+    .status-open     { background: #fff3cd; color: #856404; }
+    .status-exclusive{ background: #f8d7da; color: #721c24; }
 
-    .status-personal { background:#d4edda; color:#155724; }
-    .status-open { background:#fff3cd; color:#856404; }
-
-    /* PROGRESS BADGE */
-    .badge {
-      padding:4px 8px;
-      border-radius:8px;
-      font-size:.8em;
-      font-weight:bold;
-      color:white;
-    }
-
-    .p-Cold { background:#6c757d }
-    .p-Warm { background:#17a2b8 }
-    .p-Hot { background:#dc3545 }
-    .p-Survey { background:#6610f2 }
-    .p-Booking { background:#fd7e14 }
-    .p-Closing { background:#28a745 }
-    .p-Lost, .p-Batal { background:#343a40 }
-
+    /* Modal */
     .modal {
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.5);
-      align-items:center;
-      justify-content:center;
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
     }
     .modal-content {
-      background:white;
-      border-radius:20px;
-      padding:25px;
-      max-width:600px;
-      width:100%;
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .close {
-      float:right;
-      font-size:1.8em;
-      cursor:pointer;
+      float: right;
+      font-size: 1.8em;
+      cursor: pointer;
+      color: #aaa;
     }
+    .close:hover { color: #000; }
   </style>
 </head>
 
 <body>
+
 <div class="container">
   <div class="header">
-    <button onclick="location.href='dashboard.html'" class="btn-back">← Kembali</button>
+    <button onclick="window.location.href='dashboard.html'" class="btn-back">
+      ← Kembali ke Dashboard
+    </button>
     <h2>📋 Daftar Prospek</h2>
     <div></div>
   </div>
 
-  <!-- RINGKASAN -->
-  <div class="summary">
-    <div>Total Prospek: <span id="sumTotal">0</span></div>
-    <div>Total Survey: <span id="sumSurvey">0</span></div>
-    <div>Total Booking: <span id="sumBooking">0</span></div>
+  <input
+    type="text"
+    id="searchInput"
+    class="search-box"
+    placeholder="🔍 Cari nama atau nomor telepon..."
+  >
+
+  <div class="prospek-list" id="prospekList">
+    <!-- Card diisi oleh JS -->
   </div>
-
- <input
-  type="text"
-  id="searchInput"
-  class="search-box"
-  placeholder="🔍 Cari nama atau nomor telepon..."
-  style="box-sizing:border-box;"
->
-
-
-  <div id="prospekList" class="prospek-list"></div>
 </div>
 
+<!-- MODAL (CATATAN SAJA, ISI DARI JS) -->
 <div id="detailModal" class="modal">
   <div class="modal-content">
     <span class="close">×</span>
     <h3>Catatan Prospek</h3>
+
     <div id="detailContent"></div>
-    <hr>
-    <div id="progressList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-    <textarea id="commentInput" style="width:100%;margin-top:10px"></textarea>
-    <button id="btnPostComment">Kirim Komentar</button>
-    <div id="commentList"></div>
+
+    <hr style="margin:20px 0">
+
+    <!-- PROGRES PILIHAN -->
+    <div id="progressList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+
+    <!-- KOMENTAR -->
+    <textarea
+      id="commentInput"
+      placeholder="Tulis komentar..."
+      style="width:100%;min-height:70px;padding:10px;border-radius:10px;border:1px solid #ddd;"
+    ></textarea>
+
+    <button
+      id="btnPostComment"
+      style="margin-top:10px;padding:10px 14px;border:none;border-radius:10px;background:#5d5af8;color:white;cursor:pointer;"
+    >
+      Kirim Komentar
+    </button>
+
+    <div id="commentList" style="margin-top:20px;"></div>
   </div>
 </div>
+
 
 <script type="module" src="list-prospek.js"></script>
 </body>
