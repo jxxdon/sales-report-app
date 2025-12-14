@@ -1,3 +1,5 @@
+import "./cek-namaUser.js";
+
 import { db } from "./firebase.js";
 import {
   collection,
