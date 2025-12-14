@@ -12,13 +12,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
-   USER & ROLE
+   USER
 ===================== */
 const user = localStorage.getItem("user")?.toLowerCase();
-if (!user) {
-  window.location.href = "index.html";
-}
-
+if (!user) window.location.href = "index.html";
 const isAdmin = user === "admin";
 
 /* =====================
@@ -41,19 +38,19 @@ let unsubscribe = null;
 /* =====================
    HELPER
 ===================== */
-const cleanPhone = (phone) => phone ? phone.replace(/\D/g, "") : "";
+const cleanPhone = (p) => p ? p.replace(/\D/g, "") : "";
 
 /* =====================
    LOAD PROSPEK
 ===================== */
-function loadProspek(searchTerm = "") {
+function loadProspek(keyword = "") {
   if (unsubscribe) unsubscribe();
 
   prospekList.innerHTML =
-    "<p style='text-align:center; padding:40px; color:#999;'>Memuat data...</p>";
+    "<p style='text-align:center;padding:40px;color:#999;'>Memuat data...</p>";
 
-  const keyword = searchTerm.trim().toLowerCase();
-  const phoneSearch = cleanPhone(searchTerm);
+  const search = keyword.toLowerCase();
+  const phoneSearch = cleanPhone(keyword);
 
   const q = isAdmin
     ? query(collection(db, "prospek"), orderBy("createdAt", "desc"))
@@ -63,33 +60,38 @@ function loadProspek(searchTerm = "") {
         orderBy("createdAt", "desc")
       );
 
-  unsubscribe = onSnapshot(q, (snapshot) => {
+  unsubscribe = onSnapshot(q, (snap) => {
     prospekList.innerHTML = "";
 
-    if (snapshot.empty) {
+    if (snap.empty) {
       prospekList.innerHTML =
-        "<p style='text-align:center; padding:50px; color:#999;'>Tidak ada prospek</p>";
+        "<p style='text-align:center;padding:50px;color:#999;'>Tidak ada prospek</p>";
       return;
     }
 
-    let hasResult = false;
+    let hasData = false;
 
-    snapshot.forEach((docSnap) => {
+    snap.forEach((docSnap) => {
       const data = docSnap.data();
 
-      if (keyword) {
-        const matchNama = data.nama?.toLowerCase().includes(keyword);
-        const matchTelp = cleanPhone(data.noTelp).includes(phoneSearch);
-        if (!matchNama && !matchTelp) return;
+      if (search) {
+        const namaMatch = data.nama?.toLowerCase().includes(search);
+        const telpMatch = cleanPhone(data.noTelp).includes(phoneSearch);
+        if (!namaMatch && !telpMatch) return;
       }
 
-      hasResult = true;
+      hasData = true;
 
       const progres = Array.isArray(data.progresPenjualan)
         ? data.progresPenjualan.join(", ")
         : "-";
 
       const status = getStatusProspek(data);
+      const statusClass = status.includes("Personal")
+        ? "status-personal"
+        : status.includes("Open")
+        ? "status-open"
+        : "status-exclusive";
 
       const card = document.createElement("div");
       card.className = "prospek-card";
@@ -99,8 +101,8 @@ function loadProspek(searchTerm = "") {
         <div class="info">📈 Progres: ${progres}</div>
         <div class="info">👤 Dibuat oleh: ${data.user || "-"}</div>
         <div class="status-line">
-          <span class="status">${status}</span>
-          <span style="color:#888;font-size:0.9em;">Klik untuk detail →</span>
+          <span class="status ${statusClass}">${status}</span>
+          <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
         </div>
       `;
 
@@ -108,9 +110,9 @@ function loadProspek(searchTerm = "") {
       prospekList.appendChild(card);
     });
 
-    if (!hasResult) {
+    if (!hasData) {
       prospekList.innerHTML =
-        "<p style='text-align:center; padding:50px; color:#999;'>Tidak ada hasil</p>";
+        "<p style='text-align:center;padding:50px;color:#999;'>Tidak ada hasil</p>";
     }
   });
 }
@@ -121,10 +123,10 @@ function loadProspek(searchTerm = "") {
 function getStatusProspek(data) {
   const now = new Date();
   const created = data.createdAt?.toDate() || new Date();
-  const diffMonth = (now - created) / (1000 * 60 * 60 * 24 * 30);
+  const monthDiff = (now - created) / (1000 * 60 * 60 * 24 * 30);
 
   if (data.progresPenjualan?.includes("Closing")) return "Exclusive Lead";
-  if (diffMonth < 1) return "Personal Lead";
+  if (monthDiff < 1) return "Personal Lead";
   return "Open Lead";
 }
 
@@ -137,18 +139,13 @@ function openDetail(docId, data) {
 
   renderDetailView(data);
   loadComments(docId);
-
-  setTimeout(() => {
-    document
-      .getElementById("btnAddComment")
-      ?.addEventListener("click", addComment);
-  }, 0);
-
   modal.style.display = "flex";
 }
 
 function renderDetailView(data) {
-  const progres = data.progresPenjualan?.join(", ") || "-";
+  const progres = Array.isArray(data.progresPenjualan)
+    ? data.progresPenjualan.join(", ")
+    : "-";
 
   detailContent.innerHTML = `
     <p><strong>Nama:</strong> ${data.nama || "-"}</p>
@@ -171,6 +168,14 @@ function renderDetailView(data) {
   if (btnEdit) {
     btnEdit.onclick = () => renderEditForm(data);
   }
+}
+
+/* =====================
+   EDIT (MINIMAL, PASTI JALAN)
+===================== */
+function renderEditForm(data) {
+  alert("Edit Data: " + data.nama);
+  // kalau mau form edit sungguhan → bilang, aku bikinin
 }
 
 /* =====================
@@ -207,7 +212,12 @@ function loadComments(docId) {
   });
 }
 
-async function addComment() {
+/* =====================
+   ADD COMMENT (GLOBAL EVENT)
+===================== */
+document.addEventListener("click", async (e) => {
+  if (e.target?.id !== "btnAddComment") return;
+
   const textarea = document.getElementById("newComment");
   const text = textarea.value.trim();
   if (!text || !currentDocId) return;
@@ -221,7 +231,7 @@ async function addComment() {
   });
 
   textarea.value = "";
-}
+});
 
 /* =====================
    EVENT
@@ -230,11 +240,8 @@ closeModal.onclick = () => (modal.style.display = "none");
 window.onclick = (e) => e.target === modal && (modal.style.display = "none");
 
 searchInput.addEventListener("input", (e) => {
-  clearTimeout(window._searchDelay);
-  window._searchDelay = setTimeout(
-    () => loadProspek(e.target.value),
-    300
-  );
+  clearTimeout(window._delay);
+  window._delay = setTimeout(() => loadProspek(e.target.value), 300);
 });
 
 /* =====================
