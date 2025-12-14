@@ -127,21 +127,34 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     }
 
     // ✅ SIMPAN (noTelp = ID dokumen)
-    await setDoc(docRef, {
-      userId: user,
-      namaUser,
-      noTelp,
-      nama,
-      asalKota,
-      asalProspek,
-      tipeTertarik,
-      catatan,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
+await setDoc(docRef, {
+  userId: user,
+  namaUser,
+  noTelp,
+  nama,
+  asalKota,
+  asalProspek,
+  tipeTertarik,
+  catatan,
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp()
+});
 
-    alert("Prospek berhasil disimpan ✅");
-    location.reload();
+// 📝 LOG AKTIVITAS (INI YANG BARU)
+await setDoc(
+  doc(db, "aktivitas", `${Date.now()}_${user}`),
+  {
+    user: user,
+    role: user === "admin" ? "admin" : "sales",
+    tipe: "INPUT_PROSPEK",
+    pesan: `Input prospek baru, ${nama}, ${noTelp}`,
+    createdAt: new Date()
+  }
+);
+
+alert("Prospek berhasil disimpan ✅");
+location.reload();
+
 
   } catch (err) {
     console.error(err);
@@ -151,3 +164,4 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     btn.textContent = "💾 Simpan Prospek";
   }
 });
+
