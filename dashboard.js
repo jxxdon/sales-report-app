@@ -5,11 +5,56 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// ================== AUTH ==================
+// ================== CEK LOGIN ==================
 const user = localStorage.getItem("user");
-if (!user) window.location.href = "index.html";
-
+if (!user) {
+  window.location.href = "index.html";
+}
 const namaUser = localStorage.getItem("namaUser") || user;
+
+// ================== HEADER + LOGOUT ==================
+window.addEventListener("DOMContentLoaded", () => {
+  const header = document.createElement("div");
+  header.style = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background-color: #343a40;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+  `;
+
+  const welcome = document.createElement("div");
+  welcome.innerHTML = `<strong>Selamat datang,</strong> ${namaUser}`;
+
+  const logoutButton = document.createElement("button");
+  logoutButton.textContent = "Logout";
+  logoutButton.style = `
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  `;
+  logoutButton.onclick = () => {
+    if (confirm("Apakah Anda yakin ingin keluar?")) {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+  };
+
+  header.appendChild(welcome);
+  header.appendChild(logoutButton);
+  document.body.insertBefore(header, document.body.firstChild);
+  document.body.style.paddingTop = "80px";
+});
 
 // ================== SIMPAN PROSPEK ==================
 document.getElementById("btnSimpan").addEventListener("click", async () => {
@@ -19,8 +64,8 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   const asalProspek = document.getElementById("asalProspek").value;
   const catatan = document.getElementById("catatan").value.trim();
 
-  const produkChecked = Array.from(
-    document.querySelectorAll('#produkGroup input[type="checkbox"]:checked')
+  const tipeTertarik = Array.from(
+    document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked')
   ).map(cb => cb.value);
 
   // ===== VALIDASI =====
@@ -28,17 +73,14 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     alert("No Telepon, Nama, dan Asal Kota wajib diisi!");
     return;
   }
-
   if (!asalProspek) {
     alert("Asal Prospek wajib dipilih!");
     return;
   }
-
-  if (produkChecked.length === 0) {
+  if (tipeTertarik.length === 0) {
     alert("Minimal pilih 1 produk yang diminati!");
     return;
   }
-
   if (!catatan) {
     alert("Catatan Prospek wajib diisi!");
     return;
@@ -56,7 +98,7 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
       nama,
       asalKota,
       asalProspek,
-      tipeTertarik: produkChecked,
+      tipeTertarik,
       catatan,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
