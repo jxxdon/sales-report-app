@@ -11,7 +11,7 @@ const user = localStorage.getItem("user")?.trim().toLowerCase();
 if (!user) location.href = "index.html";
 const isAdmin = user === "admin";
 
-const activityList = document.getElementById("activityList");
+const list = document.getElementById("activityList");
 
 function formatDate(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
@@ -27,10 +27,7 @@ function formatDate(ts) {
 
 let q;
 if (isAdmin) {
-  q = query(
-    collection(db, "aktivitas"),
-    orderBy("createdAt", "desc")
-  );
+  q = query(collection(db, "aktivitas"), orderBy("createdAt", "desc"));
 } else {
   q = query(
     collection(db, "aktivitas"),
@@ -40,34 +37,37 @@ if (isAdmin) {
 }
 
 onSnapshot(q, snap => {
-  activityList.innerHTML = "";
+  list.innerHTML = "";
 
   if (snap.empty) {
-    activityList.innerHTML =
-      `<div class="empty">Belum ada aktivitas</div>`;
+    list.innerHTML = `<div class="empty">Belum ada aktivitas</div>`;
     return;
   }
 
   snap.forEach(docSnap => {
     const d = docSnap.data();
-    const statusClass =
-      d.tipe === "INPUT_PROSPEK"
-        ? "status-input"
-        : "status-comment";
+    const type = d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
 
-    const div = document.createElement("div");
-    div.className = "card";
+    const el = document.createElement("div");
+    el.className = "card";
 
-    div.innerHTML = `
-      <div class="nama">${d.user}</div>
-      <div class="info">${d.pesan}</div>
-      <div class="status-line">
-        <span class="status ${statusClass}">
-          ${formatDate(d.createdAt)}
-        </span>
+    el.innerHTML = `
+      <div class="row">
+        <div class="user">${d.user}</div>
+        <div class="badge ${type}">
+          ${type === "input" ? "Input Prospek" : "Komentar"}
+        </div>
+      </div>
+
+      <div class="text">
+        ${d.pesan}
+      </div>
+
+      <div class="time">
+        ${formatDate(d.createdAt)}
       </div>
     `;
 
-    activityList.appendChild(div);
+    list.appendChild(el);
   });
 });
