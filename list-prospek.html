@@ -1,268 +1,193 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Daftar Prospek</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Prospek 🌟</title>
 
   <style>
     body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       margin: 0;
-      background: #f4f6f8;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      padding: 15px;
+      min-height: 100vh;
     }
-
     .container {
-      max-width: 760px;
-      margin: auto;
-      padding: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
-
-    /* HEADER */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
-
-    .header h2 {
+    h2 {
+      color: #5d5af8;
       margin: 0;
-      font-size: 1.3em;
-      font-weight: 700;
     }
-
     .btn-back {
-      background: #e0e0e0;
+      background: #6c757d;
+      color: white;
       border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: .9em;
-    }
-
-    /* SEARCH */
-    #searchInput {
-      width: 100%;
-      padding: 14px;
+      padding: 12px 18px;
       border-radius: 12px;
-      border: 1px solid #ddd;
-      margin-bottom: 14px;
       font-size: 1em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn-back:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+    .search-box {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 1.1em;
+      margin-bottom: 25px;
       box-sizing: border-box;
     }
-
-    /* SUMMARY */
-    .summary {
+    .prospek-list {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
+      flex-direction: column;
+      gap: 12px;
     }
-
-    .summary-box {
-      background: #fff;
-      border-radius: 14px;
-      padding: 10px 14px;
-      font-size: .9em;
-      box-shadow: 0 4px 12px rgba(0,0,0,.05);
-    }
-
-    /* SHORTLIST */
-    .shortlist {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .short-btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: none;
-      font-size: .85em;
-      cursor: pointer;
-      background: #e0e0e0;
-    }
-
-    /* LIST */
-    .list-container {
-      margin-top: 8px;
-    }
-
     .prospek-card {
-      background: #fff;
+      background: #f8f9ff;
       border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid #e0e0ff;
     }
-
+    .prospek-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(93,90,248,0.15);
+      border-color: #c0c0ff;
+    }
     .nama {
-      font-weight: 700;
-      font-size: 1.05em;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
       margin-bottom: 6px;
     }
-
     .info {
-      color: #444;
-      font-size: .95em;
+      font-size: 1em;
+      color: #555;
       margin-bottom: 8px;
     }
-
     .status-line {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      font-size: 0.95em;
+      margin-top: 8px;
     }
-
     .status {
-      font-size: .8em;
+      font-weight: bold;
       padding: 4px 10px;
-      border-radius: 999px;
-      background: #e3f2fd;
-      color: #1565c0;
-      white-space: nowrap;
+      border-radius: 8px;
     }
+    .status-personal { background: #d4edda; color: #155724; }
+    .status-open     { background: #fff3cd; color: #856404; }
+    .status-exclusive{ background: #f8d7da; color: #721c24; }
 
-    .status-personal {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .status-open {
-      background: #fff3e0;
-      color: #ef6c00;
-    }
-
-    .empty {
-      text-align: center;
-      color: #999;
-      padding: 40px;
-    }
-
-    /* MODAL */
-    #detailModal {
+    /* Modal */
+    .modal {
       display: none;
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.4);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      padding: 20px;
+      z-index: 1000;
     }
-
-    .modal-box {
-      background: #fff;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 520px;
-      padding: 16px;
-      max-height: 85vh;
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
       overflow-y: auto;
     }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
     .close {
+      float: right;
+      font-size: 1.8em;
       cursor: pointer;
-      font-size: 1.2em;
-      font-weight: bold;
+      color: #aaa;
     }
-
-    #progressList {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin: 12px 0;
-    }
-
-    #commentInput {
-      width: 100%;
-      min-height: 70px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-    }
-
-    #btnPostComment {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      background: #5d5af8;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 14px;
-    }
+    .close:hover { color: #000; }
   </style>
-
-  <script type="module" src="list-prospek.js"></script>
 </head>
+
 <body>
 
 <div class="container">
-
-  <!-- HEADER -->
   <div class="header">
-    <button class="btn-back" onclick="history.back()">← Kembali</button>
+    <button onclick="window.location.href='dashboard.html'" class="btn-back">
+      ← Kembali ke Dashboard
+    </button>
     <h2>📋 Daftar Prospek</h2>
     <div></div>
   </div>
 
-  <!-- SEARCH -->
   <input
-    id="searchInput"
     type="text"
-    placeholder="Cari nama atau nomor telepon…"
-  />
+    id="searchInput"
+    class="search-box"
+    placeholder="🔍 Cari nama atau nomor telepon..."
+  >
 
-  <!-- SUMMARY (DIBAWAH JUDUL) -->
-  <div class="summary">
-    <div class="summary-box">Total Prospek: <b id="totalProspek">0</b></div>
-    <div class="summary-box">Total Survey: <b id="totalSurvey">0</b></div>
-    <div class="summary-box">Total Booking: <b id="totalBooking">0</b></div>
+  <div class="prospek-list" id="prospekList">
+    <!-- Card diisi oleh JS -->
   </div>
-
-  <!-- SHORTLIST PROGRESS -->
-  <div class="shortlist" id="shortlistProgress">
-    <!-- tombol progress diisi dari JS -->
-  </div>
-
-  <!-- LIST -->
-  <div class="list-container">
-    <div id="prospekList"></div>
-  </div>
-
 </div>
 
-<!-- MODAL DETAIL -->
-<div id="detailModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <b>Catatan Prospek</b>
-      <span class="close">&times;</span>
-    </div>
+<!-- MODAL (CATATAN SAJA, ISI DARI JS) -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <span class="close">×</span>
+    <h3>Catatan Prospek</h3>
 
     <div id="detailContent"></div>
 
-    <div id="progressList"></div>
+    <hr style="margin:20px 0">
 
-    <textarea id="commentInput" placeholder="Tulis komentar…"></textarea>
-    <button id="btnPostComment">Kirim Komentar</button>
+    <!-- PROGRES PILIHAN -->
+    <div id="progressList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
 
-    <div id="commentList"></div>
+    <!-- KOMENTAR -->
+    <textarea
+      id="commentInput"
+      placeholder="Tulis komentar..."
+      style="width:100%;min-height:70px;padding:10px;border-radius:10px;border:1px solid #ddd;"
+    ></textarea>
+
+    <button
+      id="btnPostComment"
+      style="margin-top:10px;padding:10px 14px;border:none;border-radius:10px;background:#5d5af8;color:white;cursor:pointer;"
+    >
+      Kirim Komentar
+    </button>
+
+    <div id="commentList" style="margin-top:20px;"></div>
   </div>
 </div>
 
+
+<script type="module" src="list-prospek.js"></script>
 </body>
 </html>
