@@ -6,7 +6,8 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-  arrayUnion
+  arrayUnion,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
@@ -35,6 +36,7 @@ const commentList = document.getElementById("commentList");
 ===================== */
 let unsubscribe = null;
 let currentDocId = null;
+let currentProspekNama = "";
 let selectedProgress = null;
 
 /* =====================
@@ -77,15 +79,15 @@ function loadProspek(keyword = "") {
 
   let q;
 
-  // ADMIN → selalu semua
+  // ADMIN → semua
   if (isAdmin) {
     q = query(collection(db, "prospek"));
 
-  // SALES + SEARCH → boleh lihat semua
+  // SALES + SEARCH → semua (difilter di frontend)
   } else if (search.length > 0 || phoneSearch.length > 0) {
     q = query(collection(db, "prospek"));
 
-  // SALES NORMAL → hanya data sendiri
+  // SALES NORMAL → hanya prospeknya
   } else {
     q = query(
       collection(db, "prospek"),
@@ -96,7 +98,7 @@ function loadProspek(keyword = "") {
   unsubscribe = onSnapshot(q, snap => {
     prospekList.innerHTML = "";
 
-    // 🔑 SORT DI FRONTEND (AMAN UNTUK DATA LAMA)
+    // SORT FRONTEND (AMAN DATA LAMA)
     const docs = snap.docs.sort((a, b) => {
       const ta = a.data().createdAt?.toDate?.() || new Date(0);
       const tb = b.data().createdAt?.toDate?.() || new Date(0);
@@ -106,7 +108,7 @@ function loadProspek(keyword = "") {
     docs.forEach(docSnap => {
       const d = docSnap.data();
 
-      // FILTER SEARCH (NAMA / TELP)
+      // FILTER SEARCH
       if (search) {
         const namaMatch = (d.nama || "").toLowerCase().includes(search);
         const telpMatch =
@@ -115,6 +117,10 @@ function loadProspek(keyword = "") {
             : false;
         if (!namaMatch && !telpMatch) return;
       }
+
+      const status = getStatus(d.createdAt);
+      const statusClass =
+        status === "Personal Lead" ? "status-personal" : "status-open";
 
       const card = document.createElement("div");
       card.className = "prospek-card";
@@ -129,10 +135,12 @@ function loadProspek(keyword = "") {
         <div class="info">👤 ${d.namaUser || "-"}</div>
 
         <div class="status-line">
-          <span class="status ${getStatus(d.createdAt)==="Personal Lead" ? "status-personal":"status-open"}">
-            ${getStatus(d.createdAt)}
+          <span class="status ${statusClass}">
+            ${status}
           </span>
-          <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
+          <span style="color:#888;font-size:.9em;">
+            Klik untuk detail →
+          </span>
         </div>
       `;
 
@@ -152,6 +160,7 @@ function loadProspek(keyword = "") {
 ===================== */
 function openDetail(docId, data) {
   currentDocId = docId;
+  currentProspekNama = data.nama || "-";
   selectedProgress = null;
 
   detailContent.innerHTML = `
@@ -207,7 +216,7 @@ function loadComments() {
 }
 
 /* =====================
-   POST COMMENT
+   POST COMMENT + LOG
 ===================== */
 btnPost.onclick = async () => {
   const text = commentInput.value.trim();
@@ -215,6 +224,7 @@ btnPost.onclick = async () => {
   if (!selectedProgress) return alert("Pilih progres dulu");
   if (!currentDocId) return;
 
+  // SIMPAN KOMENTAR
   await updateDoc(doc(db,"prospek",currentDocId), {
     comments: arrayUnion({
       progress: selectedProgress,
@@ -223,6 +233,18 @@ btnPost.onclick = async () => {
       createdAt: new Date()
     })
   });
+
+  // LOG AKTIVITAS
+  await setDoc(
+    doc(db, "aktivitas", `${Date.now()}_${user}`),
+    {
+      user: user,
+      role: isAdmin ? "admin" : "sales",
+      tipe: "KOMENTAR",
+      pesan: `Komentar di Prospek ${currentProspekNama} ; ${selectedProgress} - ${text}`,
+      createdAt: new Date()
+    }
+  );
 
   commentInput.value = "";
   selectedProgress = null;
@@ -233,9 +255,13 @@ btnPost.onclick = async () => {
    EVENT
 ===================== */
 closeModal.onclick = () => modal.style.display = "none";
+
 searchInput.addEventListener("input", e => {
   clearTimeout(window._d);
-  window._d = setTimeout(()=>loadProspek(e.target.value),300);
+  window._d = setTimeout(
+    () => loadProspek(e.target.value),
+    300
+  );
 });
 
 /* =====================
