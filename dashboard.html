@@ -3,90 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Prospek Sales</title>
+  <title>Prospek Sales 🌟</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    input, select, textarea { width: 100%; padding: 8px; margin: 8px 0; }
-    button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    .checkbox-group { columns: 2; }
-    label { display: block; margin: 5px 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 15px;
+      min-height: 100vh;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #5d5af8;
+      margin-bottom: 25px;
+      font-size: 1.6em;
+    }
+    label {
+      display: block;
+      margin: 18px 0 8px;
+      font-weight: 600;
+      color: #555;
+      font-size: 1em;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 1em;
+      box-sizing: border-box;
+      transition: all 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #7f7eff;
+      box-shadow: 0 0 0 3px rgba(127, 126, 255, 0.2);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 10px 0 20px;
+    }
+    .checkbox-item {
+      background: #f8f9ff;
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #e0e0ff;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+      transform: scale(1.4);
+    }
+    .checkbox-item label {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      font-weight: normal;
+      cursor: pointer;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(to right, #7f7eff, #5d5af8);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(93, 90, 248, 0.3);
+      transition: all 0.3s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(93, 90, 248, 0.4);
+    }
+    .required {
+      color: #ff6b6b;
+    }
   </style>
 </head>
 <body>
 
-<h2>Input Data Prospek Baru</h2>
+<div class="container">
+  <h2>📊 Input Prospek Baru</h2>
 
-<label>No Telepon (Unique):</label>
-<input id="noTelp" placeholder="081234567890" required>
+  <label>No Telepon <span class="required">(wajib & unik)</span></label>
+  <input id="noTelp" placeholder="081234567890" required>
 
-<label>Nama Prospek:</label>
-<input id="nama" placeholder="Nama lengkap">
+  <label>Nama Prospek <span class="required">(wajib)</span></label>
+  <input id="nama" placeholder="Nama lengkap customer">
 
-<label>Asal Kota:</label>
-<select id="asalKota">
-  <option value="">Pilih Kota</option>
-  <option>Palembang</option>
-  <option>Prabumulih</option>
-  <option>Pagar Alam</option>
-  <option>Lubuklinggau</option>
-  <option>Banyuasin</option>
-  <option>Empat Lawang</option>
-  <option>Lahat</option>
-  <option>Muara Enim</option>
-  <option>Musi Banyuasin</option>
-  <option>Musi Rawas</option>
-  <option>Ogan Ilir</option>
-  <option>OKI</option>
-  <option>OKU</option>
-  <option>OKU Selatan</option>
-  <option>OKU Timur</option>
-  <option>PALI</option>
-  <option>Provinsi Lain</option>
-</select>
+  <label>Asal Kota <span class="required">(wajib)</span></label>
+  <select id="asalKota">
+    <option value="">Pilih Kota</option>
+    <option>Palembang</option>
+    <option>Prabumulih</option>
+    <option>Pagar Alam</option>
+    <option>Lubuklinggau</option>
+    <option>Banyuasin</option>
+    <option>Empat Lawang</option>
+    <option>Lahat</option>
+    <option>Muara Enim</option>
+    <option>Musi Banyuasin</option>
+    <option>Musi Rawas</option>
+    <option>Ogan Ilir</option>
+    <option>OKI</option>
+    <option>OKU</option>
+    <option>OKU Selatan</option>
+    <option>OKU Timur</option>
+    <option>PALI</option>
+    <option>Provinsi Lain</option>
+  </select>
 
-<label>Ketertarikan:</label>
-<input id="ketertarikan" placeholder="Misal: Sangat Tertarik">
+  <label>Ketertarikan</label>
+  <input id="ketertarikan" placeholder="Contoh: Sangat Tertarik / Ragu-ragu">
 
-<label>Tertarik Tipe Produk:</label>
-<div class="checkbox-group">
-  <label><input type="checkbox" value="Volands"> Volands</label>
-  <label><input type="checkbox" value="Carina"> Carina</label>
-  <label><input type="checkbox" value="Nashira"> Nashira</label>
-  <label><input type="checkbox" value="Dorado"> Dorado</label>
-  <label><input type="checkbox" value="Lyra"> Lyra</label>
-  <label><input type="checkbox" value="Myra"> Myra</label>
-  <label><input type="checkbox" value="Arion"> Arion</label>
-  <label><input type="checkbox" value="Leonis"> Leonis</label>
-  <label><input type="checkbox" value="Vella"> Vella</label>
+  <label>Tertarik Tipe Produk</label>
+  <div class="checkbox-group">
+    <div class="checkbox-item"><label><input type="checkbox" value="Volands"> Volands</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Carina"> Carina</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Nashira"> Nashira</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Dorado"> Dorado</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Lyra"> Lyra</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Myra"> Myra</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Arion"> Arion</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Leonis"> Leonis</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Vella"> Vella</label></div>
+  </div>
+
+  <label>Tanggal Survey</label>
+  <input id="tanggalSurvey" type="date">
+
+  <label>Catatan tentang Prospek</label>
+  <textarea id="catatan" placeholder="Catatan tambahan, kondisi lahan, kebutuhan, dll..."></textarea>
+
+  <label>Status Penjualan</label>
+  <input id="statusPenjualan" placeholder="Contoh: Hot Lead / Warm / Cold">
+
+  <label>Progres Penjualan (bisa pilih lebih dari satu)</label>
+  <div class="checkbox-group">
+    <div class="checkbox-item"><label><input type="checkbox" value="Prospek"> Prospek</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Tertarik"> Tertarik</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Follow Up"> Follow Up</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Negosiasi"> Negosiasi</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Survey"> Survey</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Booking"> Booking</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="DP Masuk"> DP Masuk</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Closing"> Closing</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Sukses"> Sukses</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Pending"> Pending</label></div>
+    <div class="checkbox-item"><label><input type="checkbox" value="Batal"> Batal</label></div>
+  </div>
+
+  <button id="btnSimpan">💾 Simpan Prospek</button>
 </div>
-
-<label>Tanggal Survey:</label>
-<input id="tanggalSurvey" type="date">
-
-<label>Catatan tentang Prospek:</label>
-<textarea id="catatan" rows="4" placeholder="Catatan tambahan..."></textarea>
-
-<label>Status Penjualan:</label>
-<input id="statusPenjualan" placeholder="Misal: Hot Lead">
-
-<label>Progres Penjualan (bisa pilih lebih dari satu):</label>
-<div class="checkbox-group">
-  <label><input type="checkbox" value="Prospek"> Prospek</label>
-  <label><input type="checkbox" value="Tertarik"> Tertarik</label>
-  <label><input type="checkbox" value="Follow Up"> Follow Up</label>
-  <label><input type="checkbox" value="Negosiasi"> Negosiasi</label>
-  <label><input type="checkbox" value="Survey"> Survey</label>
-  <label><input type="checkbox" value="Booking"> Booking</label>
-  <label><input type="checkbox" value="DP Masuk"> DP Masuk</label>
-  <label><input type="checkbox" value="Closing"> Closing</label>
-  <label><input type="checkbox" value="Sukses"> Sukses</label>
-  <label><input type="checkbox" value="Pending"> Pending</label>
-  <label><input type="checkbox" value="Batal"> Batal</label>
-</div>
-
-<br><br>
-<button id="btnSimpan">Simpan Prospek</button>
 
 <script type="module" src="dashboard.js"></script>
 </body>
