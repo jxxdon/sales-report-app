@@ -13,7 +13,7 @@
       min-height: 100vh;
     }
     .container {
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
       background: white;
       border-radius: 20px;
@@ -23,96 +23,122 @@
     h2 {
       text-align: center;
       color: #5d5af8;
-      margin-bottom: 10px;
-    }
-    .back-btn {
-      display: inline-block;
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background: #6c757d;
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      font-size: 0.95em;
-      transition: 0.2s;
-    }
-    .back-btn:hover {
-      background: #5a6268;
+      margin-bottom: 25px;
     }
     .search-box {
       width: 100%;
-      padding: 14px;
+      padding: 14px 16px;
       border: 2px solid #ddd;
       border-radius: 12px;
       font-size: 1.1em;
       margin-bottom: 25px;
+      box-sizing: border-box;
     }
     .prospek-list {
-      display: grid;
-      gap: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     .prospek-card {
-      background: #f9f9ff;
+      background: #f8f9ff;
       border-radius: 16px;
-      padding: 18px;
+      padding: 18px 20px;
       cursor: pointer;
-      transition: all 0.2s;
-      border-left: 5px solid #5d5af8;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+      border: 1px solid #e0e0ff;
     }
     .prospek-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-      background: #f0f0ff;
+      box-shadow: 0 8px 20px rgba(93,90,248,0.15);
+      border-color: #c0c0ff;
     }
     .nama {
-      font-size: 1.4em;
+      font-size: 1.3em;
       font-weight: bold;
       color: #333;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .info {
-      font-size: 1.1em;
+      font-size: 1em;
       color: #555;
       margin-bottom: 8px;
     }
-    .footer {
+    .status-line {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: 600;
-      font-size: 1.05em;
+      font-size: 0.95em;
+      margin-top: 8px;
     }
-    .status-personal { color: #28a745; }
-    .status-open { color: #ffc107; }
-    .status-exclusive { color: #dc3545; }
-    .sales {
-      color: #007bff;
+    .status {
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 8px;
     }
+    .status-personal { background: #d4edda; color: #155724; }
+    .status-open     { background: #fff3cd; color: #856404; }
+    .status-exclusive{ background: #f8d7da; color: #721c24; }
 
     /* Modal tetap sama */
-    .modal { /* ... tidak berubah ... */ }
-    /* ... style modal sebelumnya tetap sama ... */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .close { float: right; font-size: 1.8em; cursor: pointer; }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .btn-save { background: #28a745; color: white; }
+    .btn-comment { background: #007bff; color: white; }
+    .comment {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      font-size: 0.95em;
+    }
+    .comment-meta {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 5px;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
   <h2>📋 Daftar Prospek</h2>
-  
-  <a href="dashboard.html" class="back-btn">⬅ Kembali ke Dashboard</a>
 
   <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari nama atau nomor telepon...">
 
-  <div id="prospekBody" class="prospek-list">
-    <!-- Data prospek akan diisi di sini oleh JS -->
+  <div class="prospek-list" id="prospekList">
+    <!-- Card akan diisi oleh JS -->
   </div>
 </div>
 
-<!-- Modal Detail & Edit (sama seperti sebelumnya) -->
+<!-- Modal tetap sama -->
 <div id="detailModal" class="modal">
   <div class="modal-content">
-    <span class="close">&times;</span>
+    <span class="close">×</span>
     <h3>Detail & Edit Prospek</h3>
     <div id="detailContent"></div>
     <hr>
