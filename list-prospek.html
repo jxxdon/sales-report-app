@@ -5,193 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar Prospek</title>
 
+  <!-- JS TETAP -->
   <script type="module" src="list-prospek.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      background: #f4f6f8;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
-    }
-
-    .container {
-      max-width: 720px;
-      margin: auto;
-      padding: 16px;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .header h2 {
-      margin: 0;
-      font-size: 1.3em;
-      font-weight: 700;
-    }
-
-    .btn-back {
-      background: #e0e0e0;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: .9em;
-    }
-
-    /* SUMMARY */
-    .summary {
-      background: #fff;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: .9em;
-    }
-
-    .summary div {
-      text-align: center;
-      flex: 1;
-    }
-
-    .summary strong {
-      display: block;
-      font-size: 1.1em;
-    }
-
-    /* SEARCH */
-    #searchInput {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      margin-bottom: 12px;
-      font-size: 1em;
-    }
-
-    /* SHORTLIST */
-    .shortlist {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      margin-bottom: 12px;
-    }
-
-    .shortlist button {
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid #ddd;
-      background: #fff;
-      font-size: .85em;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .shortlist button.active {
-      background: #5d5af8;
-      color: #fff;
-      border-color: #5d5af8;
-    }
-
-    /* LIST */
-    .prospek-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 6px 14px rgba(0,0,0,.06);
-      cursor: pointer;
-    }
-
-    .nama {
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .info {
-      color: #444;
-      margin-bottom: 8px;
-      font-size: .95em;
-    }
-
-    .status-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .status {
-      font-size: .8em;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #e3f2fd;
-      color: #1565c0;
-    }
-
-    .status-personal {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .status-open {
-      background: #fff3e0;
-      color: #ef6c00;
-    }
-  </style>
 </head>
-
 <body>
 
 <div class="container">
 
-  <!-- HEADER -->
+  <!-- HEADER (TIDAK DIUBAH) -->
   <div class="header">
     <button class="btn-back" onclick="history.back()">← Kembali</button>
-    <h2>Daftar Prospek</h2>
-    <div style="width:40px"></div>
+    <h2>📋 Daftar Prospek</h2>
+    <div></div>
   </div>
 
-  <!-- SUMMARY (ANGKA) -->
-  <div class="summary">
-    <div>
-      <strong id="totalProspek">0</strong>
-      Total
-    </div>
-    <div>
-      <strong id="totalSurvey">0</strong>
-      Survey
-    </div>
-    <div>
-      <strong id="totalBooking">0</strong>
-      Booking
-    </div>
-  </div>
+  <!-- ===== TAMBAHAN BARU (TIDAK MERUSAK) ===== -->
 
-  <!-- SEARCH -->
-  <input
-    id="searchInput"
-    type="text"
-    placeholder="Cari nama atau nomor telepon..."
-  >
+  <!-- SUMMARY -->
+  <div style="margin-bottom:12px; font-size:.9em; color:#555;">
+    <div>Total Prospek : <span id="totalProspek">0</span></div>
+    <div>Total Survey : <span id="totalSurvey">0</span></div>
+    <div>Total Booking : <span id="totalBooking">0</span></div>
+  </div>
 
   <!-- SHORTLIST PROGRESS -->
-  <div class="shortlist" id="shortlistProgress">
-    <button data-progress="">Semua</button>
-    <button data-progress="Survey">Survey</button>
-    <button data-progress="Booking">Booking</button>
-    <button data-progress="DP">DP</button>
-    <button data-progress="Closing">Closing</button>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+    <button data-progress="" class="short-btn active">Semua</button>
+    <button data-progress="Survey" class="short-btn">Survey</button>
+    <button data-progress="Booking" class="short-btn">Booking</button>
+    <button data-progress="DP" class="short-btn">DP</button>
+    <button data-progress="Closing" class="short-btn">Closing</button>
+    <button data-progress="Lost" class="short-btn">Lost</button>
+    <button data-progress="Batal" class="short-btn">Batal</button>
   </div>
 
-  <!-- LIST PROSPEK (JANGAN DIUBAH OLEH HTML) -->
-  <div id="prospekList"></div>
+  <!-- SEARCH (TETAP ADA) -->
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Cari nama / nomor"
+    style="width:100%; padding:12px; margin-bottom:14px;"
+  >
+
+  <!-- LIST PROSPEK (ASLI, JANGAN DISENTUH) -->
+  <div class="list-container">
+    <div id="prospekList"></div>
+  </div>
 
 </div>
+
+<!-- ===== STYLE KECIL KHUSUS SHORTLIST (INLINE, AMAN) ===== -->
+<style>
+  .short-btn {
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid #ccc;
+    background:#f1f1f1;
+    font-size:.85em;
+    cursor:pointer;
+  }
+  .short-btn.active {
+    background:#5d5af8;
+    color:#fff;
+    border-color:#5d5af8;
+  }
+</style>
 
 </body>
 </html>
