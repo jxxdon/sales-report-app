@@ -7,12 +7,11 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-  arrayUnion,
-  serverTimestamp
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
-   USER
+   USER & ROLE
 ===================== */
 const user = localStorage.getItem("user")?.toLowerCase();
 if (!user) window.location.href = "index.html";
@@ -32,13 +31,12 @@ const commentsList = document.getElementById("commentsList");
    STATE
 ===================== */
 let currentDocId = null;
-let currentData = null;
 let unsubscribe = null;
 
 /* =====================
    HELPER
 ===================== */
-const cleanPhone = (p) => p ? p.replace(/\D/g, "") : "";
+const cleanPhone = (p) => (p ? p.replace(/\D/g, "") : "");
 
 /* =====================
    LOAD PROSPEK
@@ -123,10 +121,10 @@ function loadProspek(keyword = "") {
 function getStatusProspek(data) {
   const now = new Date();
   const created = data.createdAt?.toDate() || new Date();
-  const monthDiff = (now - created) / (1000 * 60 * 60 * 24 * 30);
+  const diffMonth = (now - created) / (1000 * 60 * 60 * 24 * 30);
 
   if (data.progresPenjualan?.includes("Closing")) return "Exclusive Lead";
-  if (monthDiff < 1) return "Personal Lead";
+  if (diffMonth < 1) return "Personal Lead";
   return "Open Lead";
 }
 
@@ -135,10 +133,10 @@ function getStatusProspek(data) {
 ===================== */
 function openDetail(docId, data) {
   currentDocId = docId;
-  currentData = data;
 
   renderDetailView(data);
   loadComments(docId);
+
   modal.style.display = "flex";
 }
 
@@ -166,16 +164,10 @@ function renderDetailView(data) {
 
   const btnEdit = document.getElementById("btnEdit");
   if (btnEdit) {
-    btnEdit.onclick = () => renderEditForm(data);
+    btnEdit.onclick = () => {
+      alert("Edit Data: " + data.nama);
+    };
   }
-}
-
-/* =====================
-   EDIT (MINIMAL, PASTI JALAN)
-===================== */
-function renderEditForm(data) {
-  alert("Edit Data: " + data.nama);
-  // kalau mau form edit sungguhan → bilang, aku bikinin
 }
 
 /* =====================
@@ -197,7 +189,8 @@ function loadComments(docId) {
 
     comments.forEach((c) => {
       const date =
-        c.timestamp?.toDate()?.toLocaleString("id-ID") || "Baru saja";
+        c.timestamp?.toDate?.().toLocaleString("id-ID") ||
+        new Date(c.timestamp).toLocaleString("id-ID");
 
       commentsList.innerHTML += `
         <div class="comment-item">
@@ -213,7 +206,7 @@ function loadComments(docId) {
 }
 
 /* =====================
-   ADD COMMENT (GLOBAL EVENT)
+   ADD COMMENT (FIX FINAL)
 ===================== */
 document.addEventListener("click", async (e) => {
   if (e.target?.id !== "btnAddComment") return;
@@ -222,15 +215,20 @@ document.addEventListener("click", async (e) => {
   const text = textarea.value.trim();
   if (!text || !currentDocId) return;
 
-  await updateDoc(doc(db, "prospek", currentDocId), {
-    comments: arrayUnion({
-      user,
-      text,
-      timestamp: serverTimestamp()
-    })
-  });
+  try {
+    await updateDoc(doc(db, "prospek", currentDocId), {
+      comments: arrayUnion({
+        user,
+        text,
+        timestamp: new Date() // ⬅️ FIX ERROR FIREBASE
+      })
+    });
 
-  textarea.value = "";
+    textarea.value = "";
+  } catch (err) {
+    console.error("Gagal tambah komentar:", err);
+    alert("Komentar gagal disimpan");
+  }
 });
 
 /* =====================
