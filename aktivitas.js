@@ -22,16 +22,20 @@ const activityList = document.getElementById("activityList");
 /* =====================
    HELPER
 ===================== */
-function formatDate(d) {
-  const date = d.toDate ? d.toDate() : new Date(d);
-  return date.toLocaleString("id-ID", {
-    day:"2-digit", month:"2-digit", year:"2-digit",
-    hour:"2-digit", minute:"2-digit", second:"2-digit"
+function formatDate(ts) {
+  const d = ts?.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString("id-ID", {
+    day:"2-digit",
+    month:"short",
+    year:"2-digit",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit"
   });
 }
 
 /* =====================
-   QUERY (ROLE-BASED)
+   QUERY (ROLE BASED)
 ===================== */
 let q;
 
@@ -55,26 +59,41 @@ onSnapshot(q, snap => {
   activityList.innerHTML = "";
 
   if (snap.empty) {
-    activityList.innerHTML =
-      "<p style='color:#999;padding:30px;text-align:center'>Belum ada aktivitas</p>";
+    activityList.innerHTML = `
+      <p style="text-align:center;color:#999;padding:40px">
+        Belum ada aktivitas
+      </p>
+    `;
     return;
   }
 
   snap.forEach(docSnap => {
     const d = docSnap.data();
 
-    const item = document.createElement("div");
-    item.className = "prospek-card"; // reuse card style
+    const statusClass =
+      d.tipe === "INPUT_PROSPEK"
+        ? "status-personal"
+        : "status-open";
 
-    item.innerHTML = `
-      <div style="font-size:.85em;color:#666;margin-bottom:6px">
-        ${formatDate(d.createdAt)}
+    const card = document.createElement("div");
+    card.className = "prospek-card";
+
+    card.innerHTML = `
+      <div class="nama">
+        ${d.user}
       </div>
-      <div>
-        <strong>${d.user}</strong> - ${d.pesan}
+
+      <div class="info">
+        ${d.pesan}
+      </div>
+
+      <div class="status-line">
+        <span class="status ${statusClass}">
+          ${formatDate(d.createdAt)}
+        </span>
       </div>
     `;
 
-    activityList.appendChild(item);
+    activityList.appendChild(card);
   });
 });
