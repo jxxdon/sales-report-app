@@ -62,7 +62,6 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
       progresPenjualan: progresPenjualan,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    });erverTimestamp()
     });
 
     alert("Prospek berhasil disimpan! ✅");
@@ -80,5 +79,6 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     btnSimpan.textContent = "Simpan Prospek";
   }
 });
+
 
 
