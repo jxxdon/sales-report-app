@@ -28,7 +28,10 @@ let currentData = null;
 
 let unsubscribe = null; // Untuk menyimpan listener aktif
 
-// Fungsi utama untuk load prospek
+// Fungsi untuk membersihkan nomor telepon (hanya angka)
+const cleanPhone = (phone) => phone ? phone.replace(/\D/g, '') : '';
+
+// Fungsi utama untuk load prospek (DIPERBAIKI)
 function loadProspek(searchTerm = "") {
   // Hapus listener lama jika ada
   if (unsubscribe) {
@@ -38,55 +41,66 @@ function loadProspek(searchTerm = "") {
 
   prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#999;'>Memuat data...</td></tr>";
 
-  let q;
-  const trimmedSearch = searchTerm.trim().toLowerCase();
+  const originalSearch = searchTerm.trim();
+  const trimmedSearch = originalSearch.toLowerCase();
+  const cleanedSearchPhone = cleanPhone(originalSearch);
 
-  if (trimmedSearch) {
-    // Mode search: ambil semua data, filter di client
+  let q;
+
+  if (isAdmin) {
     q = query(collection(db, "prospek"), orderBy("createdAt", "desc"));
   } else {
-    // Mode normal: filter server-side
-    if (isAdmin) {
-      q = query(collection(db, "prospek"), orderBy("createdAt", "desc"));
-    } else {
-      q = query(collection(db, "prospek"), where("user", "==", user), orderBy("createdAt", "desc"));
-    }
+    // User biasa hanya melihat data miliknya, baik saat search maupun tidak
+    q = query(collection(db, "prospek"), where("user", "==", user), orderBy("createdAt", "desc"));
   }
 
   unsubscribe = onSnapshot(q, (snapshot) => {
-    prospekBody.innerHTML = ""; // Clear sekali saja di sini
+    prospekBody.innerHTML = ""; // Kosongkan tabel
 
     if (snapshot.empty) {
       prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#999;'>Tidak ada prospek ditemukan</td></tr>";
       return;
     }
 
+    let hasVisibleRow = false;
+
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
 
-      // Filter client-side jika sedang search
+      // Filter client-side hanya jika ada kata kunci search
       if (trimmedSearch) {
-        const matchNama = data.nama?.toLowerCase().includes(trimmedSearch);
-        const matchTelp = data.noTelp?.includes(searchTerm); // noTelp tidak lowerCase karena nomor
-        if (!matchNama && !matchTelp) return;
+        const matchNama = data.nama ? data.nama.toLowerCase().includes(trimmedSearch) : false;
+        const matchTelp = cleanedSearchPhone ? cleanPhone(data.noTelp).includes(cleanedSearchPhone) : false;
+
+        if (!matchNama && !matchTelp) {
+          return; // Lewati baris ini
+        }
       }
 
-      const progres = Array.isArray(data.progresPenjualan) ? data.progresPenjualan.join(", ") : "";
+      hasVisibleRow = true;
+
+      const progres = Array.isArray(data.progresPenjualan) ? data.progresPenjualan.join(", ") : "-";
       const status = getStatusProspek(data);
       const statusClass = status.includes("Personal") ? "status-personal" :
                           status.includes("Open") ? "status-open" : "status-exclusive";
 
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><strong>${data.nama}</strong></td>
-        <td>${data.noTelp}</td>
-        <td>${progres || "-"}</td>
-        <td>${data.user}</td>
+        <td><strong>${data.nama || "-"}</strong></td>
+        <td>${data.noTelp || "-"}</td>
+        <td>${progres}</td>
+        <td>${data.user || "-"}</td>
         <td><span class="${statusClass}">${status}</span></td>
       `;
       row.onclick = () => openDetail(docSnap.id, data);
       prospekBody.appendChild(row);
     });
+
+    // Jika search aktif tapi tidak ada yang cocok
+    if (!hasVisibleRow && trimmedSearch) {
+      prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#999;'>Tidak ada prospek yang sesuai dengan pencarian</td></tr>";
+    }
+
   }, (error) => {
     console.error("Error loading prospek:", error);
     prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#c00;'>Gagal memuat data. Cek koneksi atau console.</td></tr>";
@@ -108,7 +122,7 @@ function getStatusProspek(data) {
   }
 }
 
-// === Fungsi modal detail, edit, komentar tetap sama seperti versi sebelumnya ===
+// Fungsi modal detail
 function openDetail(docId, data) {
   currentDocId = docId;
   currentData = data;
@@ -122,8 +136,8 @@ function renderDetailView(data) {
   const tipeTertarik = Array.isArray(data.tipeTertarik) ? data.tipeTertarik.join(", ") : "-";
 
   detailContent.innerHTML = `
-    <p><strong>Nama Prospek:</strong> ${data.nama}</p>
-    <p><strong>No Telepon:</strong> ${data.noTelp}</p>
+    <p><strong>Nama Prospek:</strong> ${data.nama || "-"}</p>
+    <p><strong>No Telepon:</strong> ${data.noTelp || "-"}</p>
     <p><strong>Asal Kota:</strong> ${data.asalKota || "-"}</p>
     <p><strong>Ketertarikan:</strong> ${data.ketertarikan || "-"}</p>
     <p><strong>Tipe Tertarik:</strong> ${tipeTertarik}</p>
@@ -131,7 +145,7 @@ function renderDetailView(data) {
     <p><strong>Catatan:</strong> ${data.catatan || "-"}</p>
     <p><strong>Status Penjualan:</strong> ${data.statusPenjualan || "-"}</p>
     <p><strong>Progres Penjualan:</strong> ${progres}</p>
-    <p><strong>Dibuat oleh:</strong> ${data.user}</p>
+    <p><strong>Dibuat oleh:</strong> ${data.user || "-"}</p>
     
     <div style="margin-top: 20px;">
       <button class="btn btn-save" id="btnEdit">Edit Data</button>
@@ -141,14 +155,13 @@ function renderDetailView(data) {
   document.getElementById("btnEdit").onclick = () => renderEditForm(data);
 }
 
-// ... (renderEditForm, saveEdit, loadComments tetap copy dari versi sebelumnya)
-
+// Load komentar (tetap sama)
 function loadComments(docId) {
   commentsList.innerHTML = "<p style='color:#666; text-align:center;'>Memuat komentar...</p>";
   const docRef = doc(db, "prospek", docId);
   onSnapshot(docRef, (snap) => {
     commentsList.innerHTML = "";
-    const comments = snap.data().comments || [];
+    const comments = snap.data()?.comments || [];
     if (comments.length === 0) {
       commentsList.innerHTML = "<p style='color:#999; text-align:center;'>Belum ada komentar</p>";
       return;
@@ -189,13 +202,13 @@ document.getElementById("btnAddComment")?.addEventListener("click", async () => 
   textArea.value = "";
 });
 
-// Search dengan debounce biar tidak terlalu sering
+// Search dengan debounce
 let searchTimeout;
 searchInput.addEventListener("input", (e) => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     loadProspek(e.target.value);
-  }, 300); // tunggu 300ms setelah user berhenti ngetik
+  }, 300);
 });
 
 // Init
