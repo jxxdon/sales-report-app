@@ -248,59 +248,114 @@ searchInput.addEventListener("input", (e) => {
 ===================== */
 loadProspek();
 function renderEditForm(data) {
+  const tipeList = [
+    "Volands","Carina","Nashira","Dorado","Lyra",
+    "Myra","Arion","Leonis","Vella"
+  ];
+
+  const progresList = [
+    "Prospek","Tertarik","Follow Up","Negosiasi","Survey",
+    "Booking","DP Masuk","Closing","Sukses","Pending","Batal"
+  ];
+
   detailContent.innerHTML = `
-    <div id="editMode">
-      <div class="edit-field">
-        <label>Nama</label>
-        <input id="editNama" value="${data.nama || ""}">
-      </div>
+    <h3>✏️ Edit Prospek</h3>
 
-      <div class="edit-field">
-        <label>No Telp</label>
-        <input id="editNoTelp" value="${data.noTelp || ""}">
-      </div>
+    <label>No Telepon</label>
+    <input id="editNoTelp" value="${data.noTelp || ""}" disabled>
 
-      <div class="edit-field">
-        <label>Asal Kota</label>
-        <input id="editAsalKota" value="${data.asalKota || ""}">
-      </div>
+    <label>Nama Prospek</label>
+    <input id="editNama" value="${data.nama || ""}">
 
-      <div class="edit-field">
-        <label>Catatan</label>
-        <textarea id="editCatatan">${data.catatan || ""}</textarea>
-      </div>
+    <label>Asal Kota</label>
+    <select id="editAsalKota">
+      ${document.getElementById("asalKota")
+        ? ""
+        : `
+        <option value="">Pilih Kota</option>
+        <option ${data.asalKota==="Palembang"?"selected":""}>Palembang</option>
+        <option ${data.asalKota==="Prabumulih"?"selected":""}>Prabumulih</option>
+        <option ${data.asalKota==="Pagar Alam"?"selected":""}>Pagar Alam</option>
+        <option ${data.asalKota==="Lubuklinggau"?"selected":""}>Lubuklinggau</option>
+        <option ${data.asalKota==="Banyuasin"?"selected":""}>Banyuasin</option>
+        <option ${data.asalKota==="Lahat"?"selected":""}>Lahat</option>
+        <option ${data.asalKota==="Muara Enim"?"selected":""}>Muara Enim</option>
+        <option ${data.asalKota==="Provinsi Lain"?"selected":""}>Provinsi Lain</option>
+      `}
+    </select>
 
-      <div class="edit-field">
-        <label>Progres Penjualan (pisahkan dengan koma)</label>
-        <input id="editProgres" value="${
-          Array.isArray(data.progresPenjualan)
-            ? data.progresPenjualan.join(", ")
-            : ""
-        }">
-      </div>
+    <label>Asal Prospek</label>
+    <select id="editAsalProspek">
+      ${["Iklan Official","Sosial Media","Walk in","Referensi","Event","Agent","Database"]
+        .map(v => `<option ${data.asalProspek===v?"selected":""}>${v}</option>`)
+        .join("")}
+    </select>
 
-      <button class="btn btn-save" id="btnUpdate">Update Prospek</button>
+    <label>Tertarik Tipe Produk</label>
+    <div class="checkbox-group">
+      ${tipeList.map(t => `
+        <div class="checkbox-item">
+          <label>
+            <input type="checkbox" value="${t}"
+              ${data.tipeTertarik?.includes(t) ? "checked" : ""}>
+            ${t}
+          </label>
+        </div>
+      `).join("")}
     </div>
+
+    <label>Tanggal Survey</label>
+    <input id="editTanggalSurvey" type="date"
+      value="${data.tanggalSurvey || ""}">
+
+    <label>Catatan</label>
+    <textarea id="editCatatan">${data.catatan || ""}</textarea>
+
+    <label>Status Penjualan</label>
+    <input id="editStatusPenjualan" value="${data.statusPenjualan || ""}">
+
+    <label>Progres Penjualan</label>
+    <div class="checkbox-group">
+      ${progresList.map(p => `
+        <div class="checkbox-item">
+          <label>
+            <input type="checkbox" value="${p}"
+              ${data.progresPenjualan?.includes(p) ? "checked" : ""}>
+            ${p}
+          </label>
+        </div>
+      `).join("")}
+    </div>
+
+    <button class="btn btn-save" id="btnUpdate">💾 Update Prospek</button>
   `;
 
   document.getElementById("btnUpdate").onclick = async () => {
+    const tipeTertarik = Array.from(
+      detailContent.querySelectorAll('input[type="checkbox"][value]:not(.progres)')
+    ).filter(cb => cb.checked).map(cb => cb.value);
+
+    const progresPenjualan = Array.from(
+      detailContent.querySelectorAll('.checkbox-group input[type="checkbox"]')
+    ).filter(cb => cb.checked).map(cb => cb.value);
+
     try {
       await updateDoc(doc(db, "prospek", currentDocId), {
-        nama: document.getElementById("editNama").value.trim(),
-        noTelp: document.getElementById("editNoTelp").value.trim(),
-        asalKota: document.getElementById("editAsalKota").value.trim(),
-        catatan: document.getElementById("editCatatan").value.trim(),
-        progresPenjualan: document
-          .getElementById("editProgres")
-          .value.split(",")
-          .map((p) => p.trim())
-          .filter(Boolean)
+        nama: editNama.value.trim(),
+        asalKota: editAsalKota.value,
+        asalProspek: editAsalProspek.value,
+        tipeTertarik,
+        tanggalSurvey: editTanggalSurvey.value || null,
+        catatan: editCatatan.value.trim(),
+        statusPenjualan: editStatusPenjualan.value.trim(),
+        progresPenjualan,
+        updatedAt: new Date()
       });
 
-      alert("Data berhasil diupdate");
+      alert("✅ Prospek berhasil diupdate");
     } catch (err) {
       console.error(err);
-      alert("Gagal update data");
+      alert("❌ Gagal update prospek");
     }
   };
 }
