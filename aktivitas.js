@@ -7,38 +7,25 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-/* =====================
-   USER
-===================== */
 const user = localStorage.getItem("user")?.trim().toLowerCase();
 if (!user) location.href = "index.html";
 const isAdmin = user === "admin";
 
-/* =====================
-   ELEMENT
-===================== */
 const activityList = document.getElementById("activityList");
 
-/* =====================
-   HELPER
-===================== */
 function formatDate(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString("id-ID", {
-    day:"2-digit",
-    month:"short",
-    year:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit",
-    second:"2-digit"
+    day: "2-digit",
+    month: "short",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
   });
 }
 
-/* =====================
-   QUERY (WAJIB INDEX)
-===================== */
 let q;
-
 if (isAdmin) {
   q = query(
     collection(db, "aktivitas"),
@@ -52,41 +39,28 @@ if (isAdmin) {
   );
 }
 
-/* =====================
-   RENDER
-===================== */
 onSnapshot(q, snap => {
   activityList.innerHTML = "";
 
   if (snap.empty) {
-    activityList.innerHTML = `
-      <p style="text-align:center;color:#999;padding:40px">
-        Belum ada aktivitas
-      </p>
-    `;
+    activityList.innerHTML =
+      `<div class="empty">Belum ada aktivitas</div>`;
     return;
   }
 
   snap.forEach(docSnap => {
     const d = docSnap.data();
-
     const statusClass =
       d.tipe === "INPUT_PROSPEK"
-        ? "status-personal"
-        : "status-open";
+        ? "status-input"
+        : "status-comment";
 
-    const card = document.createElement("div");
-    card.className = "prospek-card";
+    const div = document.createElement("div");
+    div.className = "card";
 
-    card.innerHTML = `
-      <div class="nama">
-        ${d.user}
-      </div>
-
-      <div class="info">
-        ${d.pesan}
-      </div>
-
+    div.innerHTML = `
+      <div class="nama">${d.user}</div>
+      <div class="info">${d.pesan}</div>
       <div class="status-line">
         <span class="status ${statusClass}">
           ${formatDate(d.createdAt)}
@@ -94,6 +68,6 @@ onSnapshot(q, snap => {
       </div>
     `;
 
-    activityList.appendChild(card);
+    activityList.appendChild(div);
   });
 });
