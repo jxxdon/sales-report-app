@@ -17,7 +17,7 @@ if (!user) {
 }
 
 const isAdmin = user === "admin";
-const prospekBody = document.getElementById("prospekBody");
+const prospekList = document.getElementById("prospekList");
 const searchInput = document.getElementById("searchInput");
 const modal = document.getElementById("detailModal");
 const closeModal = document.querySelector(".close");
@@ -39,74 +39,72 @@ function loadProspek(searchTerm = "") {
     unsubscribe = null;
   }
 
-  prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#999;'>Memuat data...</td></tr>";
+  prospekList.innerHTML = "<p style='text-align:center; padding:40px; color:#999;'>Memuat data...</p>";
 
   const originalSearch = searchTerm.trim();
   const trimmedSearch = originalSearch.toLowerCase();
   const cleanedSearchPhone = cleanPhone(originalSearch);
 
   let q;
-
   if (isAdmin) {
     q = query(collection(db, "prospek"), orderBy("createdAt", "desc"));
   } else {
-    // User biasa hanya melihat data miliknya, baik saat search maupun tidak
     q = query(collection(db, "prospek"), where("user", "==", user), orderBy("createdAt", "desc"));
   }
 
   unsubscribe = onSnapshot(q, (snapshot) => {
-    prospekBody.innerHTML = ""; // Kosongkan tabel
+    prospekList.innerHTML = ""; // Kosongkan list
 
     if (snapshot.empty) {
-      prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#999;'>Tidak ada prospek ditemukan</td></tr>";
+      prospekList.innerHTML = "<p style='text-align:center; padding:50px; color:#999;'>Tidak ada prospek ditemukan</p>";
       return;
     }
 
-    let hasVisibleRow = false;
+    let hasVisible = false;
 
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
 
-      // Filter client-side hanya jika ada kata kunci search
+      // Filter client-side jika ada pencarian
       if (trimmedSearch) {
         const matchNama = data.nama ? data.nama.toLowerCase().includes(trimmedSearch) : false;
         const matchTelp = cleanedSearchPhone ? cleanPhone(data.noTelp).includes(cleanedSearchPhone) : false;
-
-        if (!matchNama && !matchTelp) {
-          return; // Lewati baris ini
-        }
+        if (!matchNama && !matchTelp) return;
       }
 
-      hasVisibleRow = true;
+      hasVisible = true;
 
       const progres = Array.isArray(data.progresPenjualan) ? data.progresPenjualan.join(", ") : "-";
       const status = getStatusProspek(data);
       const statusClass = status.includes("Personal") ? "status-personal" :
                           status.includes("Open") ? "status-open" : "status-exclusive";
 
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td><strong>${data.nama || "-"}</strong></td>
-        <td>${data.noTelp || "-"}</td>
-        <td>${progres}</td>
-        <td>${data.user || "-"}</td>
-        <td><span class="${statusClass}">${status}</span></td>
+      const card = document.createElement("div");
+      card.className = "prospek-card";
+      card.innerHTML = `
+        <div class="nama">${data.nama || "Tanpa Nama"}</div>
+        <div class="info">📞 ${data.noTelp || "-"}</div>
+        <div class="info">📈 Progres: ${progres}</div>
+        <div class="info">👤 Dibuat oleh: ${data.user || "-"}</div>
+        <div class="status-line">
+          <span class="status ${statusClass}">${status}</span>
+          <span style="color:#888; font-size:0.9em;">Klik untuk detail →</span>
+        </div>
       `;
-      row.onclick = () => openDetail(docSnap.id, data);
-      prospekBody.appendChild(row);
+      card.onclick = () => openDetail(docSnap.id, data);
+      prospekList.appendChild(card);
     });
 
-    // Jika search aktif tapi tidak ada yang cocok
-    if (!hasVisibleRow && trimmedSearch) {
-      prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#999;'>Tidak ada prospek yang sesuai dengan pencarian</td></tr>";
+    // Jika search aktif tapi tidak ada hasil
+    if (!hasVisible && trimmedSearch) {
+      prospekList.innerHTML = "<p style='text-align:center; padding:50px; color:#999;'>Tidak ada prospek yang sesuai dengan pencarian</p>";
     }
 
   }, (error) => {
     console.error("Error loading prospek:", error);
-    prospekBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:30px; color:#c00;'>Gagal memuat data. Cek koneksi atau console.</td></tr>";
+    prospekList.innerHTML = `<p style='text-align:center; color:red; padding:40px;'>Gagal memuat data: ${error.message}</p>`;
   });
 }
-
 // Hitung Status Prospek Otomatis
 function getStatusProspek(data) {
   const now = new Date();
