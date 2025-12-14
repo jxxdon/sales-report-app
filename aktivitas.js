@@ -25,17 +25,17 @@ const activityList = document.getElementById("activityList");
 function formatDate(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
+    day:"2-digit",
+    month:"short",
+    year:"2-digit",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit"
   });
 }
 
 /* =====================
-   QUERY
+   QUERY (WAJIB INDEX)
 ===================== */
 let q;
 
@@ -70,23 +70,27 @@ onSnapshot(q, snap => {
   snap.forEach(docSnap => {
     const d = docSnap.data();
 
-    const typeClass =
-      d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
+    const statusClass =
+      d.tipe === "INPUT_PROSPEK"
+        ? "status-personal"
+        : "status-open";
 
     const card = document.createElement("div");
-    card.className = `activity-card ${typeClass}`;
+    card.className = "prospek-card";
 
     card.innerHTML = `
-      <div class="activity-user">
+      <div class="nama">
         ${d.user}
       </div>
 
-      <div class="activity-text">
+      <div class="info">
         ${d.pesan}
       </div>
 
-      <div class="activity-time">
-        ${formatDate(d.createdAt)}
+      <div class="status-line">
+        <span class="status ${statusClass}">
+          ${formatDate(d.createdAt)}
+        </span>
       </div>
     `;
 
