@@ -77,11 +77,16 @@ function loadProspek(keyword = "") {
       const d = docSnap.data();
 
       // 🔍 FILTER SEARCH (INI SUDAH BENAR)
-      if (search) {
-        const namaMatch = d.nama?.toLowerCase().includes(search);
-        const telpMatch = cleanPhone(d.noTelp).includes(phoneSearch);
-        if (!namaMatch && !telpMatch) return;
-      }
+    if (search) {
+  const nama = (d.nama || "").toLowerCase();
+  const telp = cleanPhone(d.noTelp);
+
+  const namaMatch = nama.includes(search);
+  const telpMatch = telp.includes(phoneSearch);
+
+  if (!namaMatch && !telpMatch) return;
+}
+
 
       ada = true;
 
