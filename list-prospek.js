@@ -78,29 +78,28 @@ function loadProspek(keyword = "") {
 
   let q;
 
-// ADMIN: selalu lihat semua
 if (isAdmin) {
+  // Admin selalu lihat semua
   q = query(
     collection(db, "prospek"),
     orderBy("createdAt", "desc")
   );
 
-// SALES + SEARCH: boleh lihat semua (untuk search)
-} else if (search.length > 0 || phoneSearch.length > 0) {
+} else if (keyword && keyword.trim().length > 0) {
+  // Sales + search → boleh lihat semua (untuk cek duplikat)
   q = query(
     collection(db, "prospek"),
     orderBy("createdAt", "desc")
   );
 
-// SALES NORMAL: hanya data sendiri
 } else {
+  // Sales normal → hanya data sendiri
   q = query(
     collection(db, "prospek"),
     where("namaUser", "==", user),
     orderBy("createdAt", "desc")
   );
 }
-
 
 
   unsubscribe = onSnapshot(q, snap => {
