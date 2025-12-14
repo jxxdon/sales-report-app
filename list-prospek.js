@@ -97,7 +97,7 @@ function loadProspek(keyword = "") {
         </div>
 
         <div class="info">
-          👤 ${d.user || "-"}
+          👤 ${d.namaUser || d.user || "-"}
         </div>
 
         <div class="status-line">
