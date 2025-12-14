@@ -14,7 +14,7 @@ import {
 /* =====================
    USER
 ===================== */
-const user = localStorage.getItem("user");
+const user = localStorage.getItem("user")?.trim().toLowerCase();
 if (!user) window.location.href = "index.html";
 const isAdmin = user === "admin";
 
@@ -76,18 +76,31 @@ function loadProspek(keyword = "") {
   const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
 
-  const isSearching = search.length > 0 || phoneSearch.length > 0;
+  let q;
 
-const q = isAdmin || isSearching
-  ? query(
-      collection(db, "prospek"),
-      orderBy("createdAt", "desc")
-    )
-  : query(
-      collection(db, "prospek"),
-      where("namaUser", "==", user),
-      orderBy("createdAt", "desc")
-    );
+// ADMIN: selalu lihat semua
+if (isAdmin) {
+  q = query(
+    collection(db, "prospek"),
+    orderBy("createdAt", "desc")
+  );
+
+// SALES + SEARCH: boleh lihat semua (untuk search)
+} else if (search.length > 0 || phoneSearch.length > 0) {
+  q = query(
+    collection(db, "prospek"),
+    orderBy("createdAt", "desc")
+  );
+
+// SALES NORMAL: hanya data sendiri
+} else {
+  q = query(
+    collection(db, "prospek"),
+    where("namaUser", "==", user),
+    orderBy("createdAt", "desc")
+  );
+}
+
 
 
   unsubscribe = onSnapshot(q, snap => {
