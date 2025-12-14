@@ -3,12 +3,10 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   doc,
   updateDoc,
-  arrayUnion,
-  serverTimestamp
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
@@ -40,7 +38,7 @@ let currentDocId = null;
 let selectedProgress = null;
 
 /* =====================
-   PROGRESS OPTION
+   CONST
 ===================== */
 const PROGRESS = [
   "Cold","Warm","Hot","Survey",
@@ -54,13 +52,14 @@ const PROGRESS = [
 const cleanPhone = (v) => (v ? v.replace(/\D/g, "") : "");
 
 function getStatus(createdAt) {
-  if (!createdAt) return "Personal Lead";
+  if (!createdAt || !createdAt.toDate) return "Personal Lead";
   const diff = (new Date() - createdAt.toDate()) / (1000*60*60*24);
   return diff < 30 ? "Personal Lead" : "Open Lead";
 }
 
 function formatDate(ts) {
-  const d = ts.toDate();
+  if (!ts) return "-";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString("id-ID", {
     day:"2-digit", month:"short", year:"2-digit",
     hour:"2-digit", minute:"2-digit", second:"2-digit"
@@ -68,7 +67,7 @@ function formatDate(ts) {
 }
 
 /* =====================
-   LOAD PROSPEK
+   LOAD PROSPEK (FINAL)
 ===================== */
 function loadProspek(keyword = "") {
   if (unsubscribe) unsubscribe();
@@ -78,35 +77,38 @@ function loadProspek(keyword = "") {
 
   let q;
 
-if (isAdmin) {
-  q = query(
-    collection(db, "prospek"),
-    orderBy("createdAt", "desc")
-  );
+  // ADMIN → selalu semua
+  if (isAdmin) {
+    q = query(collection(db, "prospek"));
 
-} else if (search.length > 0 || phoneSearch.length > 0) {
-  // sales sedang search → boleh lihat semua
-  q = query(
-    collection(db, "prospek"),
-    orderBy("createdAt", "desc")
-  );
+  // SALES + SEARCH → boleh lihat semua
+  } else if (search.length > 0 || phoneSearch.length > 0) {
+    q = query(collection(db, "prospek"));
 
-} else {
-  // sales normal → hanya prospeknya sendiri
-  q = query(
-    collection(db, "prospek"),
-    where("namaUser", "==", user),
-    orderBy("createdAt", "desc")
-  );
-}
+  // SALES NORMAL → hanya data sendiri
+  } else {
+    q = query(
+      collection(db, "prospek"),
+      where("namaUser", "==", user)
+    );
+  }
 
   unsubscribe = onSnapshot(q, snap => {
     prospekList.innerHTML = "";
-    snap.forEach(docSnap => {
+
+    // 🔑 SORT DI FRONTEND (AMAN UNTUK DATA LAMA)
+    const docs = snap.docs.sort((a, b) => {
+      const ta = a.data().createdAt?.toDate?.() || new Date(0);
+      const tb = b.data().createdAt?.toDate?.() || new Date(0);
+      return tb - ta;
+    });
+
+    docs.forEach(docSnap => {
       const d = docSnap.data();
 
+      // FILTER SEARCH (NAMA / TELP)
       if (search) {
-        const namaMatch = (d.nama||"").toLowerCase().includes(search);
+        const namaMatch = (d.nama || "").toLowerCase().includes(search);
         const telpMatch =
           phoneSearch.length > 0
             ? cleanPhone(d.noTelp).includes(phoneSearch)
@@ -116,22 +118,32 @@ if (isAdmin) {
 
       const card = document.createElement("div");
       card.className = "prospek-card";
+
       card.innerHTML = `
-        <div class="nama">${d.nama}</div>
+        <div class="nama">${d.nama || "-"}</div>
+
         <div class="info">
-          📞 ${d.noTelp} - ${d.asalKota} - ${d.asalProspek}
+          📞 ${d.noTelp || "-"} - ${d.asalKota || "-"} - ${d.asalProspek || "-"}
         </div>
-        <div class="info">👤 ${d.namaUser}</div>
+
+        <div class="info">👤 ${d.namaUser || "-"}</div>
+
         <div class="status-line">
-          <span class="status ${getStatus(d.createdAt)==="Personal Lead"?"status-personal":"status-open"}">
+          <span class="status ${getStatus(d.createdAt)==="Personal Lead" ? "status-personal":"status-open"}">
             ${getStatus(d.createdAt)}
           </span>
           <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
         </div>
       `;
+
       card.onclick = () => openDetail(docSnap.id, d);
       prospekList.appendChild(card);
     });
+
+    if (!prospekList.innerHTML) {
+      prospekList.innerHTML =
+        "<p style='text-align:center;color:#999;padding:40px'>Tidak ada prospek</p>";
+    }
   });
 }
 
@@ -148,7 +160,6 @@ function openDetail(docId, data) {
 
   renderProgress();
   loadComments();
-
   modal.style.display = "flex";
 }
 
@@ -167,9 +178,12 @@ function renderProgress() {
     `;
     btn.onclick = () => {
       selectedProgress = p;
-      [...progressList.children].forEach(b=>b.style.background="#f1f1f1");
+      [...progressList.children].forEach(b=>{
+        b.style.background="#f1f1f1";
+        b.style.color="#000";
+      });
       btn.style.background="#5d5af8";
-      btn.style.color="white";
+      btn.style.color="#fff";
     };
     progressList.appendChild(btn);
   });
@@ -199,27 +213,21 @@ btnPost.onclick = async () => {
   const text = commentInput.value.trim();
   if (!text) return alert("Komentar kosong");
   if (!selectedProgress) return alert("Pilih progres dulu");
-  if (!currentDocId) return alert("Prospek belum dipilih");
+  if (!currentDocId) return;
 
-  try {
-    await updateDoc(doc(db, "prospek", currentDocId), {
-      comments: arrayUnion({
-        progress: selectedProgress,
-        text,
-        user,
-        createdAt: new Date() // ✅ FIX FIRESTORE
-      })
-    });
+  await updateDoc(doc(db,"prospek",currentDocId), {
+    comments: arrayUnion({
+      progress: selectedProgress,
+      text,
+      user,
+      createdAt: new Date()
+    })
+  });
 
-    commentInput.value = "";
-    selectedProgress = null;
-    renderProgress();
-  } catch (err) {
-    console.error(err);
-    alert("Gagal kirim komentar");
-  }
+  commentInput.value = "";
+  selectedProgress = null;
+  renderProgress();
 };
-
 
 /* =====================
    EVENT
