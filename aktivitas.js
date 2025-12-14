@@ -25,17 +25,17 @@ const activityList = document.getElementById("activityList");
 function formatDate(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString("id-ID", {
-    day:"2-digit",
-    month:"short",
-    year:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit",
-    second:"2-digit"
+    day: "2-digit",
+    month: "short",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
   });
 }
 
 /* =====================
-   QUERY (ROLE BASED)
+   QUERY
 ===================== */
 let q;
 
@@ -53,7 +53,7 @@ if (isAdmin) {
 }
 
 /* =====================
-   LOAD DATA
+   RENDER
 ===================== */
 onSnapshot(q, snap => {
   activityList.innerHTML = "";
@@ -70,27 +70,23 @@ onSnapshot(q, snap => {
   snap.forEach(docSnap => {
     const d = docSnap.data();
 
-    const statusClass =
-      d.tipe === "INPUT_PROSPEK"
-        ? "status-personal"
-        : "status-open";
+    const typeClass =
+      d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
 
     const card = document.createElement("div");
-    card.className = "prospek-card";
+    card.className = `activity-card ${typeClass}`;
 
     card.innerHTML = `
-      <div class="nama">
+      <div class="activity-user">
         ${d.user}
       </div>
 
-      <div class="info">
+      <div class="activity-text">
         ${d.pesan}
       </div>
 
-      <div class="status-line">
-        <span class="status ${statusClass}">
-          ${formatDate(d.createdAt)}
-        </span>
+      <div class="activity-time">
+        ${formatDate(d.createdAt)}
       </div>
     `;
 
