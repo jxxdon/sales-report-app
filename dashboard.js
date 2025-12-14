@@ -14,6 +14,68 @@ if (!user) {
 // Tambahkan nama user atau identifier yang lebih jelas (opsional)
 const namaUser = localStorage.getItem("namaUser") || user;
 
+// ==================== TAMBAHAN: TOMBOL LOGOUT ====================
+
+// Buat elemen tombol logout secara dinamis (bisa juga ditambahkan langsung di HTML)
+const logoutButton = document.createElement("button");
+logoutButton.textContent = "Logout";
+logoutButton.id = "btnLogout";
+logoutButton.style = `
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+`;
+logoutButton.onclick = () => {
+  if (confirm("Apakah Anda yakin ingin keluar?")) {
+    // Hapus data login dari localStorage
+    localStorage.removeItem("user");
+    localStorage.removeItem("namaUser");
+    // Opsional: hapus item lain jika ada
+    // localStorage.clear();
+
+    // Arahkan ke halaman login
+    window.location.href = "index.html";
+  }
+};
+
+// Tambahkan tombol ke body (pastikan ditambahkan setelah body loaded)
+if (document.body) {
+  document.body.appendChild(logoutButton);
+} else {
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.appendChild(logoutButton);
+  });
+}
+
+// Opsional: Tampilkan nama user di suatu tempat (misal header)
+const welcomeText = document.createElement("div");
+welcomeText.textContent = `Selamat datang, ${namaUser}`;
+welcomeText.style = `
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+`;
+if (document.body) {
+  document.body.appendChild(welcomeText);
+} else {
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.appendChild(welcomeText);
+  });
+}
+
+// =================================================================
+
+// Event listener untuk tombol Simpan Prospek (kode lama tetap sama)
 document.getElementById("btnSimpan").addEventListener("click", async () => {
   // Ambil nilai input
   const noTelp = document.getElementById("noTelp").value.trim();
@@ -24,7 +86,7 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   const catatan = document.getElementById("catatan").value.trim();
   const statusPenjualan = document.getElementById("statusPenjualan").value.trim();
 
-  // Checkbox tipe tertarik (Volands, Carina, dll)
+  // Checkbox tipe tertarik
   const tipeCheckboxes = document.querySelectorAll('input[type="checkbox"][value^="Volands"], input[type="checkbox"][value^="Carina"], input[type="checkbox"][value^="Nashira"], input[type="checkbox"][value^="Dorado"], input[type="checkbox"][value^="Lyra"], input[type="checkbox"][value^="Myra"], input[type="checkbox"][value^="Arion"], input[type="checkbox"][value^="Leonis"], input[type="checkbox"][value^="Vella"]');
   const tipeTertarik = Array.from(tipeCheckboxes)
     .filter(cb => cb.checked)
@@ -48,13 +110,13 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   btnSimpan.textContent = "Menyimpan...";
 
   try {
-        await addDoc(collection(db, "prospek"), {
+    await addDoc(collection(db, "prospek"), {
       userId: user,
       namaUser: namaUser,
       noTelp: noTelp,
       nama: nama,
       asalKota: asalKota,
-      asalProspek: asalProspek,           // ini yang baru kamu pakai
+      asalProspek: asalProspek,
       tipeTertarik: tipeTertarik,
       tanggalSurvey: tanggalSurvey,
       catatan: catatan || null,
@@ -79,6 +141,3 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     btnSimpan.textContent = "Simpan Prospek";
   }
 });
-
-
-
