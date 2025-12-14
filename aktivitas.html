@@ -5,24 +5,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aktivitas Sales</title>
 
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+
+    .btn-back {
+      background: #e0e0e0;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: .9em;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.06);
+    }
+
+    .nama {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 1em;
+    }
+
+    .info {
+      color: #444;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .status {
+      font-size: .8em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .status-input {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-comment {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 40px;
+    }
+  </style>
+
   <script type="module" src="aktivitas.js"></script>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- HEADER SAMA PERSIS DENGAN LIST PROSPEK -->
   <div class="header">
     <button class="btn-back" onclick="history.back()">← Kembali</button>
     <h2>📊 Aktivitas Sales</h2>
-    <div></div>
+    <div style="width:40px"></div>
   </div>
 
-  <!-- LIST CONTAINER -->
-  <div class="list-container">
-    <div id="activityList"></div>
-  </div>
+  <div id="activityList"></div>
 
 </div>
 
