@@ -161,9 +161,32 @@
   <div class="modal-content">
     <span class="close">×</span>
     <h3>Catatan Prospek</h3>
+
     <div id="detailContent"></div>
+
+    <hr style="margin:20px 0">
+
+    <!-- PROGRES PILIHAN -->
+    <div id="progressList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+
+    <!-- KOMENTAR -->
+    <textarea
+      id="commentInput"
+      placeholder="Tulis komentar..."
+      style="width:100%;min-height:70px;padding:10px;border-radius:10px;border:1px solid #ddd;"
+    ></textarea>
+
+    <button
+      id="btnPostComment"
+      style="margin-top:10px;padding:10px 14px;border:none;border-radius:10px;background:#5d5af8;color:white;cursor:pointer;"
+    >
+      Kirim Komentar
+    </button>
+
+    <div id="commentList" style="margin-top:20px;"></div>
   </div>
 </div>
+
 
 <script type="module" src="list-prospek.js"></script>
 </body>
