@@ -143,32 +143,33 @@ function openDetail(docId, data) {
 function renderDetailView(data) {
   const progres = Array.isArray(data.progresPenjualan)
     ? data.progresPenjualan.join(", ")
-    : "-";
+    : "";
 
   detailContent.innerHTML = `
-    <p><strong>Nama:</strong> ${data.nama || "-"}</p>
-    <p><strong>No Telp:</strong> ${data.noTelp || "-"}</p>
-    <p><strong>Asal Kota:</strong> ${data.asalKota || "-"}</p>
-    <p><strong>Catatan:</strong> ${data.catatan || "-"}</p>
-    <p><strong>Progres:</strong> ${progres}</p>
-    <p><strong>Dibuat oleh:</strong> ${data.user || "-"}</p>
+    <div id="viewMode">
+      <p><strong>Nama:</strong> ${data.nama || "-"}</p>
+      <p><strong>No Telp:</strong> ${data.noTelp || "-"}</p>
+      <p><strong>Asal Kota:</strong> ${data.asalKota || "-"}</p>
+      <p><strong>Catatan:</strong> ${data.catatan || "-"}</p>
+      <p><strong>Progres:</strong> ${progres || "-"}</p>
+      <p><strong>Dibuat oleh:</strong> ${data.user || "-"}</p>
 
-    ${
-      isAdmin || data.user === user
-        ? `<div style="margin-top:20px;">
-            <button class="btn btn-save" id="btnEdit">Edit Data</button>
-          </div>`
-        : ""
-    }
+      ${
+        isAdmin || data.user === user
+          ? `<div style="margin-top:20px;">
+              <button class="btn btn-save" id="btnEdit">Edit Data</button>
+            </div>`
+          : ""
+      }
+    </div>
   `;
 
   const btnEdit = document.getElementById("btnEdit");
   if (btnEdit) {
-    btnEdit.onclick = () => {
-      alert("Edit Data: " + data.nama);
-    };
+    btnEdit.onclick = () => renderEditForm(data);
   }
 }
+
 
 /* =====================
    KOMENTAR
@@ -246,3 +247,60 @@ searchInput.addEventListener("input", (e) => {
    INIT
 ===================== */
 loadProspek();
+function renderEditForm(data) {
+  detailContent.innerHTML = `
+    <div id="editMode">
+      <div class="edit-field">
+        <label>Nama</label>
+        <input id="editNama" value="${data.nama || ""}">
+      </div>
+
+      <div class="edit-field">
+        <label>No Telp</label>
+        <input id="editNoTelp" value="${data.noTelp || ""}">
+      </div>
+
+      <div class="edit-field">
+        <label>Asal Kota</label>
+        <input id="editAsalKota" value="${data.asalKota || ""}">
+      </div>
+
+      <div class="edit-field">
+        <label>Catatan</label>
+        <textarea id="editCatatan">${data.catatan || ""}</textarea>
+      </div>
+
+      <div class="edit-field">
+        <label>Progres Penjualan (pisahkan dengan koma)</label>
+        <input id="editProgres" value="${
+          Array.isArray(data.progresPenjualan)
+            ? data.progresPenjualan.join(", ")
+            : ""
+        }">
+      </div>
+
+      <button class="btn btn-save" id="btnUpdate">Update Prospek</button>
+    </div>
+  `;
+
+  document.getElementById("btnUpdate").onclick = async () => {
+    try {
+      await updateDoc(doc(db, "prospek", currentDocId), {
+        nama: document.getElementById("editNama").value.trim(),
+        noTelp: document.getElementById("editNoTelp").value.trim(),
+        asalKota: document.getElementById("editAsalKota").value.trim(),
+        catatan: document.getElementById("editCatatan").value.trim(),
+        progresPenjualan: document
+          .getElementById("editProgres")
+          .value.split(",")
+          .map((p) => p.trim())
+          .filter(Boolean)
+      });
+
+      alert("Data berhasil diupdate");
+    } catch (err) {
+      console.error(err);
+      alert("Gagal update data");
+    }
+  };
+}
