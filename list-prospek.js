@@ -1,4 +1,4 @@
-// Load daftar prospek (diperbarui tampilan card)
+// Load daftar prospek dengan format 3 baris
 function loadProspek(searchTerm = "") {
   prospekBody.innerHTML = "";
 
@@ -18,7 +18,6 @@ function loadProspek(searchTerm = "") {
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
       
-      // Filter pencarian
       if (searchTerm && 
           !data.nama.toLowerCase().includes(searchTerm.toLowerCase()) && 
           !data.noTelp.includes(searchTerm)) {
@@ -34,9 +33,9 @@ function loadProspek(searchTerm = "") {
       const card = document.createElement("div");
       card.className = "prospek-card";
       card.innerHTML = `
-        <div class="nama">${data.nama || "-"}</div>
-        <div class="info">${data.noTelp} - ${tipeTertarik} - ${tanggalSurvey}</div>
-        <div class="footer">
+        <div class="line-nama">${data.nama || "-"}</div>
+        <div class="line-info">${data.noTelp} - ${tipeTertarik} - ${tanggalSurvey}</div>
+        <div class="line-footer">
           <span class="${statusClass}">${status}</span>
           <span class="sales">${data.user}</span>
         </div>
