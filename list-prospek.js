@@ -62,6 +62,8 @@ function loadProspek(searchTerm = "") {
       const tipe = Array.isArray(data.tipeTertarik) ? data.tipeTertarik.join(", ") : "-";
       const survey = data.tanggalSurvey ? ` - ${data.tanggalSurvey}` : "";
 
+            const salesName = data.user || user || "Unknown";  // fallback ke user login, lalu "Unknown"
+
       const card = document.createElement("div");
       card.className = "prospek-card";
       card.innerHTML = `
@@ -71,7 +73,7 @@ function loadProspek(searchTerm = "") {
         </div>
         <div class="status-line">
           <span class="status ${statusClass}">${status}</span>
-          <span>${data.user}</span>
+          <span>${salesName}</span>
         </div>
       `;
       card.onclick = () => openDetail(docSnap.id, data);
