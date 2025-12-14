@@ -2,228 +2,10 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Prospek 🌟</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      margin: 0;
-      padding: 15px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    h2 {
-      color: #5d5af8;
-      margin: 0;
-    }
-    .btn-back {
-      background: #6c757d;
-      color: white;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 1em;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .btn-back:hover {
-      background: #5a6268;
-      transform: translateY(-2px);
-    }
-    .search-box {
-      width: 100%;
-      padding: 14px 16px;
-      border: 2px solid #ddd;
-      border-radius: 12px;
-      font-size: 1.1em;
-      margin-bottom: 25px;
-      box-sizing: border-box;
-    }
-    .prospek-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .prospek-card {
-      background: #f8f9ff;
-      border-radius: 16px;
-      padding: 18px 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid #e0e0ff;
-    }
-    .prospek-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(93,90,248,0.15);
-      border-color: #c0c0ff;
-    }
-    .nama {
-      font-size: 1.3em;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 6px;
-    }
-    .info {
-      font-size: 1em;
-      color: #555;
-      margin-bottom: 8px;
-    }
-    .status-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.95em;
-      margin-top: 8px;
-    }
-    .status {
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 8px;
-    }
-    .status-personal { background: #d4edda; color: #155724; }
-    .status-open     { background: #fff3cd; color: #856404; }
-    .status-exclusive{ background: #f8d7da; color: #721c24; }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: white;
-      border-radius: 20px;
-      padding: 25px;
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .close { float: right; font-size: 1.8em; cursor: pointer; color: #aaa; }
-    .close:hover { color: #000; }
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-    .btn-save { background: #28a745; color: white; }
-    .btn-comment { background: #007bff; color: white; }
-    .comment {
-      background: #f8f9fa;
-      padding: 12px;
-      border-radius: 12px;
-      margin: 10px 0;
-      font-size: 0.95em;
-    }
-    .comment-meta {
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 5px;
-    }
-        /* Edit form style */
-    .edit-field {
-      margin-bottom: 15px;
-    }
-    .edit-field label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-      color: #333;
-    }
-    .edit-field input,
-    .edit-field textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1em;
-    }
-    .edit-field textarea {
-      resize: vertical;
-    }
-
-    /* Komentar style yang lebih bagus */
-    #commentsList {
-      max-height: 300px;
-      overflow-y: auto;
-      margin: 15px 0;
-      padding-right: 8px;
-    }
-    .comment-item {
-      display: flex;
-      margin-bottom: 12px;
-      gap: 10px;
-    }
-    .comment-avatar {
-      width: 40px;
-      height: 40px;
-      background: #5d5af8;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.2em;
-      flex-shrink: 0;
-    }
-    .comment-bubble {
-      flex: 1;
-      background: #f1f3f5;
-      padding: 12px;
-      border-radius: 18px;
-      border-top-left-radius: 4px;
-    }
-    .comment-meta {
-      font-size: 0.85em;
-      color: #666;
-      margin-bottom: 4px;
-    }
-    .comment-meta span {
-      color: #999;
-    }
-    .comment-text {
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-
-    #newComment {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      margin-top: 10px;
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-    }
-  </style>
+  <title>Daftar Prospek</title>
+  <script type="module" src="list-prospek.js"></script>
 </head>
+
 <body>
 
 <div class="container">
@@ -232,30 +14,27 @@
       ← Kembali ke Dashboard
     </button>
     <h2>📋 Daftar Prospek</h2>
-    <div></div> <!-- spacer biar judul tetap di tengah -->
+    <div></div>
   </div>
 
-  <input type="text" id="searchInput" class="search-box" placeholder="🔍 Cari nama atau nomor telepon...">
+  <input
+    type="text"
+    id="searchInput"
+    class="search-box"
+    placeholder="🔍 Cari nama atau nomor telepon..."
+  >
 
-  <div class="prospek-list" id="prospekList">
-    <!-- Card akan diisi oleh JS -->
-  </div>
+  <div class="prospek-list" id="prospekList"></div>
 </div>
 
-<!-- Modal Detail & Edit -->
+<!-- MODAL CATATAN -->
 <div id="detailModal" class="modal">
   <div class="modal-content">
     <span class="close">×</span>
-    <h3>Detail & Edit Prospek</h3>
+    <h3>📝 Catatan Prospek</h3>
     <div id="detailContent"></div>
-    <hr>
-    <h4>Komentar / Log</h4>
-    <div id="commentsList"></div>
-    <textarea id="newComment" placeholder="Tulis komentar atau update progres..."></textarea>
-    <button class="btn btn-comment" id="btnAddComment">Tambah Komentar</button>
   </div>
 </div>
 
-<script type="module" src="list-prospek.js"></script>
 </body>
 </html>
