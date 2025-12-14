@@ -24,6 +24,11 @@ const closeModal = document.querySelector(".close");
 const detailContent = document.getElementById("detailContent");
 
 /* =====================
+   STATE (INI PENTING)
+===================== */
+let unsubscribe = null;
+
+/* =====================
    HELPER
 ===================== */
 const cleanPhone = (v) => (v ? v.replace(/\D/g, "") : "");
@@ -33,14 +38,16 @@ function getStatus(createdAt) {
 
   const created = createdAt.toDate();
   const diffHari = (new Date() - created) / (1000 * 60 * 60 * 24);
-
   return diffHari < 30 ? "Personal Lead" : "Open Lead";
 }
 
 /* =====================
-   LOAD PROSPEK
+   LOAD PROSPEK (FIX)
 ===================== */
 function loadProspek(keyword = "") {
+  // ⛔ MATIKAN SNAPSHOT LAMA
+  if (unsubscribe) unsubscribe();
+
   prospekList.innerHTML =
     "<p style='text-align:center;padding:40px;color:#999;'>Memuat data...</p>";
 
@@ -51,11 +58,11 @@ function loadProspek(keyword = "") {
     ? query(collection(db, "prospek"), orderBy("createdAt", "desc"))
     : query(
         collection(db, "prospek"),
-        where("user", "==", user),
+        where("namaUser", "==", user), // ⬅️ sesuai field aslinya
         orderBy("createdAt", "desc")
       );
 
-  onSnapshot(q, (snap) => {
+  unsubscribe = onSnapshot(q, (snap) => {
     prospekList.innerHTML = "";
 
     if (snap.empty) {
@@ -69,6 +76,7 @@ function loadProspek(keyword = "") {
     snap.forEach((docSnap) => {
       const d = docSnap.data();
 
+      // 🔍 FILTER SEARCH (INI SUDAH BENAR)
       if (search) {
         const namaMatch = d.nama?.toLowerCase().includes(search);
         const telpMatch = cleanPhone(d.noTelp).includes(phoneSearch);
@@ -88,7 +96,6 @@ function loadProspek(keyword = "") {
       const card = document.createElement("div");
       card.className = "prospek-card";
 
-      /* ===== STRUKTUR CARD ASLI (DIPERTAHANKAN) ===== */
       card.innerHTML = `
         <div class="nama">${d.nama || "Tanpa Nama"}</div>
 
@@ -97,7 +104,7 @@ function loadProspek(keyword = "") {
         </div>
 
         <div class="info">
-          👤 ${d.namaUser || d.user || "-"}
+          👤 ${d.namaUser || "-"}
         </div>
 
         <div class="status-line">
@@ -118,7 +125,7 @@ function loadProspek(keyword = "") {
 }
 
 /* =====================
-   MODAL CATATAN SAJA
+   MODAL
 ===================== */
 function openCatatan(catatan) {
   detailContent.innerHTML = `
@@ -133,16 +140,13 @@ function openCatatan(catatan) {
    EVENT
 ===================== */
 closeModal.onclick = () => (modal.style.display = "none");
-window.onclick = (e) => {
-  if (e.target === modal) modal.style.display = "none";
-};
+window.onclick = (e) => e.target === modal && (modal.style.display = "none");
 
 searchInput.addEventListener("input", (e) => {
   clearTimeout(window._delay);
-  window._delay = setTimeout(
-    () => loadProspek(e.target.value),
-    300
-  );
+  window._delay = setTimeout(() => {
+    loadProspek(e.target.value);
+  }, 300);
 });
 
 /* =====================
