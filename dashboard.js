@@ -19,7 +19,7 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
   const noTelp = document.getElementById("noTelp").value.trim();
   const nama = document.getElementById("nama").value.trim();
   const asalKota = document.getElementById("asalKota").value;
-  const ketertarikan = document.getElementById("ketertarikan").value.trim();
+  const asalProspek = document.getElementById("asalProspek").value;
   const tanggalSurvey = document.getElementById("tanggalSurvey").value || null;
   const catatan = document.getElementById("catatan").value.trim();
   const statusPenjualan = document.getElementById("statusPenjualan").value.trim();
@@ -79,3 +79,4 @@ document.getElementById("btnSimpan").addEventListener("click", async () => {
     btnSimpan.textContent = "Simpan Prospek";
   }
 });
+
