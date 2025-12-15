@@ -114,7 +114,13 @@ onSnapshot(q, snap => {
     `;
 el.style.cursor = "pointer";
 el.onclick = () => {
-  openProspekFromActivity(d.prospekId);
+  if (!d.prospekId) {
+    alert("Prospek tidak ditemukan");
+    return;
+  }
+
+  window.location.href =
+    `list-prospek.html?open=${d.prospekId}`;
 };
 
     list.appendChild(el);
