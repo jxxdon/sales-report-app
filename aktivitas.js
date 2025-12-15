@@ -45,41 +45,6 @@ if (isAdmin) {
   );
 }
 
-/* =====================
-   OPEN PROSPEK FROM ACTIVITY
-===================== */
-function openProspekFromActivity(prospekId) {
-  if (!prospekId) return alert("Prospek tidak ditemukan");
-
-  onDocSnapshot(doc(db, "prospek", prospekId), snap => {
-    if (!snap.exists()) {
-      alert("Data prospek sudah dihapus");
-      return;
-    }
-
-    const d = snap.data();
-
-    detailContent.innerHTML = `
-      <div style="white-space:pre-wrap">
-        ${d.catatan || "-"}
-      </div>
-    `;
-
-    commentList.innerHTML = "";
-    (d.comments || []).forEach(c => {
-      commentList.innerHTML += `
-        <div style="margin-bottom:12px;">
-          <strong>${c.progress}</strong> - ${c.text}<br>
-          <small style="color:#666">
-            ${c.user} ; ${formatDate(c.createdAt)}
-          </small>
-        </div>
-      `;
-    });
-
-    modal.style.display = "flex";
-  });
-}
 
 onSnapshot(q, snap => {
   list.innerHTML = "";
@@ -114,14 +79,10 @@ onSnapshot(q, snap => {
     `;
 el.style.cursor = "pointer";
 
+el.style.cursor = "pointer";
 el.onclick = () => {
-  if (!d.prospekId) {
-    alert("Aktivitas lama, detail prospek belum tersedia");
-    return;
-  }
-
   window.location.href =
-    `list-prospek.html?open=${d.prospekId}`;
+    `list-prospek.html?open=${d.prospekId || ""}`;
 };
 
 if (!d.prospekId) {
