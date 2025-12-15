@@ -41,6 +41,24 @@ btnWa.style.cssText = `
   margin-left:8px;
 `;
 
+// ⬇️ INI POSISINYA (YANG KAMU TANYA)
+btnWa.onclick = () => {
+  if (!currentDocId) return;
+
+  onSnapshot(doc(db, "prospek", currentDocId), snap => {
+    if (!snap.exists()) return;
+
+    const d = snap.data();
+    if (!d.noTelp) return;
+
+    let phone = d.noTelp.replace(/\D/g, "");
+    if (phone.startsWith("0")) {
+      phone = "62" + phone.slice(1);
+    }
+
+    window.open(`https://wa.me/${phone}`, "_blank");
+  });
+};
 
 
 const commentList = document.getElementById("commentList");
