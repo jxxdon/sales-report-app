@@ -144,11 +144,14 @@ await setDoc(docRef, {
 await setDoc(
   doc(db, "aktivitas", `${Date.now()}_${user}`),
   {
-    user: user,
+    user,
     role: user === "admin" ? "admin" : "sales",
     tipe: "INPUT_PROSPEK",
-    pesan: `Input prospek baru, ${nama}, ${noTelp}`,
-    prospekId: noTelp, // ⬅️ ID DOKUMEN PROSPEK
+    nama,
+    telepon: noTelp,
+    asal: asalProspek,
+    produk: tipeTertarik.join(", "),
+    prospekId: noTelp,
     createdAt: new Date()
   }
 );
@@ -165,5 +168,6 @@ location.reload();
     btn.textContent = "💾 Simpan Prospek";
   }
 });
+
 
 
