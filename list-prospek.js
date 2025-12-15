@@ -300,6 +300,7 @@ btnPost.onclick = async () => {
   });
 
   // LOG AKTIVITASawait setDoc(
+  await setDoc(
   doc(db, "aktivitas", `${Date.now()}_${user}`),
   {
     user: user,
