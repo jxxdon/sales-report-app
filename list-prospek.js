@@ -39,7 +39,9 @@ shortlistWrap.style.cssText = `
   gap:8px;
   margin:10px 0 16px;
   flex-wrap:wrap;
+  justify-content:center;
 `;
+
 
 const SHORTLIST = ["Hot","Survey","Negosiasi","Booking","Closing"];
 
