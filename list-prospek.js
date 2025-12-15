@@ -25,10 +25,14 @@ const searchInput = document.getElementById("searchInput");
 const modal = document.getElementById("detailModal");
 const closeModal = document.querySelector(".close");
 const detailContent = document.getElementById("detailContent");
-
 const progressList = document.getElementById("progressList");
 const commentInput = document.getElementById("commentInput");
 const btnPost = document.getElementById("btnPostComment");
+const commentList = document.getElementById("commentList");
+
+/* =====================
+   WA BUTTON
+===================== */
 const btnWa = document.createElement("button");
 btnWa.textContent = "Kirim WA";
 btnWa.style.cssText = `
@@ -38,32 +42,22 @@ btnWa.style.cssText = `
   background:#25D366;
   color:#fff;
   cursor:pointer;
-  margin-left:8px;
+  margin-bottom:10px;
 `;
 
-// ⬇️ INI POSISINYA (YANG KAMU TANYA)
 btnWa.onclick = () => {
   if (!currentDocId) return;
-
   onSnapshot(doc(db, "prospek", currentDocId), snap => {
-    if (!snap.exists()) return;
-
     const d = snap.data();
-    if (!d.noTelp) return;
-
+    if (!d?.noTelp) return;
     let phone = d.noTelp.replace(/\D/g, "");
-    if (phone.startsWith("0")) {
-      phone = "62" + phone.slice(1);
-    }
-
+    if (phone.startsWith("0")) phone = "62" + phone.slice(1);
     window.open(`https://wa.me/${phone}`, "_blank");
   });
 };
 
-
-const commentList = document.getElementById("commentList");
 /* =====================
-   SHORTLIST PROGRESS
+   SHORTLIST
 ===================== */
 const shortlistWrap = document.createElement("div");
 shortlistWrap.style.cssText = `
@@ -74,8 +68,8 @@ shortlistWrap.style.cssText = `
   justify-content:center;
 `;
 
-
 const SHORTLIST = ["Hot","Survey","Negosiasi","Booking","Closing"];
+let selectedShortlistProgress = null;
 
 SHORTLIST.forEach(p => {
   const btn = document.createElement("button");
@@ -90,26 +84,26 @@ SHORTLIST.forEach(p => {
   `;
 
   btn.onclick = () => {
-    if (selectedShortlistProgress === p) {
-      selectedShortlistProgress = null;
-      btn.style.background = "#f5f5f5";
-      btn.style.color = "#000";
-    } else {
-      selectedShortlistProgress = p;
-      [...shortlistWrap.children].forEach(b=>{
-        b.style.background="#f5f5f5";
-        b.style.color="#000";
-      });
-      btn.style.background = "#5d5af8";
-      btn.style.color = "#fff";
+    selectedShortlistProgress =
+      selectedShortlistProgress === p ? null : p;
+
+    [...shortlistWrap.children].forEach(b=>{
+      b.style.background="#f5f5f5";
+      b.style.color="#000";
+    });
+
+    if (selectedShortlistProgress) {
+      btn.style.background="#5d5af8";
+      btn.style.color="#fff";
     }
+
+    visibleCount = 10;
     loadProspek(searchInput.value);
   };
 
   shortlistWrap.appendChild(btn);
 });
 
-// PASANG TEPAT SETELAH SEARCH INPUT
 searchInput.parentNode.insertBefore(
   shortlistWrap,
   searchInput.nextSibling
@@ -122,7 +116,6 @@ let unsubscribe = null;
 let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
-let selectedShortlistProgress = null;
 let visibleCount = 10;
 
 /* =====================
@@ -137,111 +130,83 @@ const PROGRESS = [
 /* =====================
    HELPER
 ===================== */
-const cleanPhone = (v) => (v ? v.replace(/\D/g, "") : "");
+const cleanPhone = v => v ? v.replace(/\D/g,"") : "";
 
 function getStatus(createdAt) {
-  if (!createdAt || !createdAt.toDate) return "Personal Lead";
-  const diff = (new Date() - createdAt.toDate()) / (1000*60*60*24);
+  if (!createdAt?.toDate) return "Personal Lead";
+  const diff = (new Date() - createdAt.toDate()) / 86400000;
   return diff < 30 ? "Personal Lead" : "Open Lead";
 }
 
 function formatDate(ts) {
   if (!ts) return "-";
   const d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleString("id-ID", {
-    day:"2-digit", month:"short", year:"2-digit",
-    hour:"2-digit", minute:"2-digit", second:"2-digit"
-  });
+  return d.toLocaleString("id-ID");
 }
 
 /* =====================
-   LOAD PROSPEK (FINAL)
+   LOAD PROSPEK (FIXED)
 ===================== */
 function loadProspek(keyword = "") {
-  visibleCount = 10;
   if (unsubscribe) unsubscribe();
 
   const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
 
   let q;
-
-  // ADMIN → semua
-  if (isAdmin) {
-    q = query(collection(db, "prospek"));
-
-  // SALES + SEARCH → semua (difilter di frontend)
-  } else if (search.length > 0 || phoneSearch.length > 0) {
-    q = query(collection(db, "prospek"));
-
-  // SALES NORMAL → hanya prospeknya
+  if (isAdmin || search || phoneSearch) {
+    q = query(collection(db,"prospek"));
   } else {
     q = query(
-      collection(db, "prospek"),
-      where("namaUser", "==", user)
+      collection(db,"prospek"),
+      where("namaUser","==",user)
     );
   }
 
   unsubscribe = onSnapshot(q, snap => {
     prospekList.innerHTML = "";
 
-    // SORT FRONTEND (AMAN DATA LAMA)
-    const docs = snap.docs.sort((a, b) => {
-      const ta = a.data().createdAt?.toDate?.() || new Date(0);
-      const tb = b.data().createdAt?.toDate?.() || new Date(0);
+    let docs = snap.docs.sort((a,b)=>{
+      const ta = a.data().createdAt?.toDate?.() || 0;
+      const tb = b.data().createdAt?.toDate?.() || 0;
       return tb - ta;
     });
 
-    docs.slice(0, visibleCount).forEach(docSnap => {
+    // FILTER
+    docs = docs.filter(docSnap=>{
       const d = docSnap.data();
-// FILTER SHORTLIST BERDASARKAN KOMENTAR TERAKHIR
-if (selectedShortlistProgress) {
-  const comments = d.comments || [];
-  if (!comments.length) return;
 
-  const lastProgress =
-    comments[comments.length - 1]?.progress;
-
-  if (lastProgress !== selectedShortlistProgress) return;
-}
-
-      // FILTER SEARCH
-      if (search) {
-        const namaMatch = (d.nama || "").toLowerCase().includes(search);
-        const telpMatch =
-          phoneSearch.length > 0
-            ? cleanPhone(d.noTelp).includes(phoneSearch)
-            : false;
-        if (!namaMatch && !telpMatch) return;
+      if (selectedShortlistProgress) {
+        const c = d.comments || [];
+        if (!c.length) return false;
+        if (c[c.length-1]?.progress !== selectedShortlistProgress)
+          return false;
       }
 
-      const status = getStatus(d.createdAt);
-      const statusClass =
-        status === "Personal Lead" ? "status-personal" : "status-open";
+      if (search) {
+        const n = (d.nama||"").toLowerCase().includes(search);
+        const t = phoneSearch &&
+          cleanPhone(d.noTelp).includes(phoneSearch);
+        if (!n && !t) return false;
+      }
+      return true;
+    });
 
+    docs.slice(0,visibleCount).forEach(docSnap=>{
+      const d = docSnap.data();
+      const status = getStatus(d.createdAt);
       const card = document.createElement("div");
       card.className = "prospek-card";
-
       card.innerHTML = `
-        <div class="nama">${d.nama || "-"}</div>
-
-        <div class="info">
-          📞 ${d.noTelp || "-"} - ${d.asalKota || "-"} - ${d.asalProspek || "-"}
-        </div>
-
-        <div class="info">👤 ${d.namaUser || "-"}</div>
-
+        <div class="nama">${d.nama||"-"}</div>
+        <div class="info">📞 ${d.noTelp||"-"} - ${d.asalKota||"-"} - ${d.asalProspek||"-"}</div>
+        <div class="info">👤 ${d.namaUser||"-"}</div>
         <div class="status-line">
-          <span class="status ${statusClass}">
-            ${status}
-          </span>
-          <span style="color:#888;font-size:.9em;">
-            Klik untuk detail →
-          </span>
+          <span class="status ${status==="Personal Lead"?"status-personal":"status-open"}">${status}</span>
+          <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
         </div>
       `;
-
-      card.onclick = () => openDetail(docSnap.id, d);
+      card.onclick = ()=>openDetail(docSnap.id,d);
       prospekList.appendChild(card);
     });
 
@@ -253,143 +218,105 @@ if (selectedShortlistProgress) {
 }
 
 /* =====================
-   DETAIL + COMMENT
+   DETAIL
 ===================== */
-function openDetail(docId, data) {
-  currentDocId = docId;
-  currentProspekNama = data.nama || "-";
-  selectedProgress = null;
+function openDetail(id,data){
+  currentDocId=id;
+  currentProspekNama=data.nama||"-";
+  selectedProgress=null;
 
-  detailContent.innerHTML = `
-    <div style="white-space:pre-wrap">${data.catatan || "-"}</div>
-  `;
-// ⬇️ PASANG TOMBOL WA DI SINI
-if (!btnWa.isConnected) {
-  detailContent.prepend(btnWa);
-}
+  detailContent.innerHTML =
+    `<div style="white-space:pre-wrap">${data.catatan||"-"}</div>`;
+
+  if (!btnWa.isConnected)
+    detailContent.prepend(btnWa);
+
   renderProgress();
   loadComments();
-  modal.style.display = "flex";
+  modal.style.display="flex";
 }
 
-function renderProgress() {
-  progressList.innerHTML = "";
-  PROGRESS.forEach(p => {
-    const btn = document.createElement("button");
-    btn.textContent = p;
-    btn.style.cssText = `
-      padding:4px 10px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      background:#f1f1f1;
-      cursor:pointer;
-      font-size:.85em;
-    `;
-    btn.onclick = () => {
-      selectedProgress = p;
-      [...progressList.children].forEach(b=>{
-        b.style.background="#f1f1f1";
-        b.style.color="#000";
-      });
-      btn.style.background="#5d5af8";
-      btn.style.color="#fff";
+function renderProgress(){
+  progressList.innerHTML="";
+  PROGRESS.forEach(p=>{
+    const b=document.createElement("button");
+    b.textContent=p;
+    b.style.cssText="padding:4px 10px;border-radius:12px;border:1px solid #ccc;background:#f1f1f1;font-size:.85em;";
+    b.onclick=()=>{
+      selectedProgress=p;
+      [...progressList.children].forEach(x=>x.style.background="#f1f1f1");
+      b.style.background="#5d5af8";
+      b.style.color="#fff";
     };
-    progressList.appendChild(btn);
+    progressList.appendChild(b);
   });
 }
 
-function loadComments() {
-  onSnapshot(doc(db,"prospek",currentDocId), snap => {
-    const comments = snap.data().comments || [];
-    commentList.innerHTML = "";
-    comments.forEach(c => {
-      commentList.innerHTML += `
-        <div style="margin-bottom:12px;">
+function loadComments(){
+  onSnapshot(doc(db,"prospek",currentDocId),snap=>{
+    commentList.innerHTML="";
+    (snap.data().comments||[]).forEach(c=>{
+      commentList.innerHTML+=`
+        <div style="margin-bottom:12px">
           <strong>${c.progress}</strong> - ${c.text}<br>
-          <small style="color:#666">
-            ${c.user} ; ${formatDate(c.createdAt)}
-          </small>
-        </div>
-      `;
+          <small>${c.user} ; ${formatDate(c.createdAt)}</small>
+        </div>`;
     });
   });
 }
 
 /* =====================
-   POST COMMENT + LOG
+   POST COMMENT
 ===================== */
-btnPost.onclick = async () => {
-  const text = commentInput.value.trim();
-  if (!text) return alert("Komentar kosong");
-  if (!selectedProgress) return alert("Pilih progres dulu");
-  if (!currentDocId) return;
-
-  // SIMPAN KOMENTAR
-  await updateDoc(doc(db,"prospek",currentDocId), {
-    comments: arrayUnion({
-      progress: selectedProgress,
-      text,
+btnPost.onclick=async()=>{
+  if(!commentInput.value||!selectedProgress)return;
+  await updateDoc(doc(db,"prospek",currentDocId),{
+    comments:arrayUnion({
+      progress:selectedProgress,
+      text:commentInput.value,
       user,
-      createdAt: new Date()
+      createdAt:new Date()
     })
   });
 
-// LOG AKTIVITAS
-  
   await setDoc(
-  doc(db, "aktivitas", `${Date.now()}_${user}`),
-  {
-    user: user,
-    role: isAdmin ? "admin" : "sales",
-    tipe: "KOMENTAR",
-    pesan: `Komentar di Prospek ${currentProspekNama} ; ${selectedProgress} - ${text}`,
-    prospekId: currentDocId, // ⬅️ INI KUNCI NYAWA
-    createdAt: new Date()
-  }
-);
+    doc(db,"aktivitas",`${Date.now()}_${user}`),
+    {
+      user,
+      role:isAdmin?"admin":"sales",
+      tipe:"KOMENTAR",
+      pesan:`Komentar di Prospek ${currentProspekNama}`,
+      prospekId:currentDocId,
+      createdAt:new Date()
+    }
+  );
 
-
-  commentInput.value = "";
-  selectedProgress = null;
+  commentInput.value="";
+  selectedProgress=null;
   renderProgress();
 };
 
 /* =====================
    EVENT
 ===================== */
-window.addEventListener("scroll", () => {
-  if (
-    window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 200
-  ) {
-    visibleCount += 10;
+window.addEventListener("scroll",()=>{
+  if(window.innerHeight+window.scrollY>=document.body.offsetHeight-200){
+    visibleCount+=10;
     loadProspek(searchInput.value);
   }
 });
 
+closeModal.onclick=()=>modal.style.display="none";
 
-closeModal.onclick = () => modal.style.display = "none";
-
-searchInput.addEventListener("input", e => {
+searchInput.addEventListener("input",e=>{
   clearTimeout(window._d);
-  window._d = setTimeout(
-    () => loadProspek(e.target.value),
-    300
-  );
+  window._d=setTimeout(()=>{
+    visibleCount=10;
+    loadProspek(e.target.value);
+  },300);
 });
 
 /* =====================
    INIT
 ===================== */
-const params = new URLSearchParams(window.location.search);
-const openId = params.get("open");
-
-if (openId) {
-  onSnapshot(doc(db, "prospek", openId), snap => {
-    if (snap.exists()) {
-      openDetail(openId, snap.data());
-    }
-  });
-}
-
 loadProspek();
