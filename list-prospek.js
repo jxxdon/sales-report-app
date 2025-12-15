@@ -41,7 +41,7 @@ btnWa.style.cssText = `
   margin-left:8px;
 `;
 
-btnPost.pconst modalTitle = document.querySelector(
+const modalTitle = document.querySelector(
   "#detailModal h2"
 );
 
@@ -49,7 +49,7 @@ modalTitle.insertAdjacentElement(
   "afterend",
   btnWa
 );
-arentNode.appendChild(btnWa);
+
 
 const commentList = document.getElementById("commentList");
 /* =====================
@@ -321,7 +321,7 @@ btnPost.onclick = async () => {
     })
   });
 
-  // LOG AKTIVITASawait setDoc(
+// LOG AKTIVITAS
   
   await setDoc(
   doc(db, "aktivitas", `${Date.now()}_${user}`),
