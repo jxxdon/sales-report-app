@@ -41,14 +41,6 @@ btnWa.style.cssText = `
   margin-left:8px;
 `;
 
-const modalTitle = document.querySelector(
-  "#detailModal h2"
-);
-
-modalTitle.insertAdjacentElement(
-  "afterend",
-  btnWa
-);
 
 
 const commentList = document.getElementById("commentList");
@@ -253,7 +245,11 @@ function openDetail(docId, data) {
   detailContent.innerHTML = `
     <div style="white-space:pre-wrap">${data.catatan || "-"}</div>
   `;
-
+// ⬇️ PASANG TOMBOL WA DI SINI
+const modalTitle = document.querySelector("#detailModal h2");
+if (modalTitle && !btnWa.isConnected) {
+  modalTitle.insertAdjacentElement("afterend", btnWa);
+}
   renderProgress();
   loadComments();
   modal.style.display = "flex";
