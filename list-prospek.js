@@ -299,18 +299,18 @@ btnPost.onclick = async () => {
     })
   });
 
-  // LOG AKTIVITAS
-  await setDoc(
-    doc(db, "aktivitas", `${Date.now()}_${user}`),
-    {
-      user: user,
-      role: isAdmin ? "admin" : "sales",
-      tipe: "KOMENTAR",
-      pesan: `Komentar di Prospek ${currentProspekNama} ; ${selectedProgress} - ${text}`,
-      prospekId: currentDocId,
-      createdAt: new Date()
-    }
-  );
+  // LOG AKTIVITASawait setDoc(
+  doc(db, "aktivitas", `${Date.now()}_${user}`),
+  {
+    user: user,
+    role: isAdmin ? "admin" : "sales",
+    tipe: "KOMENTAR",
+    pesan: `Komentar di Prospek ${currentProspekNama} ; ${selectedProgress} - ${text}`,
+    prospekId: currentDocId, // ⬅️ INI KUNCI NYAWA
+    createdAt: new Date()
+  }
+);
+
 
   commentInput.value = "";
   selectedProgress = null;
