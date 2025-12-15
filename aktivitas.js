@@ -29,6 +29,36 @@ function formatDate(ts) {
   });
 }
 
+// ===== MODAL ELEMENT =====
+const modal = document.getElementById("detailModal");
+const closeModal = document.querySelector(".close");
+const detailContent = document.getElementById("detailContent");
+const commentList = document.getElementById("commentList");
+
+function openDetailFromActivity(prospekId) {
+  onDocSnapshot(doc(db, "prospek", prospekId), snap => {
+    if (!snap.exists()) return;
+    const d = snap.data();
+
+    detailContent.innerHTML =
+      `<div style="white-space:pre-wrap">${d.catatan || "-"}</div>`;
+
+    commentList.innerHTML = "";
+    (d.comments || []).forEach(c => {
+      commentList.innerHTML += `
+        <div style="margin-bottom:12px">
+          <strong>${c.progress}</strong> - ${c.text}<br>
+          <small>${c.user} ; ${formatDate(c.createdAt)}</small>
+        </div>
+      `;
+    });
+
+    modal.style.display = "flex";
+  });
+}
+
+closeModal.onclick = () => modal.style.display = "none";
+
 let q;
 if (isAdmin) {
   q = query(collection(db, "aktivitas"), orderBy("createdAt", "desc"));
@@ -95,12 +125,7 @@ onSnapshot(q, snap => {
 el.style.cursor = "pointer";
 el.onclick = () => {
   if (!d.prospekId) return;
-
-  // simpan ID prospek yang diklik
-  localStorage.setItem("openProspekId", d.prospekId);
-
-  // pindah ke halaman prospek
-  window.location.href = "list-prospek.html";
+  openDetailFromActivity(d.prospekId);
 };
 
 if (!d.prospekId) {
