@@ -91,6 +91,7 @@ let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
 let selectedShortlistProgress = null;
+let visibleCount = 10;
 
 /* =====================
    CONST
@@ -125,6 +126,7 @@ function formatDate(ts) {
    LOAD PROSPEK (FINAL)
 ===================== */
 function loadProspek(keyword = "") {
+  visibleCount = 10;
   if (unsubscribe) unsubscribe();
 
   const search = keyword.trim().toLowerCase();
@@ -158,7 +160,7 @@ function loadProspek(keyword = "") {
       return tb - ta;
     });
 
-    docs.forEach(docSnap => {
+    docs.slice(0, visibleCount).forEach(docSnap => {
       const d = docSnap.data();
 // FILTER SHORTLIST BERDASARKAN KOMENTAR TERAKHIR
 if (selectedShortlistProgress) {
@@ -317,6 +319,17 @@ btnPost.onclick = async () => {
 /* =====================
    EVENT
 ===================== */
+window.addEventListener("scroll", () => {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 200
+  ) {
+    visibleCount += 10;
+    loadProspek(searchInput.value);
+  }
+});
+
+
 closeModal.onclick = () => modal.style.display = "none";
 
 searchInput.addEventListener("input", e => {
