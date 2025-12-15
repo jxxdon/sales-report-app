@@ -264,9 +264,8 @@ function openDetail(docId, data) {
     <div style="white-space:pre-wrap">${data.catatan || "-"}</div>
   `;
 // ⬇️ PASANG TOMBOL WA DI SINI
-const modalTitle = document.querySelector("#detailModal h2");
-if (modalTitle && !btnWa.isConnected) {
-  modalTitle.insertAdjacentElement("afterend", btnWa);
+if (!btnWa.isConnected) {
+  detailContent.prepend(btnWa);
 }
   renderProgress();
   loadComments();
