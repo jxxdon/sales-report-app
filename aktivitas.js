@@ -41,16 +41,12 @@ if (isAdmin) {
 }
 
 function buildPesanDetail(d) {
-  // INPUT PROSPEK BARU
   if (d.tipe === "INPUT_PROSPEK") {
-    return `Input data baru ; ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
+    return `Input Prospek : ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
   }
 
-  // KOMENTAR / PROGRESS
-  const kategori = d.progress || d.kategori || "Komentar";
-  const komentar = d.komentar || d.pesan || "-";
-
-  return `${kategori} : ${komentar}`;
+  // KOMENTAR WAJIB DARI PROGRESS + KOMENTAR
+  return `Komentar : ${d.progress || "-"} - ${d.komentar || "-"}`;
 }
 
 onSnapshot(q, snap => {
