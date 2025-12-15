@@ -40,6 +40,18 @@ if (isAdmin) {
   );
 }
 
+function buildPesanDetail(d) {
+  // INPUT PROSPEK BARU
+  if (d.tipe === "INPUT_PROSPEK") {
+    return `Input data baru ; ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
+  }
+
+  // KOMENTAR / PROGRESS
+  const kategori = d.progress || d.kategori || "Komentar";
+  const komentar = d.komentar || d.pesan || "-";
+
+  return `${kategori} : ${komentar}`;
+}
 
 onSnapshot(q, snap => {
   list.innerHTML = "";
@@ -65,8 +77,8 @@ onSnapshot(q, snap => {
       </div>
 
       <div class="text">
-        ${d.pesan}
-      </div>
+  ${buildPesanDetail(d)}
+</div>
 
       <div class="time">
         ${formatDate(d.createdAt)}
