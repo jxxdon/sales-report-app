@@ -120,7 +120,7 @@ if (d.prospekId) {
   };
 } else {
   el.style.opacity = "0.6";
-  el.style.cursor = "not-allowed";
+  el.style.cursor = "default"; // ⬅️ PENTING
 }
 
     list.appendChild(el);
