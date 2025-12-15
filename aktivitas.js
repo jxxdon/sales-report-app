@@ -8,65 +8,41 @@ import {
   getDocs,
   startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-// ⬇️ TAMBAHKAN DI SINI
-const loadedIds = new Set();
-// ⬆️ SAMPAI SINI
 
-import {
-  doc,
-  onSnapshot as onDocSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-// ⬇️ TAMBAHKAN STEP 1 DI SINI
-let lastVisible = null;
-let isLoading = false;
-const PAGE_SIZE = 10;
-// ⬆️ SAMPAI SINI
-
+/* =====================
+   STATE & KONFIG
+===================== */
 const user = localStorage.getItem("user")?.trim().toLowerCase();
 if (!user) location.href = "index.html";
+
 const isAdmin = user === "admin";
 
 const list = document.getElementById("activityList");
 
+const PAGE_SIZE = 10;
+let lastVisible = null;
+let isLoading = false;
+
+// Guard anti-duplikat (WAJIB untuk mobile scroll)
+const loadedIds = new Set();
+
+/* =====================
+   HELPER
+===================== */
 function formatDate(ts) {
-  const d = ts?.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  });
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString("id-ID");
 }
 
-let q;
-
-if (isAdmin) {
-  q = query(
-    collection(db, "aktivitas"),
-    orderBy("createdAt", "desc"),
-    ...(lastVisible ? [startAfter(lastVisible)] : []),
-    limit(PAGE_SIZE)
-  );
-} else {
-  q = query(
-    collection(db, "aktivitas"),
-    where("user", "==", user),
-    orderBy("createdAt", "desc"),
-    ...(lastVisible ? [startAfter(lastVisible)] : []),
-    limit(PAGE_SIZE)
-  );
-}
-
-
+/* =====================
+   LOAD AKTIVITAS (FINAL)
+===================== */
 async function loadAktivitas() {
   if (isLoading) return;
   isLoading = true;
 
- if (!lastVisible) list.innerHTML = "";
-
+  if (!lastVisible) list.innerHTML = "";
 
   let q;
 
@@ -74,47 +50,57 @@ async function loadAktivitas() {
     q = query(
       collection(db, "aktivitas"),
       orderBy("createdAt", "desc"),
+      ...(lastVisible ? [startAfter(lastVisible)] : []),
       limit(PAGE_SIZE)
     );
   } else {
     q = query(
-  collection(db, "aktivitas"),
-  where("user", "==", user),
-  orderBy("createdAt", "desc"),
-  ...(lastVisible ? [startAfter(lastVisible)] : []),
-  limit(PAGE_SIZE)
-);
-
+      collection(db, "aktivitas"),
+      where("user", "==", user),
+      orderBy("createdAt", "desc"),
+      ...(lastVisible ? [startAfter(lastVisible)] : []),
+      limit(PAGE_SIZE)
+    );
   }
 
   const snap = await getDocs(q);
 
+  // Kalau data habis → stop total
   if (snap.empty) {
-    list.innerHTML = `<div class="empty">Belum ada aktivitas</div>`;
-    isLoading = false;
+    isLoading = true;
     return;
   }
 
   snap.forEach(docSnap => {
-    // ⬇️ TAMBAHKAN 2 BARIS INI (PERSIS DI SINI)
-  if (loadedIds.has(docSnap.id)) return;
-  loadedIds.add(docSnap.id);
-  // ⬆️ SAMPAI SINI
-    const d = docSnap.data();
+    // ⛔ Cegah render data yang sama
+    if (loadedIds.has(docSnap.id)) return;
+    loadedIds.add(docSnap.id);
 
+    const d = docSnap.data();
     const el = document.createElement("div");
     el.className = "card";
 
     el.innerHTML = `
-      <div>${d.pesan}</div>
-      <small>${d.user}</small>
+      <div class="row">
+        <strong>${d.user || "-"}</strong>
+        <span>${d.tipe || ""}</span>
+      </div>
+      <div class="text">${d.pesan || ""}</div>
+      <div class="time">${formatDate(d.createdAt)}</div>
     `;
 
-    el.style.cursor = "pointer";
-    el.onclick = () => {
-      window.location.href =
-        `list-prospek.html?open=${d.prospekId || ""}`;
-    };
+    // Klik hanya jika ada prospekId
+    if (d.prospekId) {
+      el.style.cursor = "pointer";
+      el.onclick = () => {
+        window.location.href =
+          `list-prospek.html?open=${d.prospekId}`;
+      };
+    } else {
+      el.style.opacity = "0.6";
+      el.style.cursor = "default";
+      el.title = "Aktivitas lama";
+    }
 
     list.appendChild(el);
   });
@@ -122,8 +108,15 @@ async function loadAktivitas() {
   lastVisible = snap.docs[snap.docs.length - 1];
   isLoading = false;
 }
+
+/* =====================
+   INIT
+===================== */
 loadAktivitas();
 
+/* =====================
+   SCROLL AUTO LOAD
+===================== */
 window.addEventListener("scroll", () => {
   if (
     window.innerHeight + window.scrollY >=
