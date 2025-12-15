@@ -17,11 +17,6 @@ const isAdmin = user === "admin";
 
 const list = document.getElementById("activityList");
 
-const modal = document.getElementById("detailModal");
-const detailContent = document.getElementById("detailContent");
-const commentList = document.getElementById("commentList");
-const closeModal = document.querySelector(".close");
-
 function formatDate(ts) {
   const d = ts?.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleString("id-ID", {
@@ -77,7 +72,6 @@ onSnapshot(q, snap => {
         ${formatDate(d.createdAt)}
       </div>
     `;
-el.style.cursor = "pointer";
 
 el.style.cursor = "pointer";
 el.onclick = () => {
@@ -94,8 +88,4 @@ if (!d.prospekId) {
     list.appendChild(el);
   });
 });
-if (closeModal && modal) {
-  closeModal.onclick = () => {
-    modal.style.display = "none";
-  };
-}
+
