@@ -41,12 +41,23 @@ if (isAdmin) {
 }
 
 function buildPesanDetail(d) {
+  // INPUT PROSPEK BARU (FORMAT BARU)
   if (d.tipe === "INPUT_PROSPEK") {
-    return `Input Prospek : ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
+    if (d.nama || d.telepon) {
+      return `Input Prospek : ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
+    }
+
+    // FALLBACK LOG INPUT LAMA
+    return d.pesan || "Input Prospek";
   }
 
-  // KOMENTAR WAJIB DARI PROGRESS + KOMENTAR
-  return `Komentar : ${d.progress || "-"} - ${d.komentar || "-"}`;
+  // KOMENTAR FORMAT BARU
+  if (d.progress || d.komentar) {
+    return `Komentar : ${d.progress || "-"} - ${d.komentar || "-"}`;
+  }
+
+  // FALLBACK LOG KOMENTAR LAMA
+  return d.pesan || "Komentar";
 }
 
 onSnapshot(q, snap => {
