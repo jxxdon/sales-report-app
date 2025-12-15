@@ -321,4 +321,17 @@ searchInput.addEventListener("input",e=>{
 /* =====================
    INIT
 ===================== */
+// 🔔 AUTO OPEN MODAL DARI LOG AKTIVITAS
+const openId = localStorage.getItem("openProspekId");
+if (openId) {
+  localStorage.removeItem("openProspekId");
+
+  onSnapshot(doc(db, "prospek", openId), snap => {
+    if (snap.exists()) {
+      openDetail(openId, snap.data());
+    }
+  });
+}
+
+
 loadProspek();
