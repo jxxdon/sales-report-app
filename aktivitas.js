@@ -8,6 +8,10 @@ import {
   getDocs,
   startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+// ⬇️ TAMBAHKAN DI SINI
+const loadedIds = new Set();
+// ⬆️ SAMPAI SINI
+
 import {
   doc,
   onSnapshot as onDocSnapshot
@@ -92,6 +96,10 @@ async function loadAktivitas() {
   }
 
   snap.forEach(docSnap => {
+    // ⬇️ TAMBAHKAN 2 BARIS INI (PERSIS DI SINI)
+  if (loadedIds.has(docSnap.id)) return;
+  loadedIds.add(docSnap.id);
+  // ⬆️ SAMPAI SINI
     const d = docSnap.data();
 
     const el = document.createElement("div");
