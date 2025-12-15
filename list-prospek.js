@@ -30,6 +30,56 @@ const progressList = document.getElementById("progressList");
 const commentInput = document.getElementById("commentInput");
 const btnPost = document.getElementById("btnPostComment");
 const commentList = document.getElementById("commentList");
+/* =====================
+   SHORTLIST PROGRESS
+===================== */
+const shortlistWrap = document.createElement("div");
+shortlistWrap.style.cssText = `
+  display:flex;
+  gap:8px;
+  margin:10px 0 16px;
+  flex-wrap:wrap;
+`;
+
+const SHORTLIST = ["Hot","Survey","Negosiasi","Booking","Closing"];
+
+SHORTLIST.forEach(p => {
+  const btn = document.createElement("button");
+  btn.textContent = p;
+  btn.style.cssText = `
+    padding:6px 14px;
+    border-radius:14px;
+    border:1px solid #ccc;
+    background:#f5f5f5;
+    font-size:.85em;
+    cursor:pointer;
+  `;
+
+  btn.onclick = () => {
+    if (selectedShortlistProgress === p) {
+      selectedShortlistProgress = null;
+      btn.style.background = "#f5f5f5";
+      btn.style.color = "#000";
+    } else {
+      selectedShortlistProgress = p;
+      [...shortlistWrap.children].forEach(b=>{
+        b.style.background="#f5f5f5";
+        b.style.color="#000";
+      });
+      btn.style.background = "#5d5af8";
+      btn.style.color = "#fff";
+    }
+    loadProspek(searchInput.value);
+  };
+
+  shortlistWrap.appendChild(btn);
+});
+
+// PASANG TEPAT SETELAH SEARCH INPUT
+searchInput.parentNode.insertBefore(
+  shortlistWrap,
+  searchInput.nextSibling
+);
 
 /* =====================
    STATE
@@ -38,6 +88,7 @@ let unsubscribe = null;
 let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
+let selectedShortlistProgress = null;
 
 /* =====================
    CONST
@@ -107,6 +158,16 @@ function loadProspek(keyword = "") {
 
     docs.forEach(docSnap => {
       const d = docSnap.data();
+// FILTER SHORTLIST BERDASARKAN KOMENTAR TERAKHIR
+if (selectedShortlistProgress) {
+  const comments = d.comments || [];
+  if (!comments.length) return;
+
+  const lastProgress =
+    comments[comments.length - 1]?.progress;
+
+  if (lastProgress !== selectedShortlistProgress) return;
+}
 
       // FILTER SEARCH
       if (search) {
