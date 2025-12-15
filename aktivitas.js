@@ -11,6 +11,12 @@ import {
   onSnapshot as onDocSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+// ⬇️ TAMBAHKAN STEP 1 DI SINI
+let lastVisible = null;
+let isLoading = false;
+const PAGE_SIZE = 10;
+// ⬆️ SAMPAI SINI
+
 const user = localStorage.getItem("user")?.trim().toLowerCase();
 if (!user) location.href = "index.html";
 const isAdmin = user === "admin";
@@ -41,51 +47,67 @@ if (isAdmin) {
 }
 
 
-onSnapshot(q, snap => {
+async function loadAktivitas() {
+  if (isLoading) return;
+  isLoading = true;
+
   list.innerHTML = "";
+
+  let q;
+
+  if (isAdmin) {
+    q = query(
+      collection(db, "aktivitas"),
+      orderBy("createdAt", "desc"),
+      limit(PAGE_SIZE)
+    );
+  } else {
+    q = query(
+      collection(db, "aktivitas"),
+      where("user", "==", user),
+      orderBy("createdAt", "desc"),
+      limit(PAGE_SIZE)
+    );
+  }
+
+  const snap = await getDocs(q);
 
   if (snap.empty) {
     list.innerHTML = `<div class="empty">Belum ada aktivitas</div>`;
+    isLoading = false;
     return;
   }
 
   snap.forEach(docSnap => {
     const d = docSnap.data();
-    const type = d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
 
     const el = document.createElement("div");
     el.className = "card";
 
     el.innerHTML = `
-      <div class="row">
-        <div class="user">${d.user}</div>
-        <div class="badge ${type}">
-          ${type === "input" ? "Input Prospek" : "Komentar"}
-        </div>
-      </div>
-
-      <div class="text">
-        ${d.pesan}
-      </div>
-
-      <div class="time">
-        ${formatDate(d.createdAt)}
-      </div>
+      <div>${d.pesan}</div>
+      <small>${d.user}</small>
     `;
 
-el.style.cursor = "pointer";
-el.onclick = () => {
-  window.location.href =
-    `list-prospek.html?open=${d.prospekId || ""}`;
-};
-
-if (!d.prospekId) {
-  el.style.opacity = "0.6";
-  el.title = "Aktivitas lama";
-}
-
+    el.style.cursor = "pointer";
+    el.onclick = () => {
+      window.location.href =
+        `list-prospek.html?open=${d.prospekId || ""}`;
+    };
 
     list.appendChild(el);
   });
-});
 
+  lastVisible = snap.docs[snap.docs.length - 1];
+  isLoading = false;
+}
+loadAktivitas();
+
+window.addEventListener("scroll", () => {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 200
+  ) {
+    loadAktivitas();
+  }
+});
