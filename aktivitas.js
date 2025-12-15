@@ -4,7 +4,8 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot
+  limit,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   doc,
@@ -51,7 +52,8 @@ async function loadAktivitas() {
   if (isLoading) return;
   isLoading = true;
 
-  list.innerHTML = "";
+ if (!lastVisible) list.innerHTML = "";
+
 
   let q;
 
