@@ -41,7 +41,15 @@ btnWa.style.cssText = `
   margin-left:8px;
 `;
 
-btnPost.parentNode.appendChild(btnWa);
+btnPost.pconst modalTitle = document.querySelector(
+  "#detailModal h2"
+);
+
+modalTitle.insertAdjacentElement(
+  "afterend",
+  btnWa
+);
+arentNode.appendChild(btnWa);
 
 const commentList = document.getElementById("commentList");
 /* =====================
