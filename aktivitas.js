@@ -94,8 +94,13 @@ onSnapshot(q, snap => {
 
 el.style.cursor = "pointer";
 el.onclick = () => {
-  window.location.href =
-    `list-prospek.html?open=${d.prospekId || ""}`;
+  if (!d.prospekId) return;
+
+  // simpan ID prospek yang diklik
+  localStorage.setItem("openProspekId", d.prospekId);
+
+  // pindah ke halaman prospek
+  window.location.href = "list-prospek.html";
 };
 
 if (!d.prospekId) {
