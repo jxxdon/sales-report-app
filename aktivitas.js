@@ -112,16 +112,23 @@ onSnapshot(q, snap => {
         ${formatDate(d.createdAt)}
       </div>
     `;
-if (d.prospekId) {
-  el.style.cursor = "pointer";
-  el.onclick = () => {
-    window.location.href =
-      `list-prospek.html?open=${d.prospekId}`;
-  };
-} else {
+el.style.cursor = "pointer";
+
+el.onclick = () => {
+  if (!d.prospekId) {
+    alert("Aktivitas lama, detail prospek belum tersedia");
+    return;
+  }
+
+  window.location.href =
+    `list-prospek.html?open=${d.prospekId}`;
+};
+
+if (!d.prospekId) {
   el.style.opacity = "0.6";
-  el.style.cursor = "default"; // ⬅️ PENTING
+  el.title = "Aktivitas lama";
 }
+
 
     list.appendChild(el);
   });
