@@ -52,6 +52,18 @@ function buildPesanDetail(d) {
 
   return `${kategori} : ${komentar}`;
 }
+function buildPesanDetail(d) {
+  // INPUT PROSPEK
+  if (d.tipe === "INPUT_PROSPEK") {
+    return d.pesan; // biarin seperti sebelumnya
+  }
+
+  // KOMENTAR + PROGRESS
+  const progress = d.progress || "Tanpa Progress";
+  const komentar = d.komentar || d.pesan || "-";
+
+  return `Komentar : ${progress} - ${komentar}`;
+}
 
 onSnapshot(q, snap => {
   list.innerHTML = "";
