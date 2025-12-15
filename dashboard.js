@@ -148,6 +148,7 @@ await setDoc(
     role: user === "admin" ? "admin" : "sales",
     tipe: "INPUT_PROSPEK",
     pesan: `Input prospek baru, ${nama}, ${noTelp}`,
+    prospekId: noTelp, // ⬅️ ID DOKUMEN PROSPEK
     createdAt: new Date()
   }
 );
@@ -164,4 +165,5 @@ location.reload();
     btn.textContent = "💾 Simpan Prospek";
   }
 });
+
 
