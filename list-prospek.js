@@ -280,16 +280,18 @@ btnPost.onclick=async()=>{
   });
 
   await setDoc(
-    doc(db,"aktivitas",`${Date.now()}_${user}`),
-    {
-      user,
-      role:isAdmin?"admin":"sales",
-      tipe:"KOMENTAR",
-      pesan:`Komentar di Prospek ${currentProspekNama}`,
-      prospekId:currentDocId,
-      createdAt:new Date()
-    }
-  );
+  doc(db,"aktivitas",`${Date.now()}_${user}`),
+  {
+    user,
+    role: isAdmin ? "admin" : "sales",
+    tipe: "KOMENTAR",
+    progress: selectedProgress,
+    komentar: commentInput.value,
+    prospekId: currentDocId,
+    createdAt: new Date()
+  }
+);
+
 
   commentInput.value="";
   selectedProgress=null;
