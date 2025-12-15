@@ -307,6 +307,7 @@ btnPost.onclick = async () => {
       role: isAdmin ? "admin" : "sales",
       tipe: "KOMENTAR",
       pesan: `Komentar di Prospek ${currentProspekNama} ; ${selectedProgress} - ${text}`,
+      prospekId: currentDocId,
       createdAt: new Date()
     }
   );
