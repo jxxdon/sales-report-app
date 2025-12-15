@@ -29,6 +29,20 @@ const detailContent = document.getElementById("detailContent");
 const progressList = document.getElementById("progressList");
 const commentInput = document.getElementById("commentInput");
 const btnPost = document.getElementById("btnPostComment");
+const btnWa = document.createElement("button");
+btnWa.textContent = "Kirim WA";
+btnWa.style.cssText = `
+  padding:6px 14px;
+  border-radius:8px;
+  border:1px solid #25D366;
+  background:#25D366;
+  color:#fff;
+  cursor:pointer;
+  margin-left:8px;
+`;
+
+btnPost.parentNode.appendChild(btnWa);
+
 const commentList = document.getElementById("commentList");
 /* =====================
    SHORTLIST PROGRESS
