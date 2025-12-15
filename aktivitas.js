@@ -38,13 +38,21 @@ function formatDate(ts) {
 }
 
 let q;
+
 if (isAdmin) {
-  q = query(collection(db, "aktivitas"), orderBy("createdAt", "desc"));
+  q = query(
+    collection(db, "aktivitas"),
+    orderBy("createdAt", "desc"),
+    ...(lastVisible ? [startAfter(lastVisible)] : []),
+    limit(PAGE_SIZE)
+  );
 } else {
   q = query(
     collection(db, "aktivitas"),
     where("user", "==", user),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
+    ...(lastVisible ? [startAfter(lastVisible)] : []),
+    limit(PAGE_SIZE)
   );
 }
 
