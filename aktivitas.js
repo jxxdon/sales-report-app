@@ -112,16 +112,16 @@ onSnapshot(q, snap => {
         ${formatDate(d.createdAt)}
       </div>
     `;
-el.style.cursor = "pointer";
-el.onclick = () => {
-  if (!d.prospekId) {
-    alert("Prospek tidak ditemukan");
-    return;
-  }
-
-  window.location.href =
-    `list-prospek.html?open=${d.prospekId}`;
-};
+if (d.prospekId) {
+  el.style.cursor = "pointer";
+  el.onclick = () => {
+    window.location.href =
+      `list-prospek.html?open=${d.prospekId}`;
+  };
+} else {
+  el.style.opacity = "0.6";
+  el.style.cursor = "not-allowed";
+}
 
     list.appendChild(el);
   });
