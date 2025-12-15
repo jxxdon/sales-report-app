@@ -5,7 +5,8 @@ import {
   where,
   orderBy,
   limit,
-  getDocs
+  getDocs,
+  startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   doc,
@@ -65,11 +66,13 @@ async function loadAktivitas() {
     );
   } else {
     q = query(
-      collection(db, "aktivitas"),
-      where("user", "==", user),
-      orderBy("createdAt", "desc"),
-      limit(PAGE_SIZE)
-    );
+  collection(db, "aktivitas"),
+  where("user", "==", user),
+  orderBy("createdAt", "desc"),
+  ...(lastVisible ? [startAfter(lastVisible)] : []),
+  limit(PAGE_SIZE)
+);
+
   }
 
   const snap = await getDocs(q);
