@@ -344,4 +344,15 @@ searchInput.addEventListener("input", e => {
 /* =====================
    INIT
 ===================== */
+const params = new URLSearchParams(window.location.search);
+const openId = params.get("open");
+
+if (openId) {
+  onSnapshot(doc(db, "prospek", openId), snap => {
+    if (snap.exists()) {
+      openDetail(openId, snap.data());
+    }
+  });
+}
+
 loadProspek();
