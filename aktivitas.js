@@ -113,7 +113,6 @@ onSnapshot(q, snap => {
       </div>
     `;
 el.style.cursor = "pointer";
-
 el.onclick = () => {
   openProspekFromActivity(d.prospekId);
 };
@@ -121,6 +120,8 @@ el.onclick = () => {
     list.appendChild(el);
   });
 });
-closeModal.onclick = () => {
-  modal.style.display = "none";
-};
+if (closeModal && modal) {
+  closeModal.onclick = () => {
+    modal.style.display = "none";
+  };
+}
