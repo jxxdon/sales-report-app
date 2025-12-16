@@ -1,53 +1,51 @@
 import { db } from "./firebase.js";
-import { collection, onSnapshot } from
-  "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {
+  collection,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
    ELEMENT
 ===================== */
-const totalProspekEl = document.getElementById("totalProspek");
-const prospekBySalesEl = document.getElementById("prospekBySales");
-const progressDataEl = document.getElementById("progressData");
+const totalProspekEl   = document.getElementById("totalProspek");
+const prospekBySales  = document.getElementById("prospekBySales");
+const progressDataEl  = document.getElementById("progressData");
 const aktivitasDataEl = document.getElementById("aktivitasData");
-const titleRangeEl = document.getElementById("titleRange");
+const titleRangeEl    = document.getElementById("titleRange");
 
-const btnCurrent = document.getElementById("btnCurrent");
+const btnCurrent  = document.getElementById("btnCurrent");
 const selectMonth = document.getElementById("selectMonth");
-const selectYear = document.getElementById("selectYear");
+const selectYear  = document.getElementById("selectYear");
 
 /* =====================
    STATE
 ===================== */
-let month = new Date().getMonth();   // 0–11
-let year = new Date().getFullYear();
-let mode = "bulanan";               // bulanan | tahunan
+let mode  = "bulanan";                 // "bulanan" | "tahunan"
+let month = new Date().getMonth();     // 0–11
+let year  = new Date().getFullYear();
 
-let rawProspek = [];
+let rawProspek   = [];
 let rawAktivitas = [];
 
 /* =====================
    HELPER
 ===================== */
-function getDate(ts) {
+function toDate(ts) {
   if (!ts) return null;
-  if (ts.toDate) return ts.toDate();
-  if (ts instanceof Date) return ts;
+  if (ts.toDate) return ts.toDate();   // Firestore Timestamp
+  if (ts instanceof Date) return ts;   // JS Date
   return null;
 }
 
 function inRange(ts) {
-  const d = getDate(ts);
+  const d = toDate(ts);
   if (!d) return false;
 
   if (mode === "tahunan") {
     return d.getFullYear() === year;
   }
 
-  return d.getMonth() === month && d.getFullYear() === year;
-}
-
-function percent(v, t) {
-  return t ? ((v / t) * 100).toFixed(1) + "%" : "0%";
+  return d.getFullYear() === year && d.getMonth() === month;
 }
 
 function bulanNama(i) {
@@ -57,7 +55,11 @@ function bulanNama(i) {
   ][i];
 }
 
-function renderRow(label, value) {
+function percent(v, t) {
+  return t ? ((v / t) * 100).toFixed(1) + "%" : "0%";
+}
+
+function row(label, value) {
   return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
 }
 
@@ -65,32 +67,36 @@ function renderRow(label, value) {
    RENDER
 ===================== */
 function render() {
+
+  /* ===== FILTER PROSPEK ===== */
   const prospek = rawProspek.filter(p =>
-    p.userId !== "admin" && inRange(p.createdAt)
+    p.userId !== "admin" &&
+    inRange(p.createdAt)
   );
 
-  /* TITLE */
+  /* ===== TITLE ===== */
   titleRangeEl.textContent =
     mode === "tahunan"
       ? `Statistik Tahun : ${year}`
       : `Statistik Bulan : ${bulanNama(month)} ${year}`;
 
-  /* TOTAL */
+  /* ===== TOTAL PROSPEK ===== */
   totalProspekEl.textContent = prospek.length;
 
-  /* PROSPEK BY SALES */
+  /* ===== PROSPEK PER SALES ===== */
   const bySales = {};
   prospek.forEach(p => {
-    bySales[p.namaUser] = (bySales[p.namaUser] || 0) + 1;
+    const s = p.namaUser || "Unknown";
+    bySales[s] = (bySales[s] || 0) + 1;
   });
 
-  prospekBySalesEl.innerHTML = "";
+  prospekBySales.innerHTML = "";
   Object.keys(bySales).sort().forEach(s =>
-    prospekBySalesEl.innerHTML +=
-      renderRow(s, `${bySales[s]} / ${percent(bySales[s], prospek.length)}`)
+    prospekBySales.innerHTML +=
+      row(s, `${bySales[s]} orang / ${percent(bySales[s], prospek.length)}`)
   );
 
-  /* PROGRESS */
+  /* ===== PROGRESS ===== */
   const progress = {};
   prospek.forEach(p => {
     const c = p.comments || [];
@@ -101,14 +107,14 @@ function render() {
 
   progressDataEl.innerHTML = "";
   Object.keys(progress).forEach(p =>
-    progressDataEl.innerHTML += renderRow(p, `${progress[p]} orang`)
+    progressDataEl.innerHTML += row(p, `${progress[p]} orang`)
   );
 
-  /* AKTIVITAS */
-  const aktivitas = {};
+  /* ===== AKTIVITAS (STATUS DARI PROSPEK) ===== */
+  const aktivitasSales = {};
   prospek.forEach(p => {
-    const s = p.namaUser;
-    aktivitas[s] ||= {
+    const s = p.namaUser || "Unknown";
+    aktivitasSales[s] ??= {
       Hot:0, Survey:0, Negosiasi:0,
       Booking:0, DP:0, Closing:0, Batal:0
     };
@@ -116,9 +122,12 @@ function render() {
     const c = p.comments || [];
     if (!c.length) return;
     const last = c[c.length - 1].progress;
-    if (aktivitas[s][last] !== undefined) aktivitas[s][last]++;
+    if (aktivitasSales[s][last] !== undefined) {
+      aktivitasSales[s][last]++;
+    }
   });
 
+  /* ===== AKTIVITAS LOG ===== */
   const input = {};
   const komentar = {};
 
@@ -132,26 +141,26 @@ function render() {
     });
 
   aktivitasDataEl.innerHTML = "";
-  Object.keys(aktivitas).sort().forEach(s => {
-    const a = aktivitas[s];
-    aktivitasDataEl.innerHTML += renderRow(
+  Object.keys(aktivitasSales).sort().forEach(s => {
+    const a = aktivitasSales[s];
+    aktivitasDataEl.innerHTML += row(
       s,
-      `${input[s]||0} Input, ${komentar[s]||0} Komentar,
-       ${a.Hot} Hot, ${a.Survey} Survey, ${a.Negosiasi} Negosiasi,
-       ${a.Booking} Booking, ${a.DP} DP, ${a.Closing} Closing, ${a.Batal} Batal`
+      `${input[s]||0} Input Baru , ${komentar[s]||0} Komentar, ` +
+      `${a.Hot} Hot, ${a.Survey} Survey, ${a.Negosiasi} Negosiasi, ` +
+      `${a.Booking} Booking, ${a.DP} DP, ${a.Closing} Closing, ${a.Batal} Batal`
     );
   });
 }
 
 /* =====================
-   FIRESTORE
+   FIRESTORE LISTENER
 ===================== */
-onSnapshot(collection(db,"prospek"), snap => {
+onSnapshot(collection(db, "prospek"), snap => {
   rawProspek = snap.docs.map(d => d.data());
   render();
 });
 
-onSnapshot(collection(db,"aktivitas"), snap => {
+onSnapshot(collection(db, "aktivitas"), snap => {
   rawAktivitas = snap.docs.map(d => d.data());
   render();
 });
@@ -162,14 +171,19 @@ onSnapshot(collection(db,"aktivitas"), snap => {
 btnCurrent.onclick = () => {
   const now = new Date();
   month = now.getMonth();
-  year = now.getFullYear();
-  mode = "bulanan";
+  year  = now.getFullYear();
+  mode  = "bulanan";
   render();
 };
 
 selectMonth.onchange = e => {
-  month = e.target.selectedIndex - 1;
-  mode = "bulanan";
+  const idx = e.target.selectedIndex;
+
+  // index 0 = label "Bulanan" → abaikan
+  if (idx === 0) return;
+
+  month = idx - 1;
+  mode  = "bulanan";
   render();
 };
 
