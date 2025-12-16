@@ -1,8 +1,6 @@
 import { db } from "./firebase.js";
-import {
-  collection,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { collection, onSnapshot } from
+  "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
    ELEMENT
@@ -20,32 +18,36 @@ const selectYear = document.getElementById("selectYear");
 /* =====================
    STATE
 ===================== */
-let month = new Date().getMonth();
+let month = new Date().getMonth();   // 0–11
 let year = new Date().getFullYear();
+let mode = "bulanan";               // bulanan | tahunan
+
+let rawProspek = [];
+let rawAktivitas = [];
 
 /* =====================
    HELPER
 ===================== */
 function getDate(ts) {
   if (!ts) return null;
-  if (ts.toDate) return ts.toDate();     // Firestore Timestamp
-  if (ts instanceof Date) return ts;     // JS Date
+  if (ts.toDate) return ts.toDate();
+  if (ts instanceof Date) return ts;
   return null;
 }
 
 function inRange(ts) {
   const d = getDate(ts);
   if (!d) return false;
+
+  if (mode === "tahunan") {
+    return d.getFullYear() === year;
+  }
+
   return d.getMonth() === month && d.getFullYear() === year;
 }
 
 function percent(v, t) {
-  if (!t) return "0%";
-  return ((v / t) * 100).toFixed(1) + "%";
-}
-
-function renderRow(label, value) {
-  return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
+  return t ? ((v / t) * 100).toFixed(1) + "%" : "0%";
 }
 
 function bulanNama(i) {
@@ -55,37 +57,40 @@ function bulanNama(i) {
   ][i];
 }
 
+function renderRow(label, value) {
+  return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
+}
+
 /* =====================
-   LOAD PROSPEK
+   RENDER
 ===================== */
-onSnapshot(collection(db, "prospek"), snap => {
+function render() {
+  const prospek = rawProspek.filter(p =>
+    p.userId !== "admin" && inRange(p.createdAt)
+  );
 
-  const prospek = snap.docs
-    .map(d => d.data())
-    .filter(d =>
-      d.userId !== "admin" &&          // ⛔ admin diabaikan
-      inRange(d.createdAt)
-    );
+  /* TITLE */
+  titleRangeEl.textContent =
+    mode === "tahunan"
+      ? `Statistik Tahun : ${year}`
+      : `Statistik Bulan : ${bulanNama(month)} ${year}`;
 
-  /* ===== TOTAL ===== */
+  /* TOTAL */
   totalProspekEl.textContent = prospek.length;
 
-  /* ===== PROSPEK BY SALES ===== */
+  /* PROSPEK BY SALES */
   const bySales = {};
   prospek.forEach(p => {
-    const s = p.namaUser || "Unknown";
-    bySales[s] = (bySales[s] || 0) + 1;
+    bySales[p.namaUser] = (bySales[p.namaUser] || 0) + 1;
   });
 
   prospekBySalesEl.innerHTML = "";
-  Object.keys(bySales).sort().forEach(sales => {
-    prospekBySalesEl.innerHTML += renderRow(
-      sales,
-      `${bySales[sales]} orang / ${percent(bySales[sales], prospek.length)}`
-    );
-  });
+  Object.keys(bySales).sort().forEach(s =>
+    prospekBySalesEl.innerHTML +=
+      renderRow(s, `${bySales[s]} / ${percent(bySales[s], prospek.length)}`)
+  );
 
-  /* ===== PROGRESS TERAKHIR ===== */
+  /* PROGRESS */
   const progress = {};
   prospek.forEach(p => {
     const c = p.comments || [];
@@ -95,68 +100,60 @@ onSnapshot(collection(db, "prospek"), snap => {
   });
 
   progressDataEl.innerHTML = "";
-  Object.keys(progress).forEach(p => {
-    progressDataEl.innerHTML += renderRow(p, `${progress[p]} orang`);
-  });
+  Object.keys(progress).forEach(p =>
+    progressDataEl.innerHTML += renderRow(p, `${progress[p]} orang`)
+  );
 
-  /* ===== AKTIVITAS DARI PROSPEK (STATUS) ===== */
-  const aktivitasSales = {};
+  /* AKTIVITAS */
+  const aktivitas = {};
   prospek.forEach(p => {
-    const s = p.namaUser || "Unknown";
-
-    if (!aktivitasSales[s]) {
-      aktivitasSales[s] = {
-        Hot:0, Survey:0, Negosiasi:0,
-        Booking:0, DP:0, Closing:0, Batal:0
-      };
-    }
+    const s = p.namaUser;
+    aktivitas[s] ||= {
+      Hot:0, Survey:0, Negosiasi:0,
+      Booking:0, DP:0, Closing:0, Batal:0
+    };
 
     const c = p.comments || [];
     if (!c.length) return;
-
     const last = c[c.length - 1].progress;
-    if (aktivitasSales[s][last] !== undefined) {
-      aktivitasSales[s][last]++;
-    }
+    if (aktivitas[s][last] !== undefined) aktivitas[s][last]++;
   });
 
-  /* ===== AKTIVITAS LOG ===== */
-  onSnapshot(collection(db, "aktivitas"), snap2 => {
+  const input = {};
+  const komentar = {};
 
-    const logs = snap2.docs
-      .map(d => d.data())
-      .filter(d =>
-        d.user !== "admin" &&           // ⛔ admin diabaikan
-        inRange(d.createdAt)
-      );
-
-    const input = {};
-    const komentar = {};
-
-    logs.forEach(l => {
-      if (l.tipe === "INPUT_PROSPEK")
-        input[l.user] = (input[l.user] || 0) + 1;
-
-      if (l.tipe === "KOMENTAR")
-        komentar[l.user] = (komentar[l.user] || 0) + 1;
+  rawAktivitas
+    .filter(a => a.user !== "admin" && inRange(a.createdAt))
+    .forEach(a => {
+      if (a.tipe === "INPUT_PROSPEK")
+        input[a.user] = (input[a.user] || 0) + 1;
+      if (a.tipe === "KOMENTAR")
+        komentar[a.user] = (komentar[a.user] || 0) + 1;
     });
 
-    aktivitasDataEl.innerHTML = "";
-
-    Object.keys(aktivitasSales).sort().forEach(sales => {
-      const a = aktivitasSales[sales];
-      aktivitasDataEl.innerHTML += renderRow(
-        sales,
-        `${input[sales]||0} Input Baru , ${komentar[sales]||0} Komentar, ` +
-        `${a.Hot} Hot, ${a.Survey} Survey, ${a.Negosiasi} Negosiasi, ` +
-        `${a.Booking} Booking, ${a.DP} DP, ${a.Closing} Closing, ${a.Batal} Batal`
-      );
-    });
+  aktivitasDataEl.innerHTML = "";
+  Object.keys(aktivitas).sort().forEach(s => {
+    const a = aktivitas[s];
+    aktivitasDataEl.innerHTML += renderRow(
+      s,
+      `${input[s]||0} Input, ${komentar[s]||0} Komentar,
+       ${a.Hot} Hot, ${a.Survey} Survey, ${a.Negosiasi} Negosiasi,
+       ${a.Booking} Booking, ${a.DP} DP, ${a.Closing} Closing, ${a.Batal} Batal`
+    );
   });
+}
 
-  /* ===== TITLE ===== */
-  titleRangeEl.textContent =
-    `Statistik Bulan : ${bulanNama(month)} ${year}`;
+/* =====================
+   FIRESTORE
+===================== */
+onSnapshot(collection(db,"prospek"), snap => {
+  rawProspek = snap.docs.map(d => d.data());
+  render();
+});
+
+onSnapshot(collection(db,"aktivitas"), snap => {
+  rawAktivitas = snap.docs.map(d => d.data());
+  render();
 });
 
 /* =====================
@@ -166,13 +163,18 @@ btnCurrent.onclick = () => {
   const now = new Date();
   month = now.getMonth();
   year = now.getFullYear();
+  mode = "bulanan";
+  render();
 };
 
 selectMonth.onchange = e => {
-  const i = e.target.selectedIndex - 1;
-  if (i >= 0) month = i;
+  month = e.target.selectedIndex - 1;
+  mode = "bulanan";
+  render();
 };
 
 selectYear.onchange = e => {
   year = Number(e.target.value);
+  mode = "tahunan";
+  render();
 };
