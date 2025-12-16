@@ -145,7 +145,7 @@ function render() {
     const a = aktivitasSales[s];
     aktivitasDataEl.innerHTML += row(
       s,
-      `${input[s]||0} Input Baru , ${komentar[s]||0} Komentar, ` +
+      `${input[s]||0} Input Baru , ${komentar[s]||0} Follow up, ` +
       `${a.Hot} Hot, ${a.Survey} Survey, ${a.Negosiasi} Negosiasi, ` +
       `${a.Booking} Booking, ${a.DP} DP, ${a.Closing} Closing, ${a.Batal} Batal`
     );
