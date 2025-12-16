@@ -1,13 +1,178 @@
-<h2>📊 Statistik Prospek</h2>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Statistik Prospek</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<div class="card">
-  <div>Total Prospek</div>
-  <strong id="totalProspek">0</strong>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 90px 20px 40px;
+    }
+
+    h2, h3 {
+      margin: 0 0 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      gap: 10px;
+    }
+
+    .filter {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, select {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-height: 260px;
+      margin-top: 14px;
+    }
+
+    .chart-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .chart-half {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    @media print {
+      button, select {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= ACTION BUTTON ================= -->
+<div class="card" style="display:flex;gap:10px;">
+  <button style="flex:1" onclick="window.location.href='dashboard.html'">
+    ⬅ Kembali ke Dashboard
+  </button>
+  <button style="flex:1;background:#198754;color:#fff;border:none" onclick="window.print()">
+    🖨 Cetak Statistik
+  </button>
 </div>
 
+<!-- ================= FILTER ================= -->
 <div class="card">
-  <div>Total Closing</div>
-  <strong id="totalClosing">0</strong>
+  <div class="filter">
+    <button id="btnCurrentMonth">📅 Bulan Berjalan</button>
+
+    <select id="selectMonth">
+      <option value="0">Januari</option>
+      <option value="1">Februari</option>
+      <option value="2">Maret</option>
+      <option value="3">April</option>
+      <option value="4">Mei</option>
+      <option value="5">Juni</option>
+      <option value="6">Juli</option>
+      <option value="7">Agustus</option>
+      <option value="8">September</option>
+      <option value="9">Oktober</option>
+      <option value="10">November</option>
+      <option value="11">Desember</option>
+    </select>
+
+    <select id="selectYear">
+      <option>2024</option>
+      <option selected>2025</option>
+    </select>
+  </div>
 </div>
 
+<h2 id="titleRange">Statistik Bulan : Desember 2025</h2>
+
+<!-- ================= PROSPEK ================= -->
+<div class="card">
+  <h3>Prospek</h3>
+  <div class="row"><strong>Total Prospek</strong><strong id="totalProspek">0</strong></div>
+  <div id="prospekBySales"></div>
+  <canvas id="chartProspek"></canvas>
+</div>
+
+<!-- ================= PROGRESS ================= -->
+<div class="card">
+  <h3>Data by Progress Prospek</h3>
+  <div id="progressData"></div>
+  <canvas id="chartProgress"></canvas>
+</div>
+
+<!-- ================= AKTIVITAS ================= -->
+<div class="card">
+  <h3>Aktivitas</h3>
+  <div id="aktivitasData"></div>
+
+  <div class="chart-row">
+    <div class="chart-half">
+      <canvas id="chartInput"></canvas>
+    </div>
+    <div class="chart-half">
+      <canvas id="chartKomentar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SURVEY ================= -->
+<div class="card">
+  <h3>Survey per Sales</h3>
+  <div id="surveyData"></div>
+  <canvas id="chartSurvey"></canvas>
+</div>
+
+<!-- ================= BOOKING ================= -->
+<div class="card">
+  <h3>Booking per Sales</h3>
+  <div id="bookingData"></div>
+  <canvas id="chartBooking"></canvas>
+</div>
+
+<!-- ================= CLOSING ================= -->
+<div class="card">
+  <h3>Closing per Sales</h3>
+  <div id="closingData"></div>
+  <canvas id="chartClosing"></canvas>
+</div>
+
+<!-- ================= BATAL ================= -->
+<div class="card">
+  <h3>Batal per Sales</h3>
+  <div id="batalData"></div>
+  <canvas id="chartBatal"></canvas>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module" src="statistik.js"></script>
+
+</body>
+</html>
