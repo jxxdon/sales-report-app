@@ -55,6 +55,38 @@ window.addEventListener("DOMContentLoaded", () => {
   header.appendChild(logoutButton);
   document.body.insertBefore(header, document.body.firstChild);
   document.body.style.paddingTop = "80px";
+  // ================== TOMBOL STATISTIK (ADMIN ONLY) ==================
+const role = localStorage.getItem("user");
+
+if (role === "admin") {
+  const btnStatistik = document.createElement("button");
+  btnStatistik.textContent = "📊 Statistik";
+  btnStatistik.style = `
+    width: 100%;
+    padding: 14px;
+    margin: 12px 0;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  `;
+
+  btnStatistik.onclick = () => {
+    window.location.href = "statistik.html";
+  };
+
+  // 🔎 cari tombol "Lihat Data Prospek"
+  const btnProspek = document.querySelector(
+    'a[href="list-prospek.html"], button[data-target="list-prospek"]'
+  );
+
+  if (btnProspek) {
+    btnProspek.parentNode.insertBefore(btnStatistik, btnProspek);
+  }
+}
+
 });
 
 // ================== NORMALISASI NO TELP (62) ==================
@@ -168,6 +200,7 @@ location.reload();
     btn.textContent = "💾 Simpan Prospek";
   }
 });
+
 
 
 
