@@ -34,11 +34,11 @@ const BULAN = [
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
 
-// ===== ATURAN FINAL =====
-const MIN_DATABASE       = 200;   // minimum database / bulan
-const MAX_SURVEY_RATE    = 0.10;  // 10% database
-const MAX_BOOKING        = 2;     // booking maksimal bernilai penuh
-const TARGET_FOLLOWUP    = 20;    // aktivitas / hari
+// ===== ATURAN FINAL (ANTI NGAKALIN) =====
+const MIN_DATABASE    = 200;   // minimum database / bulan
+const MAX_SURVEY_RATE = 0.10;  // 10% database
+const MAX_BOOKING     = 2;     // booking maksimal bernilai penuh
+const TARGET_FOLLOWUP = 20;    // aktivitas / hari
 
 /* =====================
    HELPER
@@ -46,9 +46,18 @@ const TARGET_FOLLOWUP    = 20;    // aktivitas / hari
 function percent(v,t){
   return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
 }
-function rate(v,t){
-  return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
+
+// dipakai untuk hitung skor (boleh >100 sebelum di-cap)
+function rateRaw(v,t){
+  return t ? (v/t) : 0;
 }
+
+// dipakai untuk TAMPILAN (MAX 100%)
+function rateDisplay(v,t){
+  if (!t) return "0%";
+  return Math.min((v/t)*100,100).toFixed(1)+"%";
+}
+
 function row(label,value){
   return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
 }
@@ -131,7 +140,10 @@ function render(sales){
   /* =====================
      HARI BERJALAN
   ===================== */
-  let hari = bulan === "all" ? 365 : new Date(tahun, Number(bulan)+1, 0).getDate();
+  const hari = bulan === "all"
+    ? 365
+    : new Date(tahun, Number(bulan)+1, 0).getDate();
+
   const aktivitasPerHari = totalAktivitas / hari;
 
   /* =====================
@@ -149,7 +161,7 @@ function render(sales){
 `;
 
   /* =====================
-     (SEMUA SECTION LAMA TETAP)
+     SECTION LAMA (TETAP)
   ===================== */
   const asal={}, kota={}, minat={};
 
@@ -176,14 +188,14 @@ function render(sales){
   html+=`</div>`;
 
   /* =====================
-     BALANCED SCORE (FINAL)
+     BALANCED SCORE (FIX)
   ===================== */
   const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
 
-  const prospekAktifRate = prospekAktif / (totalDatabase || 1);
-  const surveyRate  = Math.min(histori.Survey / (MAX_SURVEY_RATE * totalDatabase || 1), 1);
-  const bookingRate = Math.min(histori.Booking / MAX_BOOKING, 1);
-  const followUpRate= Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
+  const prospekAktifRate = rateRaw(prospekAktif, totalDatabase);
+  const surveyRate      = Math.min(rateRaw(histori.Survey, MAX_SURVEY_RATE*totalDatabase),1);
+  const bookingRate     = Math.min(rateRaw(histori.Booking, MAX_BOOKING),1);
+  const followUpRate    = Math.min(rateRaw(aktivitasPerHari, TARGET_FOLLOWUP),1);
 
   const skorMentah =
     (prospekAktifRate * 20) +
@@ -196,10 +208,10 @@ function render(sales){
   html+=`
   <div class="section" style="border:2px solid #2563eb;border-radius:18px;padding:18px;margin-top:30px">
     <h3 style="text-align:center">Penilaian Kinerja Sales</h3>
-    ${row("Prospek Aktif Rate", rate(prospekAktif, totalDatabase))}
-    ${row("Survey Rate", rate(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
-    ${row("Booking Rate", rate(histori.Booking, MAX_BOOKING))}
-    ${row("Follow Up Rate", rate(aktivitasPerHari, TARGET_FOLLOWUP))}
+    ${row("Prospek Aktif Rate", rateDisplay(prospekAktif, totalDatabase))}
+    ${row("Survey Rate", rateDisplay(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
+    ${row("Booking Rate", rateDisplay(histori.Booking, MAX_BOOKING))}
+    ${row("Follow Up Rate", rateDisplay(aktivitasPerHari, TARGET_FOLLOWUP))}
     ${row("Penalty Database", penaltyDatabase.toFixed(2))}
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
