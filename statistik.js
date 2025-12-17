@@ -121,11 +121,16 @@ Object.keys(asalMap).sort().forEach(a => {
     );
 });
   
-/* ===== ASAL KOTA ===== */
+/* ===== ASAL KOTA (FIX FINAL) ===== */
 const kotaMap = {};
 
 prospek.forEach(p => {
-  const kota = p.asalKota || "Tidak Diketahui";
+  const kota =
+    (p.asalKota && p.asalKota.trim()) ||
+    (p.kota && p.kota.trim()) ||
+    (p.asal && p.asal.trim()) ||
+    "Tidak Diketahui";
+
   kotaMap[kota] = (kotaMap[kota] || 0) + 1;
 });
 
