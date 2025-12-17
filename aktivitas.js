@@ -51,10 +51,12 @@ function buildPesanDetail(d) {
     return d.pesan || "Input Prospek";
   }
 
-  // KOMENTAR FORMAT BARU
-  if (d.progress || d.komentar) {
-    return `Komentar : ${d.progress || "-"} - ${d.komentar || "-"}`;
-  }
+  // KOMENTAR FORMAT BARU (DENGAN NAMA PROSPEK)
+if (d.progress || d.komentar) {
+  const nama = d.namaProspek ? `di Prospek ${d.namaProspek}` : "";
+  return `Komentar ${nama} : ${d.progress || "-"} - ${d.komentar || "-"}`;
+}
+
 
   // FALLBACK LOG KOMENTAR LAMA
   return d.pesan || "Komentar";
