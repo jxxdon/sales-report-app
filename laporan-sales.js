@@ -124,7 +124,14 @@ function render(sales){
   sumBooking.textContent  = histori.Booking;
   sumProgress.textContent = totalAktivitas;
 
-  let html = `<div class="section"><strong>Prospek Aktif :</strong> ${prospekAktif} Orang</div>`;
+  const persenAktif = percent(prospekAktif, totalDatabase);
+
+let html = `
+<div class="section">
+  <strong>Prospek Aktif :</strong>
+  ${prospekAktif} orang dari ${totalDatabase} (${persenAktif})
+</div>`;
+
 /* =====================
    ASAL PROSPEK
 ===================== */
