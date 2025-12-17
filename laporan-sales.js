@@ -15,14 +15,13 @@ const sumProgress = document.getElementById("sumProgress");
 const sumSurvey   = document.getElementById("sumSurvey");
 const sumBooking  = document.getElementById("sumBooking");
 
-// OPTIONAL (aman walau belum ada di HTML)
 const filterTahun = document.getElementById("filterTahun");
 const filterBulan = document.getElementById("filterBulan");
 
 let prospek = [];
 
 /* =====================
-   KONFIGURASI
+   KONFIG
 ===================== */
 const PROGRESS_LIST = [
   "Cold","Warm","Hot","Survey",
@@ -47,11 +46,9 @@ function row(label,value){
 }
 
 /* =====================
-   INIT FILTER PERIODE
+   INIT FILTER
 ===================== */
 function initPeriode(){
-  if (!filterTahun || !filterBulan) return;
-
   const now = new Date();
   const thisYear = now.getFullYear();
 
@@ -62,6 +59,7 @@ function initPeriode(){
     }).join("");
 
   filterBulan.innerHTML =
+    `<option value="all">Tahunan</option>` +
     BULAN.map((b,i)=>`<option value="${i}">${b}</option>`).join("");
 
   filterTahun.value = thisYear;
@@ -72,21 +70,36 @@ function initPeriode(){
 }
 
 /* =====================
-   RENDER LAPORAN
+   RENDER
 ===================== */
 function render(sales){
-  const data = prospek.filter(p => p.namaUser === sales);
-  const total = data.length;
+  const tahun = Number(filterTahun.value);
+  const bulan = filterBulan.value;
 
   salesNameEl.textContent = sales;
 
-  const tahun = filterTahun ? Number(filterTahun.value) : null;
-  const bulan = filterBulan ? Number(filterBulan.value) : null;
+  periodeEl.textContent =
+    bulan === "all"
+      ? `Tahun : ${tahun}`
+      : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
 
-  if (filterTahun && filterBulan) {
-    periodeEl.textContent =
-      `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
-  }
+  /* =====================
+     DATA PER PERIODE
+  ===================== */
+  const dataSales = prospek.filter(p => p.namaUser === sales);
+
+  const dataPeriode = dataSales.filter(p=>{
+    return (p.comments || []).some(c=>{
+      if (!c.createdAt) return false;
+      const d = c.createdAt.toDate
+        ? c.createdAt.toDate()
+        : new Date(c.createdAt);
+
+      if (d.getFullYear() !== tahun) return false;
+      if (bulan !== "all" && d.getMonth() !== Number(bulan)) return false;
+      return true;
+    });
+  });
 
   /* =====================
      HISTORI KOMENTAR
@@ -94,16 +107,16 @@ function render(sales){
   const histori = {};
   PROGRESS_LIST.forEach(p => histori[p] = 0);
 
-  data.forEach(p => {
-    (p.comments || []).forEach(c => {
-      if (!c.progress || !c.createdAt) return;
+  dataPeriode.forEach(p=>{
+    (p.comments||[]).forEach(c=>{
+      if (!c.createdAt) return;
 
       const d = c.createdAt.toDate
         ? c.createdAt.toDate()
         : new Date(c.createdAt);
 
-      if (tahun !== null && d.getFullYear() !== tahun) return;
-      if (bulan !== null && d.getMonth() !== bulan) return;
+      if (d.getFullYear() !== tahun) return;
+      if (bulan !== "all" && d.getMonth() !== Number(bulan)) return;
 
       if (histori[c.progress] !== undefined) {
         histori[c.progress]++;
@@ -114,7 +127,7 @@ function render(sales){
   /* =====================
      HIGHLIGHT
   ===================== */
-  sumBaru.textContent = total;
+  sumBaru.textContent = dataPeriode.length;
   sumSurvey.textContent = histori.Survey;
   sumBooking.textContent = histori.Booking;
   sumProgress.textContent =
@@ -122,7 +135,7 @@ function render(sales){
 
   let html = `
     <div class="section">
-      <strong>Input Prospek Baru :</strong> ${total} Orang
+      <strong>Input Prospek Baru :</strong> ${dataPeriode.length} Orang
     </div>
   `;
 
@@ -130,16 +143,15 @@ function render(sales){
      ASAL PROSPEK
   ===================== */
   const asal = {};
-  data.forEach(p=>{
-    if (!p.asalProspek) return;
+  dataPeriode.forEach(p=>{
     asal[p.asalProspek] = (asal[p.asalProspek]||0)+1;
   });
 
   html+=`<div class="section"><h3>Asal Prospek</h3>
-    ${row("Total", total+" prospek")}
+    ${row("Total", dataPeriode.length+" prospek")}
   `;
   Object.keys(asal).forEach(a=>{
-    html+=row(a,`${asal[a]} / ${percent(asal[a],total)}`);
+    html+=row(a,`${asal[a]} / ${percent(asal[a],dataPeriode.length)}`);
   });
   html+=`</div>`;
 
@@ -147,16 +159,15 @@ function render(sales){
      ASAL KOTA
   ===================== */
   const kota = {};
-  data.forEach(p=>{
-    if (!p.asalKota) return;
+  dataPeriode.forEach(p=>{
     kota[p.asalKota] = (kota[p.asalKota]||0)+1;
   });
 
   html+=`<div class="section"><h3>Asal Kota</h3>
-    ${row("Total", total+" prospek")}
+    ${row("Total", dataPeriode.length+" prospek")}
   `;
   Object.keys(kota).forEach(k=>{
-    html+=row(k,`${kota[k]} / ${percent(kota[k],total)}`);
+    html+=row(k,`${kota[k]} / ${percent(kota[k],dataPeriode.length)}`);
   });
   html+=`</div>`;
 
@@ -164,30 +175,26 @@ function render(sales){
      KETERTARIKAN
   ===================== */
   const minat = {};
-  data.forEach(p=>{
+  dataPeriode.forEach(p=>{
     (p.tipeTertarik||[]).forEach(t=>{
       minat[t]=(minat[t]||0)+1;
     });
   });
 
   html+=`<div class="section"><h3>Ketertarikan Prospek</h3>
-    ${row("Total", total+" prospek")}
+    ${row("Total", dataPeriode.length+" prospek")}
   `;
   Object.keys(minat).forEach(m=>{
-    html+=row(m,`${minat[m]} / ${percent(minat[m],total)}`);
+    html+=row(m,`${minat[m]} / ${percent(minat[m],dataPeriode.length)}`);
   });
   html+=`</div>`;
 
   /* =====================
-     PROGRESS (HISTORI)
+     PROGRESS
   ===================== */
   html+=`<div class="section">
     <h3>Progress Prospek (Histori Komentar)</h3>
-    ${
-      PROGRESS_LIST
-        .map(p => row(p, histori[p] + " aktivitas"))
-        .join("")
-    }
+    ${PROGRESS_LIST.map(p=>row(p, histori[p]+" aktivitas")).join("")}
   </div>`;
 
   laporanContent.innerHTML = html;
