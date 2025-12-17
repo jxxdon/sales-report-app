@@ -134,10 +134,10 @@ function render(sales){
     Object.values(histori).reduce((a,b)=>a+b,0);
 
   let html = `
-    <div class="section">
-      <strong>Input Prospek Baru :</strong> ${dataPeriode.length} Orang
-    </div>
-  `;
+  <div class="section">
+    <strong>Prospek Aktif :</strong> ${dataPeriode.length} Orang
+  </div>
+`;
 
   /* =====================
      ASAL PROSPEK
