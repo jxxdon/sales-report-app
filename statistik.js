@@ -120,12 +120,25 @@ Object.keys(asalMap).sort().forEach(a => {
     );
 });
 
-/* ===== KETERTARIKAN PROSPEK ===== */
+/* ===== KETERTARIKAN PROSPEK (FIXED) ===== */
 const ketertarikanMap = {};
 
 prospek.forEach(p => {
-  const list = p.tipeTertarik || [];
+  let list = p.tipeTertarik;
+
+  // 🔒 NORMALISASI DATA
+  if (!list) return;
+
+  // jika string → jadikan array
+  if (typeof list === "string") {
+    list = list.split(",").map(x => x.trim());
+  }
+
+  // pastikan array
+  if (!Array.isArray(list)) return;
+
   list.forEach(item => {
+    if (!item) return;
     ketertarikanMap[item] = (ketertarikanMap[item] || 0) + 1;
   });
 });
