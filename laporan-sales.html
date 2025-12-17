@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Pekerjaan Sales</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 40px;
+    color:#000;
+  }
+  h2, h3 { margin: 0 0 10px }
+  .section { margin-bottom: 18px }
+  .row {
+    display:flex;
+    justify-content:space-between;
+    margin:4px 0;
+  }
+  @media print {
+    button, select { display:none }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ===== FILTER ===== -->
+<div class="section">
+  <select id="selectSales"></select>
+  <button onclick="window.print()">🖨 Cetak PDF</button>
+</div>
+
+<h2>Laporan Pekerjaan</h2>
+<h3 id="salesName"></h3>
+<div id="periode"></div>
+
+<div id="laporanContent"></div>
+
+<script type="module" src="laporan-sales.js"></script>
+</body>
+</html>
