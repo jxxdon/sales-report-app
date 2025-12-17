@@ -18,6 +18,7 @@ const selectMonth = document.getElementById("selectMonth");
 const selectYear  = document.getElementById("selectYear");
 const asalProspekDataEl = document.getElementById("asalProspekData");
 const ketertarikanDataEl = document.getElementById("ketertarikanData");
+const asalKotaDataEl = document.getElementById("asalKotaData");
 
 /* =====================
    STATE
@@ -117,6 +118,26 @@ Object.keys(asalMap).sort().forEach(a => {
     row(
       a,
       `${asalMap[a]} / ${percent(asalMap[a], prospek.length)}`
+    );
+});
+  
+/* ===== ASAL KOTA ===== */
+const kotaMap = {};
+
+prospek.forEach(p => {
+  const kota = p.asalKota || "Tidak Diketahui";
+  kotaMap[kota] = (kotaMap[kota] || 0) + 1;
+});
+
+asalKotaDataEl.innerHTML = "";
+asalKotaDataEl.innerHTML +=
+  row("Total", prospek.length + " prospek");
+
+Object.keys(kotaMap).sort().forEach(k => {
+  asalKotaDataEl.innerHTML +=
+    row(
+      k,
+      `${kotaMap[k]} / ${percent(kotaMap[k], prospek.length)}`
     );
 });
 
