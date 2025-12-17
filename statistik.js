@@ -17,6 +17,7 @@ const btnCurrent  = document.getElementById("btnCurrent");
 const selectMonth = document.getElementById("selectMonth");
 const selectYear  = document.getElementById("selectYear");
 const asalProspekDataEl = document.getElementById("asalProspekData");
+const ketertarikanDataEl = document.getElementById("ketertarikanData");
 
 /* =====================
    STATE
@@ -119,6 +120,28 @@ Object.keys(asalMap).sort().forEach(a => {
     );
 });
 
+/* ===== KETERTARIKAN PROSPEK ===== */
+const ketertarikanMap = {};
+
+prospek.forEach(p => {
+  const list = p.tipeTertarik || [];
+  list.forEach(item => {
+    ketertarikanMap[item] = (ketertarikanMap[item] || 0) + 1;
+  });
+});
+
+ketertarikanDataEl.innerHTML = "";
+ketertarikanDataEl.innerHTML +=
+  row("Total", prospek.length + " prospek");
+
+Object.keys(ketertarikanMap).sort().forEach(k => {
+  ketertarikanDataEl.innerHTML +=
+    row(
+      k,
+      `${ketertarikanMap[k]} / ${percent(ketertarikanMap[k], prospek.length)}`
+    );
+});
+  
   /* ===== PROGRESS ===== */
   const progress = {};
   prospek.forEach(p => {
