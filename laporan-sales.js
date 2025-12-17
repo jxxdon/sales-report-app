@@ -1,0 +1,90 @@
+import { db } from "./firebase.js";
+import { collection, onSnapshot } from
+"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const selectSales = document.getElementById("selectSales");
+const laporanContent = document.getElementById("laporanContent");
+const salesNameEl = document.getElementById("salesName");
+const periodeEl = document.getElementById("periode");
+
+let prospek = [];
+let aktivitas = [];
+
+function percent(v,t){ return t?((v/t)*100).toFixed(1)+"%":"0%" }
+function row(l,v){ return `<div class="row"><span>${l}</span><span>${v}</span></div>` }
+
+function render(sales){
+  const data = prospek.filter(p=>p.namaUser===sales);
+  const total = data.length;
+
+  salesNameEl.textContent = sales;
+  periodeEl.textContent = "Bulan : Desember | Tahun : 2025";
+
+  let html = `
+    <div class="section">
+      <strong>Input Prospek Baru :</strong> ${total} Orang
+    </div>
+  `;
+
+  /* ===== ASAL PROSPEK ===== */
+  const asal = {};
+  data.forEach(p=>{
+    asal[p.asalProspek] = (asal[p.asalProspek]||0)+1;
+  });
+
+  html+=`<div class="section"><h3>Asal Prospek</h3>
+    ${row("Total", total+" prospek")}
+  `;
+  Object.keys(asal).forEach(a=>{
+    html+=row(a,`${asal[a]} / ${percent(asal[a],total)}`);
+  });
+  html+=`</div>`;
+
+  /* ===== ASAL KOTA ===== */
+  const kota = {};
+  data.forEach(p=>{
+    kota[p.asalKota] = (kota[p.asalKota]||0)+1;
+  });
+
+  html+=`<div class="section"><h3>Asal Kota</h3>
+    ${row("Total", total+" prospek")}
+  `;
+  Object.keys(kota).forEach(k=>{
+    html+=row(k,`${kota[k]} / ${percent(kota[k],total)}`);
+  });
+  html+=`</div>`;
+
+  /* ===== KETERTARIKAN ===== */
+  const minat = {};
+  data.forEach(p=>{
+    (p.tipeTertarik||[]).forEach(t=>{
+      minat[t]=(minat[t]||0)+1;
+    });
+  });
+
+  html+=`<div class="section"><h3>Ketertarikan Prospek</h3>
+    ${row("Total", total+" prospek")}
+  `;
+  Object.keys(minat).forEach(m=>{
+    html+=row(m,`${minat[m]} / ${percent(minat[m],total)}`);
+  });
+  html+=`</div>`;
+
+  laporanContent.innerHTML = html;
+}
+
+/* ===== LOAD DATA ===== */
+onSnapshot(collection(db,"prospek"), snap=>{
+  prospek = snap.docs.map(d=>d.data());
+
+  const salesList = [...new Set(
+    prospek.map(p=>p.namaUser).filter(Boolean)
+  )];
+
+  selectSales.innerHTML =
+    salesList.map(s=>`<option>${s}</option>`).join("");
+
+  render(selectSales.value);
+});
+
+selectSales.onchange = e => render(e.target.value);
