@@ -286,3 +286,7 @@ selectYear.onchange = e => {
   mode = "tahunan";
   render();
 };
+
+document.getElementById("btnCetakSales").onclick = () => {
+  window.location.href = "laporan-sales.html";
+};
