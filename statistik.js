@@ -69,11 +69,15 @@ function row(label, value) {
 ===================== */
 function render() {
 
-  /* ===== FILTER PROSPEK ===== */
-  const prospek = rawProspek.filter(p =>
-    p.userId !== "admin" &&
-    inRange(p.createdAt)
-  );
+  /* ===== FILTER PROSPEK (FIX) ===== */
+const prospek = rawProspek.filter(p =>
+  p.userId !== "admin" &&
+  (
+    !p.createdAt ||          // prospek lama (tanpa tanggal)
+    inRange(p.createdAt)     // prospek baru (ikut filter)
+  )
+);
+
 
   /* ===== TITLE ===== */
   titleRangeEl.textContent =
