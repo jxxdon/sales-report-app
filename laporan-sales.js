@@ -213,6 +213,37 @@ html += `</div>`;
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>`;
+/* =====================
+   CATATAN PENCAPAIAN SALES
+===================== */
+let catatan = "";
+
+if (skorAkhir < 5) {
+  catatan = "Database sangat kecil, tidak layak. Sales perlu dievaluasi";
+} else if (skorAkhir < 15) {
+  catatan = "Database ada peningkatan, Sales perlu dievaluasi";
+} else if (skorAkhir < 30) {
+  catatan = "Cukup aktif, database mulai sehat";
+} else if (skorAkhir < 50) {
+  catatan = "Database sehat, sales cukup aktif";
+} else if (skorAkhir < 70) {
+  catatan = "Top performer Sales";
+} else {
+  catatan = "Sales Elite";
+}
+
+html += `
+<div style="
+  margin-top:20px;
+  padding:12px;
+  font-size:14px;
+  border-top:1px dashed #999;
+  color:#333;
+">
+  <strong>Catatan :</strong><br>
+  ${catatan}
+</div>
+`;
 
   laporanContent.innerHTML = html;
 }
