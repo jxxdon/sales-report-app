@@ -99,6 +99,7 @@ function render(sales){
       return true;
     });
   });
+const totalDatabasePeriode = dataPeriode.length;
 
   const histori = {};
   PROGRESS_LIST.forEach(p=>histori[p]=0);
@@ -124,12 +125,14 @@ function render(sales){
   sumBooking.textContent  = histori.Booking;
   sumProgress.textContent = totalAktivitas;
 
-  const persenAktif = percent(prospekAktif, totalDatabase);
+ const persenAktif = percent(prospekAktif, totalDatabasePeriode);
+
 
 let html = `
 <div class="section">
   <strong>Prospek Aktif :</strong>
-  ${prospekAktif} orang dari ${totalDatabase} (${persenAktif})
+  ${prospekAktif} orang dari ${totalDatabasePeriode} (${persenAktif})
+
 </div>`;
 
 /* =====================
