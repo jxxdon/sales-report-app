@@ -222,10 +222,10 @@ html += `</div>`;
   html += `
   <div class="section" style="border:2px solid #2563eb;border-radius:18px;padding:18px;margin-top:30px">
     <h3 style="text-align:center">Penilaian Kinerja Sales</h3>
-    ${row("Prospek Aktif Rate", rateDisplay(prospekAktif, totalDatabase))}
-    ${row("Survey Rate", rateDisplay(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
-    ${row("Booking Rate", rateDisplay(histori.Booking, MAX_BOOKING))}
-    ${row("Follow Up Rate", rateDisplay(aktivitasPerHari, TARGET_FOLLOWUP))}
+    ${row("Prospek", rateDisplay(prospekAktif, totalDatabase))}
+    ${row("Survey", rateDisplay(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
+    ${row("Booking", rateDisplay(histori.Booking, MAX_BOOKING))}
+    ${row("Follow Up", rateDisplay(aktivitasPerHari, TARGET_FOLLOWUP))}
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>`;
