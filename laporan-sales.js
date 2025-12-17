@@ -125,6 +125,61 @@ function render(sales){
   sumProgress.textContent = totalAktivitas;
 
   let html = `<div class="section"><strong>Prospek Aktif :</strong> ${prospekAktif} Orang</div>`;
+/* =====================
+   ASAL PROSPEK
+===================== */
+const asal = {};
+dataPeriode.forEach(p=>{
+  asal[p.asalProspek] = (asal[p.asalProspek]||0)+1;
+});
+
+html += `<div class="section"><h3>Asal Prospek</h3>
+${row("Total", prospekAktif+" prospek")}`;
+Object.keys(asal).forEach(a=>{
+  html += row(a, `${asal[a]} / ${percent(asal[a], prospekAktif)}`);
+});
+html += `</div>`;
+
+/* =====================
+   ASAL KOTA
+===================== */
+const kota = {};
+dataPeriode.forEach(p=>{
+  kota[p.asalKota] = (kota[p.asalKota]||0)+1;
+});
+
+html += `<div class="section"><h3>Asal Kota</h3>
+${row("Total", prospekAktif+" prospek")}`;
+Object.keys(kota).forEach(k=>{
+  html += row(k, `${kota[k]} / ${percent(kota[k], prospekAktif)}`);
+});
+html += `</div>`;
+
+/* =====================
+   KETERTARIKAN
+===================== */
+const minat = {};
+dataPeriode.forEach(p=>{
+  (p.tipeTertarik||[]).forEach(t=>{
+    minat[t] = (minat[t]||0)+1;
+  });
+});
+
+html += `<div class="section"><h3>Ketertarikan Prospek</h3>
+${row("Total", prospekAktif+" prospek")}`;
+Object.keys(minat).forEach(m=>{
+  html += row(m, `${minat[m]} / ${percent(minat[m], prospekAktif)}`);
+});
+html += `</div>`;
+
+/* =====================
+   PROGRESS HISTORI
+===================== */
+html += `<div class="section"><h3>Progress Prospek (Histori Komentar)</h3>`;
+PROGRESS_LIST.forEach(p=>{
+  html += row(p, histori[p] + " aktivitas");
+});
+html += `</div>`;
 
   /* =====================
      BALANCED SCORE (RUMUS BARU)
