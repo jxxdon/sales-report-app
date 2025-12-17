@@ -236,13 +236,13 @@ html += `</div>`;
 let catatan = "";
 
 if (skorAkhir < 5) {
-  catatan = "Database sangat kecil, tidak layak. Sales perlu dievaluasi";
+  catatan = "Database sangat kecil, sangat tidak layak. Sales perlu dievaluasi!";
 } else if (skorAkhir < 15) {
-  catatan = "Database ada peningkatan, Sales perlu dievaluasi";
+  catatan = "Database ada peningkatan, Sales perlu dievaluasi!";
 } else if (skorAkhir < 30) {
-  catatan = "Cukup aktif, database mulai sehat";
+  catatan = "Database mulai sehat, Sales cukup aktif";
 } else if (skorAkhir < 50) {
-  catatan = "Database sehat, sales cukup aktif";
+  catatan = "Database sehat, sales sangat aktif";
 } else if (skorAkhir < 70) {
   catatan = "Top performer Sales";
 } else {
