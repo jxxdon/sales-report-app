@@ -14,6 +14,18 @@ const sumBooking = document.getElementById("sumBooking");
 
 let prospek = [];
 
+/* =====================
+   KONFIGURASI PROGRESS
+===================== */
+const PROGRESS_LIST = [
+  "Cold","Warm","Hot","Survey",
+  "Negosiasi","Booking","DP",
+  "Closing","Lost","Batal"
+];
+
+/* =====================
+   HELPER
+===================== */
 function percent(v,t){
   return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
 }
@@ -22,32 +34,38 @@ function row(label,value){
   return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
 }
 
+/* =====================
+   RENDER LAPORAN
+===================== */
 function render(sales){
-  const data = prospek.filter(p=>p.namaUser===sales);
+  const data = prospek.filter(p => p.namaUser === sales);
   const total = data.length;
 
   salesNameEl.textContent = sales;
   periodeEl.textContent = "Bulan : Desember | Tahun : 2025";
 
-  /* ================= SUMMARY ================= */
-  sumBaru.textContent = total;
+  /* =====================
+     HITUNG HISTORI KOMENTAR
+  ===================== */
+  const histori = {};
+  PROGRESS_LIST.forEach(p => histori[p] = 0);
 
-  const progress = {
-    Cold:0, Warm:0, Hot:0,
-    Negosiasi:0, Survey:0,
-    Booking:0, Lost:0
-  };
-
-  data.forEach(p=>{
-    if(progress[p.status] !== undefined){
-      progress[p.status]++;
-    }
+  data.forEach(p => {
+    (p.comments || []).forEach(c => {
+      if (histori[c.progress] !== undefined) {
+        histori[c.progress]++;
+      }
+    });
   });
 
-  sumSurvey.textContent = progress.Survey;
-  sumBooking.textContent = progress.Booking;
+  /* =====================
+     HIGHLIGHT
+  ===================== */
+  sumBaru.textContent = total;
+  sumSurvey.textContent = histori.Survey;
+  sumBooking.textContent = histori.Booking;
   sumProgress.textContent =
-    progress.Cold + progress.Warm + progress.Hot + progress.Negosiasi;
+    Object.values(histori).reduce((a,b)=>a+b,0);
 
   let html = `
     <div class="section">
@@ -55,9 +73,12 @@ function render(sales){
     </div>
   `;
 
-  /* ================= ASAL PROSPEK ================= */
+  /* =====================
+     ASAL PROSPEK
+  ===================== */
   const asal = {};
   data.forEach(p=>{
+    if (!p.asalProspek) return;
     asal[p.asalProspek] = (asal[p.asalProspek]||0)+1;
   });
 
@@ -69,9 +90,12 @@ function render(sales){
   });
   html+=`</div>`;
 
-  /* ================= ASAL KOTA ================= */
+  /* =====================
+     ASAL KOTA
+  ===================== */
   const kota = {};
   data.forEach(p=>{
+    if (!p.asalKota) return;
     kota[p.asalKota] = (kota[p.asalKota]||0)+1;
   });
 
@@ -83,7 +107,9 @@ function render(sales){
   });
   html+=`</div>`;
 
-  /* ================= KETERTARIKAN ================= */
+  /* =====================
+     KETERTARIKAN
+  ===================== */
   const minat = {};
   data.forEach(p=>{
     (p.tipeTertarik||[]).forEach(t=>{
@@ -99,18 +125,24 @@ function render(sales){
   });
   html+=`</div>`;
 
-  /* ================= PROGRESS PROSPEK (BAWAH) ================= */
+  /* =====================
+     PROGRESS (HISTORI KOMENTAR)
+  ===================== */
   html+=`<div class="section">
-    <h3>Progress Prospek</h3>
-    ${Object.keys(progress)
-      .map(k=>row(k, progress[k]+" orang"))
-      .join("")}
+    <h3>Progress Prospek (Histori Komentar)</h3>
+    ${
+      PROGRESS_LIST
+        .map(p => row(p, histori[p] + " aktivitas"))
+        .join("")
+    }
   </div>`;
 
   laporanContent.innerHTML = html;
 }
 
-/* ================= LOAD DATA ================= */
+/* =====================
+   LOAD DATA
+===================== */
 onSnapshot(collection(db,"prospek"), snap=>{
   prospek = snap.docs.map(d=>d.data());
 
@@ -121,8 +153,8 @@ onSnapshot(collection(db,"prospek"), snap=>{
   selectSales.innerHTML =
     salesList.map(s=>`<option>${s}</option>`).join("");
 
-  if(salesList.length){
-    render(salesList[0]);
+  if (salesList.length) {
+    render(selectSales.value || salesList[0]);
   }
 });
 
