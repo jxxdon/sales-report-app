@@ -5,10 +5,10 @@ from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 /* =====================
    ELEMENT
 ===================== */
-const selectSales   = document.getElementById("selectSales");
+const selectSales    = document.getElementById("selectSales");
 const laporanContent = document.getElementById("laporanContent");
-const salesNameEl   = document.getElementById("salesName");
-const periodeEl     = document.getElementById("periode");
+const salesNameEl    = document.getElementById("salesName");
+const periodeEl      = document.getElementById("periode");
 
 const sumBaru     = document.getElementById("sumBaru");
 const sumProgress = document.getElementById("sumProgress");
@@ -38,6 +38,10 @@ const BULAN = [
    HELPER
 ===================== */
 function percent(v,t){
+  return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
+}
+
+function rate(v,t){
   return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
 }
 
@@ -84,10 +88,14 @@ function render(sales){
       : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
 
   /* =====================
-     DATA PER PERIODE
+     DATA SALES & DATABASE
   ===================== */
   const dataSales = prospek.filter(p => p.namaUser === sales);
+  const totalDatabase = dataSales.length;
 
+  /* =====================
+     DATA PER PERIODE
+  ===================== */
   const dataPeriode = dataSales.filter(p=>{
     return (p.comments || []).some(c=>{
       if (!c.createdAt) return false;
@@ -124,18 +132,36 @@ function render(sales){
     });
   });
 
+  const prospekAktif   = dataPeriode.length;
+  const totalAktivitas = Object.values(histori).reduce((a,b)=>a+b,0);
+
+  /* =====================
+     HARI BERJALAN
+  ===================== */
+  let hari = 1;
+  if (bulan === "all") {
+    hari = 365;
+  } else {
+    hari = new Date(
+      tahun,
+      Number(bulan) + 1,
+      0
+    ).getDate();
+  }
+
+  const followUp = (totalAktivitas / hari).toFixed(1);
+
   /* =====================
      HIGHLIGHT
   ===================== */
-  sumBaru.textContent = dataPeriode.length;
-  sumSurvey.textContent = histori.Survey;
-  sumBooking.textContent = histori.Booking;
-  sumProgress.textContent =
-    Object.values(histori).reduce((a,b)=>a+b,0);
+  sumBaru.textContent     = prospekAktif;
+  sumSurvey.textContent   = histori.Survey;
+  sumBooking.textContent  = histori.Booking;
+  sumProgress.textContent = totalAktivitas;
 
   let html = `
   <div class="section">
-    <strong>Prospek Aktif :</strong> ${dataPeriode.length} Orang
+    <strong>Prospek Aktif :</strong> ${prospekAktif} Orang
   </div>
 `;
 
@@ -148,10 +174,10 @@ function render(sales){
   });
 
   html+=`<div class="section"><h3>Asal Prospek</h3>
-    ${row("Total", dataPeriode.length+" prospek")}
+    ${row("Total", prospekAktif+" prospek")}
   `;
   Object.keys(asal).forEach(a=>{
-    html+=row(a,`${asal[a]} / ${percent(asal[a],dataPeriode.length)}`);
+    html+=row(a,`${asal[a]} / ${percent(asal[a],prospekAktif)}`);
   });
   html+=`</div>`;
 
@@ -164,10 +190,10 @@ function render(sales){
   });
 
   html+=`<div class="section"><h3>Asal Kota</h3>
-    ${row("Total", dataPeriode.length+" prospek")}
+    ${row("Total", prospekAktif+" prospek")}
   `;
   Object.keys(kota).forEach(k=>{
-    html+=row(k,`${kota[k]} / ${percent(kota[k],dataPeriode.length)}`);
+    html+=row(k,`${kota[k]} / ${percent(kota[k],prospekAktif)}`);
   });
   html+=`</div>`;
 
@@ -182,10 +208,10 @@ function render(sales){
   });
 
   html+=`<div class="section"><h3>Ketertarikan Prospek</h3>
-    ${row("Total", dataPeriode.length+" prospek")}
+    ${row("Total", prospekAktif+" prospek")}
   `;
   Object.keys(minat).forEach(m=>{
-    html+=row(m,`${minat[m]} / ${percent(minat[m],dataPeriode.length)}`);
+    html+=row(m,`${minat[m]} / ${percent(minat[m],prospekAktif)}`);
   });
   html+=`</div>`;
 
@@ -196,6 +222,47 @@ function render(sales){
     <h3>Progress Prospek (Histori Komentar)</h3>
     ${PROGRESS_LIST.map(p=>row(p, histori[p]+" aktivitas")).join("")}
   </div>`;
+
+  /* =====================
+     RATE & CONVERSION
+  ===================== */
+  html+=`
+  <div class="section" style="
+    border:2px solid #4CAF50;
+    border-radius:18px;
+    padding:18px;
+    margin-top:30px;
+  ">
+    <h3 style="text-align:center;margin-bottom:12px">
+      Rate & Conversion :
+    </h3>
+
+    <div style="text-align:center;font-size:15px;line-height:1.8">
+      <div>
+        Prospek Aktif Rate :
+        ${prospekAktif}/${totalDatabase}
+        = ${rate(prospekAktif, totalDatabase)}
+      </div>
+
+      <div>
+        Booking Rate :
+        ${histori.Booking}/${totalDatabase}
+        = ${rate(histori.Booking, totalDatabase)}
+      </div>
+
+      <div>
+        Survey Rate :
+        ${histori.Survey}/${totalDatabase}
+        = ${rate(histori.Survey, totalDatabase)}
+      </div>
+
+      <div>
+        Follow up :
+        ${followUp} x / hari
+      </div>
+    </div>
+  </div>
+`;
 
   laporanContent.innerHTML = html;
 }
