@@ -226,7 +226,7 @@ html += `</div>`;
     ${row("Survey Rate", rateDisplay(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
     ${row("Booking Rate", rateDisplay(histori.Booking, MAX_BOOKING))}
     ${row("Follow Up Rate", rateDisplay(aktivitasPerHari, TARGET_FOLLOWUP))}
-    ${row("Penalty Database", penaltyDatabase.toFixed(2))}
+    // ${row("Penalty Database", penaltyDatabase.toFixed(2))}
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>`;
