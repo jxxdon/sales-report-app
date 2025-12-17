@@ -35,10 +35,10 @@ const BULAN = [
 ];
 
 // ===== ATURAN FINAL =====
-const MIN_DATABASE    = 200;
+const MIN_DATABASE    = 150;
 const MAX_SURVEY_RATE = 0.10;   // 10% database
-const MAX_BOOKING     = 2;
-const TARGET_FOLLOWUP = 20;
+const MAX_BOOKING     = 1;
+const TARGET_FOLLOWUP = 10;
 
 /* =====================
    HELPER
