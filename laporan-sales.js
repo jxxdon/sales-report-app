@@ -239,13 +239,13 @@ if (skorAkhir < 5) {
 } else if (skorAkhir < 15) {
   catatan = "Database ada peningkatan, Sales perlu dievaluasi!";
 } else if (skorAkhir < 30) {
-  catatan = "Database mulai sehat, Sales cukup aktif";
+  catatan = "Database mulai sehat, Sales mulai aktif";
 } else if (skorAkhir < 50) {
-  catatan = "Database sehat, sales sangat aktif";
+  catatan = "Database sehat, Performa sales meningkat";
 } else if (skorAkhir < 70) {
-  catatan = "Top performer Sales";
+  catatan = "Performa Sales cukup baik";
 } else {
-  catatan = "Sales Elite";
+  catatan = "Performance sales sangat memuaskan";
 }
 
 html += `
