@@ -192,7 +192,7 @@ html += `</div>`;
 /* =====================
    PROGRESS HISTORI
 ===================== */
-html += `<div class="section"><h3>Progress Prospek (Histori Komentar)</h3>`;
+html += `<div class="section"><h3>Progress Prospek</h3>`;
 PROGRESS_LIST.forEach(p=>{
   html += row(p, histori[p] + " aktivitas");
 });
