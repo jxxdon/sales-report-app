@@ -288,9 +288,11 @@ btnPost.onclick=async()=>{
     progress: selectedProgress,
     komentar: commentInput.value,
     prospekId: currentDocId,
+    namaProspek: currentProspekNama, // ✅ TAMBAHKAN INI
     createdAt: new Date()
   }
 );
+
 
 
   commentInput.value="";
