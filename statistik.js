@@ -120,25 +120,34 @@ Object.keys(asalMap).sort().forEach(a => {
     );
 });
 
-/* ===== KETERTARIKAN PROSPEK (FIXED) ===== */
+/* ===== KETERTARIKAN PROSPEK (STRICT) ===== */
 const ketertarikanMap = {};
+
+// 🔒 daftar produk yang SAH
+const PRODUK_VALID = [
+  "Arion",
+  "Carina",
+  "Dorado",
+  "Leonis",
+  "Lyra",
+  "Myra",
+  "Nashira",
+  "Vella",
+  "Volands"
+];
 
 prospek.forEach(p => {
   let list = p.tipeTertarik;
-
-  // 🔒 NORMALISASI DATA
   if (!list) return;
 
-  // jika string → jadikan array
   if (typeof list === "string") {
     list = list.split(",").map(x => x.trim());
   }
 
-  // pastikan array
   if (!Array.isArray(list)) return;
 
   list.forEach(item => {
-    if (!item) return;
+    if (!PRODUK_VALID.includes(item)) return; // 🔥 FILTER UTAMA
     ketertarikanMap[item] = (ketertarikanMap[item] || 0) + 1;
   });
 });
