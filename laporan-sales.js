@@ -34,6 +34,8 @@ const BULAN = [
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
 
+const TARGET_FOLLOWUP = 20;
+
 /* =====================
    HELPER
 ===================== */
@@ -88,7 +90,7 @@ function render(sales){
       : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
 
   /* =====================
-     DATA SALES & DATABASE
+     DATA SALES
   ===================== */
   const dataSales = prospek.filter(p => p.namaUser === sales);
   const totalDatabase = dataSales.length;
@@ -142,14 +144,10 @@ function render(sales){
   if (bulan === "all") {
     hari = 365;
   } else {
-    hari = new Date(
-      tahun,
-      Number(bulan) + 1,
-      0
-    ).getDate();
+    hari = new Date(tahun, Number(bulan)+1, 0).getDate();
   }
 
-  const followUp = (totalAktivitas / hari).toFixed(1);
+  const aktivitasPerHari = totalAktivitas / hari;
 
   /* =====================
      HIGHLIGHT
@@ -224,42 +222,37 @@ function render(sales){
   </div>`;
 
   /* =====================
-     RATE & CONVERSION
+     BALANCED SCORE (PALING BAWAH)
   ===================== */
+  const prospekAktifRate = prospekAktif / (totalDatabase || 1);
+  const surveyRate      = histori.Survey / (totalDatabase || 1);
+  const bookingRate     = histori.Booking / (totalDatabase || 1);
+  const followUpRate    = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
+
+  const score =
+    (prospekAktifRate * 20) +
+    (surveyRate * 25) +
+    (bookingRate * 30) +
+    (followUpRate * 25);
+
   html+=`
   <div class="section" style="
-    border:2px solid #4CAF50;
+    border:2px solid #2563eb;
     border-radius:18px;
     padding:18px;
     margin-top:30px;
   ">
     <h3 style="text-align:center;margin-bottom:12px">
-      Rate & Conversion :
+      Penilaian Kinerja Sales (Balanced Score)
     </h3>
 
-    <div style="text-align:center;font-size:15px;line-height:1.8">
-      <div>
-        Prospek Aktif Rate :
-        ${prospekAktif}/${totalDatabase}
-        = ${rate(prospekAktif, totalDatabase)}
-      </div>
-
-      <div>
-        Booking Rate :
-        ${histori.Booking}/${totalDatabase}
-        = ${rate(histori.Booking, totalDatabase)}
-      </div>
-
-      <div>
-        Survey Rate :
-        ${histori.Survey}/${totalDatabase}
-        = ${rate(histori.Survey, totalDatabase)}
-      </div>
-
-      <div>
-        Follow up :
-        ${followUp} x / hari
-      </div>
+    <div style="font-size:14px;line-height:1.8">
+      ${row("Prospek Aktif Rate", rate(prospekAktif, totalDatabase))}
+      ${row("Survey Rate", rate(histori.Survey, totalDatabase))}
+      ${row("Booking Rate", rate(histori.Booking, totalDatabase))}
+      ${row("Follow Up Rate", rate(aktivitasPerHari, TARGET_FOLLOWUP))}
+      <hr>
+      ${row("<strong>Skor Akhir</strong>", `<strong>${score.toFixed(1)}</strong>`)}
     </div>
   </div>
 `;
