@@ -21,7 +21,7 @@ const filterBulan = document.getElementById("filterBulan");
 let prospek = [];
 
 /* =====================
-   KONFIG
+   KONFIG RESMI
 ===================== */
 const PROGRESS_LIST = [
   "Cold","Warm","Hot","Survey",
@@ -34,7 +34,11 @@ const BULAN = [
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
 
-const TARGET_FOLLOWUP = 20;
+// ===== ATURAN FINAL =====
+const MIN_DATABASE       = 200;   // minimum database / bulan
+const MAX_SURVEY_RATE    = 0.10;  // 10% database
+const MAX_BOOKING        = 2;     // booking maksimal bernilai penuh
+const TARGET_FOLLOWUP    = 20;    // aktivitas / hari
 
 /* =====================
    HELPER
@@ -42,11 +46,9 @@ const TARGET_FOLLOWUP = 20;
 function percent(v,t){
   return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
 }
-
 function rate(v,t){
   return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
 }
-
 function row(label,value){
   return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
 }
@@ -83,7 +85,6 @@ function render(sales){
   const bulan = filterBulan.value;
 
   salesNameEl.textContent = sales;
-
   periodeEl.textContent =
     bulan === "all"
       ? `Tahun : ${tahun}`
@@ -101,10 +102,7 @@ function render(sales){
   const dataPeriode = dataSales.filter(p=>{
     return (p.comments || []).some(c=>{
       if (!c.createdAt) return false;
-      const d = c.createdAt.toDate
-        ? c.createdAt.toDate()
-        : new Date(c.createdAt);
-
+      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
       if (d.getFullYear() !== tahun) return false;
       if (bulan !== "all" && d.getMonth() !== Number(bulan)) return false;
       return true;
@@ -120,17 +118,10 @@ function render(sales){
   dataPeriode.forEach(p=>{
     (p.comments||[]).forEach(c=>{
       if (!c.createdAt) return;
-
-      const d = c.createdAt.toDate
-        ? c.createdAt.toDate()
-        : new Date(c.createdAt);
-
+      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
       if (d.getFullYear() !== tahun) return;
       if (bulan !== "all" && d.getMonth() !== Number(bulan)) return;
-
-      if (histori[c.progress] !== undefined) {
-        histori[c.progress]++;
-      }
+      if (histori[c.progress] !== undefined) histori[c.progress]++;
     });
   });
 
@@ -140,17 +131,11 @@ function render(sales){
   /* =====================
      HARI BERJALAN
   ===================== */
-  let hari = 1;
-  if (bulan === "all") {
-    hari = 365;
-  } else {
-    hari = new Date(tahun, Number(bulan)+1, 0).getDate();
-  }
-
+  let hari = bulan === "all" ? 365 : new Date(tahun, Number(bulan)+1, 0).getDate();
   const aktivitasPerHari = totalAktivitas / hari;
 
   /* =====================
-     HIGHLIGHT
+     HIGHLIGHT (TETAP)
   ===================== */
   sumBaru.textContent     = prospekAktif;
   sumSurvey.textContent   = histori.Survey;
@@ -164,96 +149,60 @@ function render(sales){
 `;
 
   /* =====================
-     ASAL PROSPEK
+     (SEMUA SECTION LAMA TETAP)
   ===================== */
-  const asal = {};
+  const asal={}, kota={}, minat={};
+
   dataPeriode.forEach(p=>{
-    asal[p.asalProspek] = (asal[p.asalProspek]||0)+1;
+    asal[p.asalProspek]=(asal[p.asalProspek]||0)+1;
+    kota[p.asalKota]=(kota[p.asalKota]||0)+1;
+    (p.tipeTertarik||[]).forEach(t=>minat[t]=(minat[t]||0)+1);
   });
 
-  html+=`<div class="section"><h3>Asal Prospek</h3>
-    ${row("Total", prospekAktif+" prospek")}
-  `;
-  Object.keys(asal).forEach(a=>{
-    html+=row(a,`${asal[a]} / ${percent(asal[a],prospekAktif)}`);
-  });
+  html+=`<div class="section"><h3>Asal Prospek</h3>${row("Total",prospekAktif+" prospek")}`;
+  Object.keys(asal).forEach(a=>html+=row(a,`${asal[a]} / ${percent(asal[a],prospekAktif)}`));
+  html+=`</div>`;
+
+  html+=`<div class="section"><h3>Asal Kota</h3>${row("Total",prospekAktif+" prospek")}`;
+  Object.keys(kota).forEach(k=>html+=row(k,`${kota[k]} / ${percent(kota[k],prospekAktif)}`));
+  html+=`</div>`;
+
+  html+=`<div class="section"><h3>Ketertarikan Prospek</h3>${row("Total",prospekAktif+" prospek")}`;
+  Object.keys(minat).forEach(m=>html+=row(m,`${minat[m]} / ${percent(minat[m],prospekAktif)}`));
+  html+=`</div>`;
+
+  html+=`<div class="section"><h3>Progress Prospek (Histori Komentar)</h3>`;
+  PROGRESS_LIST.forEach(p=>html+=row(p,histori[p]+" aktivitas"));
   html+=`</div>`;
 
   /* =====================
-     ASAL KOTA
+     BALANCED SCORE (FINAL)
   ===================== */
-  const kota = {};
-  dataPeriode.forEach(p=>{
-    kota[p.asalKota] = (kota[p.asalKota]||0)+1;
-  });
+  const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
 
-  html+=`<div class="section"><h3>Asal Kota</h3>
-    ${row("Total", prospekAktif+" prospek")}
-  `;
-  Object.keys(kota).forEach(k=>{
-    html+=row(k,`${kota[k]} / ${percent(kota[k],prospekAktif)}`);
-  });
-  html+=`</div>`;
-
-  /* =====================
-     KETERTARIKAN
-  ===================== */
-  const minat = {};
-  dataPeriode.forEach(p=>{
-    (p.tipeTertarik||[]).forEach(t=>{
-      minat[t]=(minat[t]||0)+1;
-    });
-  });
-
-  html+=`<div class="section"><h3>Ketertarikan Prospek</h3>
-    ${row("Total", prospekAktif+" prospek")}
-  `;
-  Object.keys(minat).forEach(m=>{
-    html+=row(m,`${minat[m]} / ${percent(minat[m],prospekAktif)}`);
-  });
-  html+=`</div>`;
-
-  /* =====================
-     PROGRESS
-  ===================== */
-  html+=`<div class="section">
-    <h3>Progress Prospek (Histori Komentar)</h3>
-    ${PROGRESS_LIST.map(p=>row(p, histori[p]+" aktivitas")).join("")}
-  </div>`;
-
-  /* =====================
-     BALANCED SCORE (PALING BAWAH)
-  ===================== */
   const prospekAktifRate = prospekAktif / (totalDatabase || 1);
-  const surveyRate      = histori.Survey / (totalDatabase || 1);
-  const bookingRate     = histori.Booking / (totalDatabase || 1);
-  const followUpRate    = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
+  const surveyRate  = Math.min(histori.Survey / (MAX_SURVEY_RATE * totalDatabase || 1), 1);
+  const bookingRate = Math.min(histori.Booking / MAX_BOOKING, 1);
+  const followUpRate= Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
 
-  const score =
+  const skorMentah =
     (prospekAktifRate * 20) +
-    (surveyRate * 25) +
-    (bookingRate * 30) +
-    (followUpRate * 25);
+    (surveyRate        * 25) +
+    (bookingRate       * 30) +
+    (followUpRate      * 25);
+
+  const skorAkhir = skorMentah * penaltyDatabase;
 
   html+=`
-  <div class="section" style="
-    border:2px solid #2563eb;
-    border-radius:18px;
-    padding:18px;
-    margin-top:30px;
-  ">
-    <h3 style="text-align:center;margin-bottom:12px">
-      Penilaian Kinerja Sales (Balanced Score)
-    </h3>
-
-    <div style="font-size:14px;line-height:1.8">
-      ${row("Prospek Aktif Rate", rate(prospekAktif, totalDatabase))}
-      ${row("Survey Rate", rate(histori.Survey, totalDatabase))}
-      ${row("Booking Rate", rate(histori.Booking, totalDatabase))}
-      ${row("Follow Up Rate", rate(aktivitasPerHari, TARGET_FOLLOWUP))}
-      <hr>
-      ${row("<strong>Skor Akhir</strong>", `<strong>${score.toFixed(1)}</strong>`)}
-    </div>
+  <div class="section" style="border:2px solid #2563eb;border-radius:18px;padding:18px;margin-top:30px">
+    <h3 style="text-align:center">Penilaian Kinerja Sales</h3>
+    ${row("Prospek Aktif Rate", rate(prospekAktif, totalDatabase))}
+    ${row("Survey Rate", rate(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
+    ${row("Booking Rate", rate(histori.Booking, MAX_BOOKING))}
+    ${row("Follow Up Rate", rate(aktivitasPerHari, TARGET_FOLLOWUP))}
+    ${row("Penalty Database", penaltyDatabase.toFixed(2))}
+    <hr>
+    ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>
 `;
 
@@ -265,18 +214,9 @@ function render(sales){
 ===================== */
 onSnapshot(collection(db,"prospek"), snap=>{
   prospek = snap.docs.map(d=>d.data());
-
-  const salesList = [...new Set(
-    prospek.map(p=>p.namaUser).filter(Boolean)
-  )];
-
-  selectSales.innerHTML =
-    salesList.map(s=>`<option>${s}</option>`).join("");
-
-  if (salesList.length) {
-    initPeriode();
-    render(selectSales.value || salesList[0]);
-  }
+  const salesList = [...new Set(prospek.map(p=>p.namaUser).filter(Boolean))];
+  selectSales.innerHTML = salesList.map(s=>`<option>${s}</option>`).join("");
+  if (salesList.length){ initPeriode(); render(salesList[0]); }
 });
 
 selectSales.onchange = e => render(e.target.value);
