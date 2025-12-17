@@ -34,30 +34,23 @@ const BULAN = [
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
 
-// ===== ATURAN FINAL (ANTI NGAKALIN) =====
-const MIN_DATABASE    = 200;   // minimum database / bulan
-const MAX_SURVEY_RATE = 0.10;  // 10% database
-const MAX_BOOKING     = 2;     // booking maksimal bernilai penuh
-const TARGET_FOLLOWUP = 20;    // aktivitas / hari
+// ===== ATURAN FINAL =====
+const MIN_DATABASE    = 200;
+const MAX_SURVEY_RATE = 0.10;   // 10% database
+const MAX_BOOKING     = 2;
+const TARGET_FOLLOWUP = 20;
 
 /* =====================
    HELPER
 ===================== */
-function percent(v,t){
-  return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
-}
-
-// dipakai untuk hitung skor (boleh >100 sebelum di-cap)
-function rateRaw(v,t){
-  return t ? (v/t) : 0;
-}
-
-// dipakai untuk TAMPILAN (MAX 100%)
+function rateRaw(v,t){ return t ? (v/t) : 0; }
 function rateDisplay(v,t){
   if (!t) return "0%";
   return Math.min((v/t)*100,100).toFixed(1)+"%";
 }
-
+function percent(v,t){
+  return t ? ((v/t)*100).toFixed(1)+"%" : "0%";
+}
 function row(label,value){
   return `<div class="row"><span>${label}</span><span>${value}</span></div>`;
 }
@@ -67,19 +60,16 @@ function row(label,value){
 ===================== */
 function initPeriode(){
   const now = new Date();
-  const thisYear = now.getFullYear();
+  const y = now.getFullYear();
 
   filterTahun.innerHTML =
-    Array.from({length:6},(_,i)=>{
-      const y = thisYear - i;
-      return `<option value="${y}">${y}</option>`;
-    }).join("");
+    Array.from({length:6},(_,i)=>`<option>${y-i}</option>`).join("");
 
   filterBulan.innerHTML =
     `<option value="all">Tahunan</option>` +
     BULAN.map((b,i)=>`<option value="${i}">${b}</option>`).join("");
 
-  filterTahun.value = thisYear;
+  filterTahun.value = y;
   filterBulan.value = now.getMonth();
 
   filterTahun.onchange = () => render(selectSales.value);
@@ -95,117 +85,69 @@ function render(sales){
 
   salesNameEl.textContent = sales;
   periodeEl.textContent =
-    bulan === "all"
-      ? `Tahun : ${tahun}`
-      : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
+    bulan==="all" ? `Tahun : ${tahun}` : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
 
-  /* =====================
-     DATA SALES
-  ===================== */
-  const dataSales = prospek.filter(p => p.namaUser === sales);
+  const dataSales = prospek.filter(p=>p.namaUser===sales);
   const totalDatabase = dataSales.length;
 
-  /* =====================
-     DATA PER PERIODE
-  ===================== */
   const dataPeriode = dataSales.filter(p=>{
-    return (p.comments || []).some(c=>{
-      if (!c.createdAt) return false;
+    return (p.comments||[]).some(c=>{
+      if(!c.createdAt) return false;
       const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-      if (d.getFullYear() !== tahun) return false;
-      if (bulan !== "all" && d.getMonth() !== Number(bulan)) return false;
+      if(d.getFullYear()!==tahun) return false;
+      if(bulan!=="all" && d.getMonth()!==Number(bulan)) return false;
       return true;
     });
   });
 
-  /* =====================
-     HISTORI KOMENTAR
-  ===================== */
   const histori = {};
-  PROGRESS_LIST.forEach(p => histori[p] = 0);
+  PROGRESS_LIST.forEach(p=>histori[p]=0);
 
   dataPeriode.forEach(p=>{
     (p.comments||[]).forEach(c=>{
-      if (!c.createdAt) return;
+      if(!c.createdAt) return;
       const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-      if (d.getFullYear() !== tahun) return;
-      if (bulan !== "all" && d.getMonth() !== Number(bulan)) return;
-      if (histori[c.progress] !== undefined) histori[c.progress]++;
+      if(d.getFullYear()!==tahun) return;
+      if(bulan!=="all" && d.getMonth()!==Number(bulan)) return;
+      if(histori[c.progress]!==undefined) histori[c.progress]++;
     });
   });
 
-  const prospekAktif   = dataPeriode.length;
+  const prospekAktif = dataPeriode.length;
   const totalAktivitas = Object.values(histori).reduce((a,b)=>a+b,0);
-
-  /* =====================
-     HARI BERJALAN
-  ===================== */
-  const hari = bulan === "all"
-    ? 365
-    : new Date(tahun, Number(bulan)+1, 0).getDate();
-
+  const hari = bulan==="all" ? 365 : new Date(tahun,Number(bulan)+1,0).getDate();
   const aktivitasPerHari = totalAktivitas / hari;
 
-  /* =====================
-     HIGHLIGHT (TETAP)
-  ===================== */
+  /* highlight tetap */
   sumBaru.textContent     = prospekAktif;
   sumSurvey.textContent   = histori.Survey;
   sumBooking.textContent  = histori.Booking;
   sumProgress.textContent = totalAktivitas;
 
-  let html = `
-  <div class="section">
-    <strong>Prospek Aktif :</strong> ${prospekAktif} Orang
-  </div>
-`;
+  let html = `<div class="section"><strong>Prospek Aktif :</strong> ${prospekAktif} Orang</div>`;
 
   /* =====================
-     SECTION LAMA (TETAP)
-  ===================== */
-  const asal={}, kota={}, minat={};
-
-  dataPeriode.forEach(p=>{
-    asal[p.asalProspek]=(asal[p.asalProspek]||0)+1;
-    kota[p.asalKota]=(kota[p.asalKota]||0)+1;
-    (p.tipeTertarik||[]).forEach(t=>minat[t]=(minat[t]||0)+1);
-  });
-
-  html+=`<div class="section"><h3>Asal Prospek</h3>${row("Total",prospekAktif+" prospek")}`;
-  Object.keys(asal).forEach(a=>html+=row(a,`${asal[a]} / ${percent(asal[a],prospekAktif)}`));
-  html+=`</div>`;
-
-  html+=`<div class="section"><h3>Asal Kota</h3>${row("Total",prospekAktif+" prospek")}`;
-  Object.keys(kota).forEach(k=>html+=row(k,`${kota[k]} / ${percent(kota[k],prospekAktif)}`));
-  html+=`</div>`;
-
-  html+=`<div class="section"><h3>Ketertarikan Prospek</h3>${row("Total",prospekAktif+" prospek")}`;
-  Object.keys(minat).forEach(m=>html+=row(m,`${minat[m]} / ${percent(minat[m],prospekAktif)}`));
-  html+=`</div>`;
-
-  html+=`<div class="section"><h3>Progress Prospek (Histori Komentar)</h3>`;
-  PROGRESS_LIST.forEach(p=>html+=row(p,histori[p]+" aktivitas"));
-  html+=`</div>`;
-
-  /* =====================
-     BALANCED SCORE (FIX)
+     BALANCED SCORE (RUMUS BARU)
   ===================== */
   const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
 
+  // PROSES (kena penalty)
   const prospekAktifRate = rateRaw(prospekAktif, totalDatabase);
   const surveyRate      = Math.min(rateRaw(histori.Survey, MAX_SURVEY_RATE*totalDatabase),1);
-  const bookingRate     = Math.min(rateRaw(histori.Booking, MAX_BOOKING),1);
   const followUpRate    = Math.min(rateRaw(aktivitasPerHari, TARGET_FOLLOWUP),1);
 
-  const skorMentah =
+  const skorProses =
     (prospekAktifRate * 20) +
     (surveyRate        * 25) +
-    (bookingRate       * 30) +
     (followUpRate      * 25);
 
-  const skorAkhir = skorMentah * penaltyDatabase;
+  // HASIL (TIDAK kena penalty)
+  const bookingRate = Math.min(rateRaw(histori.Booking, MAX_BOOKING),1);
+  const skorBooking = bookingRate * 30;
 
-  html+=`
+  const skorAkhir = (skorProses * penaltyDatabase) + skorBooking;
+
+  html += `
   <div class="section" style="border:2px solid #2563eb;border-radius:18px;padding:18px;margin-top:30px">
     <h3 style="text-align:center">Penilaian Kinerja Sales</h3>
     ${row("Prospek Aktif Rate", rateDisplay(prospekAktif, totalDatabase))}
@@ -215,8 +157,7 @@ function render(sales){
     ${row("Penalty Database", penaltyDatabase.toFixed(2))}
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
-  </div>
-`;
+  </div>`;
 
   laporanContent.innerHTML = html;
 }
@@ -228,7 +169,7 @@ onSnapshot(collection(db,"prospek"), snap=>{
   prospek = snap.docs.map(d=>d.data());
   const salesList = [...new Set(prospek.map(p=>p.namaUser).filter(Boolean))];
   selectSales.innerHTML = salesList.map(s=>`<option>${s}</option>`).join("");
-  if (salesList.length){ initPeriode(); render(salesList[0]); }
+  if(salesList.length){ initPeriode(); render(salesList[0]); }
 });
 
 selectSales.onchange = e => render(e.target.value);
