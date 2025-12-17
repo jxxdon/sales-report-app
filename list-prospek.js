@@ -197,15 +197,21 @@ function loadProspek(keyword = "") {
       const status = getStatus(d.createdAt);
       const card = document.createElement("div");
       card.className = "prospek-card";
-      card.innerHTML = `
-        <div class="nama">${d.nama||"-"}</div>
-        <div class="info">📞 ${d.noTelp||"-"} - ${d.asalKota||"-"} - ${d.asalProspek||"-"}</div>
-        <div class="info">👤 ${d.namaUser||"-"}</div>
-        <div class="status-line">
-          <span class="status ${status==="Personal Lead"?"status-personal":"status-open"}">${status}</span>
-          <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
-        </div>
-      `;
+      const ketertarikan = d.ketertarikan || "-";
+const catatan = d.catatan || "-";
+
+card.innerHTML = `
+  <div class="nama">${d.nama||"-"}</div>
+  <div class="info">
+    📞 ${d.noTelp||"-"} - ${d.asalKota||"-"} - ${d.asalProspek||"-"} - 
+    ${ketertarikan} - ${catatan}
+  </div>
+  <div class="info">👤 ${d.namaUser||"-"}</div>
+  <div class="status-line">
+    <span class="status ${status==="Personal Lead"?"status-personal":"status-open"}">${status}</span>
+    <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
+  </div>
+`;
       card.onclick = ()=>openDetail(docSnap.id,d);
       prospekList.appendChild(card);
     });
