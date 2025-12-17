@@ -16,6 +16,7 @@ const titleRangeEl    = document.getElementById("titleRange");
 const btnCurrent  = document.getElementById("btnCurrent");
 const selectMonth = document.getElementById("selectMonth");
 const selectYear  = document.getElementById("selectYear");
+const asalProspekDataEl = document.getElementById("asalProspekData");
 
 /* =====================
    STATE
@@ -95,6 +96,24 @@ function render() {
     prospekBySales.innerHTML +=
       row(s, `${bySales[s]} orang / ${percent(bySales[s], prospek.length)}`)
   );
+/* ===== ASAL PROSPEK ===== */
+const asalMap = {};
+prospek.forEach(p => {
+  const asal = p.asalProspek || "Tidak Diketahui";
+  asalMap[asal] = (asalMap[asal] || 0) + 1;
+});
+
+asalProspekDataEl.innerHTML = "";
+asalProspekDataEl.innerHTML +=
+  row("Total", prospek.length + " prospek");
+
+Object.keys(asalMap).sort().forEach(a => {
+  asalProspekDataEl.innerHTML +=
+    row(
+      a,
+      `${asalMap[a]} / ${percent(asalMap[a], prospek.length)}`
+    );
+});
 
   /* ===== PROGRESS ===== */
   const progress = {};
