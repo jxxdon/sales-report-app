@@ -3,37 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <title>Laporan Pekerjaan Sales</title>
+
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 40px;
-    color:#000;
-  }
-  h2, h3 { margin: 0 0 10px }
-  .section { margin-bottom: 18px }
-  .row {
-    display:flex;
-    justify-content:space-between;
-    margin:4px 0;
-  }
-  @media print {
-    button, select { display:none }
-  }
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  padding:40px;
+  color:#111;
+  background:#fff;
+}
+
+h2{ margin:0 }
+h3{ margin:6px 0 12px }
+
+.section{ margin-bottom:24px }
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:4px 0;
+  border-bottom:1px dotted #ddd;
+  font-size:14px;
+}
+
+.header{
+  margin-bottom:20px;
+}
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin:20px 0 30px;
+}
+
+.card{
+  padding:16px;
+  border-radius:10px;
+  color:#fff;
+  text-align:center;
+}
+
+.card .label{
+  font-size:13px;
+  opacity:.9;
+}
+
+.card .value{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:4px;
+}
+
+.blue{ background:#2563eb }
+.orange{ background:#f59e0b }
+.green{ background:#16a34a }
+.red{ background:#dc2626 }
+
+.filter{
+  margin-bottom:20px;
+}
+
+@media print{
+  .filter{ display:none }
+  body{ padding:20px }
+}
 </style>
 </head>
 
 <body>
 
-<!-- ===== FILTER ===== -->
-<div class="section">
+<!-- FILTER -->
+<div class="filter">
   <select id="selectSales"></select>
   <button onclick="window.print()">🖨 Cetak PDF</button>
 </div>
 
-<h2>Laporan Pekerjaan</h2>
-<h3 id="salesName"></h3>
-<div id="periode"></div>
+<!-- HEADER -->
+<div class="header">
+  <h2>Laporan Pekerjaan</h2>
+  <h3 id="salesName"></h3>
+  <div id="periode"></div>
+</div>
 
+<!-- HIGHLIGHT -->
+<div class="summary">
+  <div class="card blue">
+    <div class="label">Prospek Baru</div>
+    <div class="value" id="sumBaru">0</div>
+  </div>
+  <div class="card orange">
+    <div class="label">Progress</div>
+    <div class="value" id="sumProgress">0</div>
+  </div>
+  <div class="card green">
+    <div class="label">Survey</div>
+    <div class="value" id="sumSurvey">0</div>
+  </div>
+  <div class="card red">
+    <div class="label">Booking</div>
+    <div class="value" id="sumBooking">0</div>
+  </div>
+</div>
+
+<!-- ISI LAPORAN -->
 <div id="laporanContent"></div>
 
 <script type="module" src="laporan-sales.js"></script>
