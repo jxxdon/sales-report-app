@@ -100,6 +100,49 @@ const skorProses =
   return skorAkhir.toFixed(1);
 }
 
+function labelKinerja(skor){
+  if (skor < 5)
+    return {
+      text: "Perlu Evaluasi",
+      color: "#ef4444",
+      desc: "Aktivitas sangat rendah, perlu pendampingan"
+    };
+
+  if (skor < 15)
+    return {
+      text: "Mulai Bergerak",
+      color: "#f97316",
+      desc: "Sudah ada usaha, tapi belum konsisten"
+    };
+
+  if (skor < 30)
+    return {
+      text: "Cukup Aktif",
+      color: "#eab308",
+      desc: "Ritme mulai terbentuk, jaga konsistensi"
+    };
+
+  if (skor < 50)
+    return {
+      text: "Sales Aktif",
+      color: "#22c55e",
+      desc: "Aktivitas stabil, pipeline mulai sehat"
+    };
+
+  if (skor < 70)
+    return {
+      text: "Top Performer",
+      color: "#3b82f6",
+      desc: "Kinerja konsisten dan berdampak"
+    };
+
+  return {
+    text: "Sales Elite",
+    color: "#8b5cf6",
+    desc: "Disiplin tinggi dan hasil konsisten"
+  };
+}
+
 
 // ===== variabel yang DIPAKAI OLEH KODE LAMA =====
 let user = null;
@@ -204,11 +247,26 @@ header.appendChild(rightWrap);
 
 document.body.insertBefore(header, document.body.firstChild);
 document.body.style.paddingTop = "80px";
-hitungPointBulanan(storedNamaUser).then(skor => {
+hitungPointBulanan(storedNamaUser).then(skor=>{
   const el = document.getElementById("pointKinerja");
-  if (el) {
-    el.textContent = `Point bulan ini: ${skor}`;
-  }
+  if (!el) return;
+
+  const label = labelKinerja(Number(skor));
+
+  el.innerHTML = `
+    <span>Point bulan ini: <strong>${skor}</strong></span>
+    <span
+      title="${label.desc}"
+      style="
+        margin-left:8px;
+        color:${label.color};
+        font-weight:600;
+        cursor:help;
+      "
+    >
+      • ${label.text}
+    </span>
+  `;
 });
 
 
@@ -317,6 +375,7 @@ hitungPointBulanan(storedNamaUser).then(skor => {
   });
 
 }
+
 
 
 
