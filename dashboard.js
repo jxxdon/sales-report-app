@@ -56,11 +56,39 @@ async function hitungPointBulanan(userLogin) {
   const MAX_SURVEY_RATE = 0.10;
   const MAX_BOOKING     = 1;
   const TARGET_FOLLOWUP = 10;
+// ===== TARGET BARU (SISTEM KONSISTENSI) =====
+const TARGET_INPUT_HARIAN   = 5;   // input prospek / hari
+const TARGET_KOMENTAR_HARI  = 10;  // komentar / hari
+
+const TARGET_PROSPEK_AKTIF  = 150; // per bulan
+const TARGET_SURVEY_BULAN   = 15;  // per bulan
+const TARGET_BOOKING_BULAN  = 2;   // per bulan
 
   const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
 
-  const hari = new Date(tahun, bulan + 1, 0).getDate();
-  const aktivitasPerHari = totalAktivitas / hari;
+  // ===== HITUNG HARI =====
+const hari = new Date(tahun, bulan + 1, 0).getDate();
+
+// ===== HARIAN =====
+const inputPerHari    = totalDatabase / hari;
+const komentarPerHari = totalAktivitas / hari;
+
+// ===== RATE (0 - 1) =====
+const inputRate =
+  Math.min(inputPerHari / TARGET_INPUT_HARIAN, 1);
+
+const komentarRate =
+  Math.min(komentarPerHari / TARGET_KOMENTAR_HARI, 1);
+
+const prospekAktifRate =
+  Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
+
+const surveyRate =
+  Math.min(survey / TARGET_SURVEY_BULAN, 1);
+
+const bookingRate =
+  Math.min(booking / TARGET_BOOKING_BULAN, 1);
+
 
   const surveyRate   = Math.min(survey / (MAX_SURVEY_RATE * totalDatabase), 1);
   const followUpRate = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
@@ -86,16 +114,13 @@ const prospekAktifRate = totalDatabase
   ? prospekAktif / totalDatabase
   : 0;
 
-const skorProses =
-  (prospekAktifRate * 20) +
-  (surveyRate * 25) +
-  (followUpRate * 25);
-
-
-  const bookingRate = Math.min(booking / MAX_BOOKING, 1);
-  const skorBooking = bookingRate * 30;
-
-  const skorAkhir = (skorProses * penaltyDatabase) + skorBooking;
+// ===== SKOR AKHIR (TOTAL 100 POINT) =====
+const skorAkhir =
+  (inputRate        * 15) +
+  (komentarRate     * 15) +
+  (prospekAktifRate * 15) +
+  (surveyRate       * 15) +
+  (bookingRate      * 40);
 
   return skorAkhir.toFixed(1);
 }
@@ -375,6 +400,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   });
 
 }
+
 
 
 
