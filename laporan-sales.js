@@ -368,7 +368,12 @@ if (canvasBanding && typeof Chart !== "undefined") {
     "#7c3aed", "#ea580c", "#0891b2"
   ];
 
-  const salesList = [...new Set(prospek.map(p=>p.namaUser).filter(Boolean))];
+  const salesList = [...new Set(
+  prospek
+    .map(p => p.namaUser)
+    .filter(s => s && s.toLowerCase() !== "admin")
+)];
+
 
   salesList.forEach((s, i) => {
     const dataHarian = hitungSkorHarian(
