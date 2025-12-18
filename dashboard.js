@@ -77,23 +77,6 @@ welcome.innerHTML = `<strong>Selamat datang,</strong> ${storedNamaUser}`;
 const rightWrap = document.createElement("div");
 rightWrap.style = "display:flex; gap:10px; align-items:center;";
 
-if (storedRole === "admin") {
-  const btnStatistik = document.createElement("button");
-  btnStatistik.textContent = "📊 Statistik";
-  btnStatistik.style = `
-    padding: 8px 14px;
-    background-color: #17a2b8;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  `;
-  btnStatistik.onclick = () => {
-    window.location.href = "statistik.html";
-  };
-  rightWrap.appendChild(btnStatistik);
-}
-
 const logoutButton = document.createElement("button");
 logoutButton.textContent = "Logout";
 logoutButton.style = `
@@ -226,4 +209,5 @@ document.body.style.paddingTop = "80px";
   });
 
 }
+
 
