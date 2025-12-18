@@ -52,7 +52,7 @@ function initAktivitas() {
   } else {
     q = query(
       collection(db, "aktivitas"),
-      where("userId", "==", currentUser.uid),
+      where("user", "==", currentUser.email.split("@")[0]),
       orderBy("createdAt", "desc")
     );
   }
