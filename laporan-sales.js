@@ -356,14 +356,23 @@ if (canvas && typeof Chart !== "undefined") {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        label: "Skor Konsistensi Harian",
-        data: values,
-        tension: 0.35,
-        fill: false,
-        borderWidth: 2,
-        pointRadius: 3
-      }]
+      datasets: [
+  {
+    label: "Skor Konsistensi Harian",
+    data: values,
+    tension: 0.35,
+    fill: false,
+    borderWidth: 2,
+    pointRadius: 3
+  },
+  {
+    label: "Target Ideal",
+    data: labels.map(() => 100),
+    borderDash: [6, 6],
+    borderWidth: 1,
+    pointRadius: 0
+  }
+]
     },
     options: {
       responsive: true,
