@@ -55,77 +55,70 @@ function initDashboard() {
 
 
   /* ================== HEADER + LOGOUT ================== */
-  window.addEventListener("DOMContentLoaded", () => {
+ const header = document.createElement("div");
+header.style = `
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #343a40;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+`;
 
-    const header = document.createElement("div");
-    header.style = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-      background-color: #343a40;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 1000;
-    `;
+const welcome = document.createElement("div");
+welcome.innerHTML = `<strong>Selamat datang,</strong> ${storedNamaUser}`;
 
-    const welcome = document.createElement("div");
-    welcome.innerHTML = `<strong>Selamat datang,</strong> ${storedNamaUser}`;
+const rightWrap = document.createElement("div");
+rightWrap.style = "display:flex; gap:10px; align-items:center;";
 
-    const rightWrap = document.createElement("div");
-    rightWrap.style = "display:flex; gap:10px; align-items:center;";
+if (storedRole === "admin") {
+  const btnStatistik = document.createElement("button");
+  btnStatistik.textContent = "📊 Statistik";
+  btnStatistik.style = `
+    padding: 8px 14px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  `;
+  btnStatistik.onclick = () => {
+    window.location.href = "statistik.html";
+  };
+  rightWrap.appendChild(btnStatistik);
+}
 
-    /* ================== TOMBOL STATISTIK (ADMIN) ================== */
-    if (storedRole === "admin") {
-      const btnStatistik = document.createElement("button");
-      btnStatistik.textContent = "📊 Statistik";
-      btnStatistik.style = `
-        padding: 8px 14px;
-        background-color: #17a2b8;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      `;
-      btnStatistik.onclick = () => {
-        window.location.href = "statistik.html";
-      };
-      rightWrap.appendChild(btnStatistik);
-    }
+const logoutButton = document.createElement("button");
+logoutButton.textContent = "Logout";
+logoutButton.style = `
+  padding: 8px 14px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+`;
 
-    /* ================== LOGOUT ================== */
-    const logoutButton = document.createElement("button");
-    logoutButton.textContent = "Logout";
-    logoutButton.style = `
-      padding: 8px 14px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    `;
-
-    logoutButton.onclick = () => {
-      if (!confirm("Apakah Anda yakin ingin keluar?")) return;
-
-      signOut(auth).then(() => {
-        localStorage.clear();
-        window.location.href = "index.html";
-      });
-    };
-
-    rightWrap.appendChild(logoutButton);
-
-    header.appendChild(welcome);
-    header.appendChild(rightWrap);
-
-    document.body.insertBefore(header, document.body.firstChild);
-    document.body.style.paddingTop = "80px";
+logoutButton.onclick = () => {
+  if (!confirm("Apakah Anda yakin ingin keluar?")) return;
+  signOut(auth).then(() => {
+    localStorage.clear();
+    window.location.href = "index.html";
   });
+};
+
+rightWrap.appendChild(logoutButton);
+header.appendChild(welcome);
+header.appendChild(rightWrap);
+
+document.body.insertBefore(header, document.body.firstChild);
+document.body.style.paddingTop = "80px";
 
 
   /* ================== NORMALISASI NO TELP ================== */
@@ -233,3 +226,4 @@ function initDashboard() {
   });
 
 }
+
