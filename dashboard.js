@@ -60,7 +60,7 @@ const TARGET_PROSPEK_AKTIF  = 150; // per bulan
 const TARGET_SURVEY_BULAN   = 15;  // per bulan
 const TARGET_BOOKING_BULAN  = 2;   // per bulan
 
-  const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
+
 
   // ===== HITUNG HARI =====
 const hari = new Date(tahun, bulan + 1, 0).getDate();
@@ -85,9 +85,6 @@ const surveyRate =
 const bookingRate =
   Math.min(booking / TARGET_BOOKING_BULAN, 1);
 
-
-  const surveyRate   = Math.min(survey / (MAX_SURVEY_RATE * totalDatabase), 1);
-  const followUpRate = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
 
   // hitung prospek aktif versi laporan
 const prospekAktifSet = new Set();
@@ -396,6 +393,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   });
 
 }
+
 
 
 
