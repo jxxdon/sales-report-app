@@ -1,20 +1,30 @@
-const users = {
-  admin: "ramenuno20",
-  sales1: "kucinggemoy23",
-  sales2: "pandalucu88",
-  sales3: "beruangmini45",
-  sales4: "bantengimut12",
-  sales5: "hamsterngakak87"
+import { getAuth, signInWithEmailAndPassword } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { initializeApp } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+// 🔹 config Firebase kamu
+const firebaseConfig = {
+  apiKey: "API_KEY_KAMU",
+  authDomain: "PROJECT_ID.firebaseapp.com",
+  projectId: "PROJECT_ID",
 };
 
-function login() {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
+// 🔹 init
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  if (users[user] === pass) {
-    localStorage.setItem("user", user);
-    window.location.href = "dashboard.html";
-  } else {
-    alert("Username atau password salah");
-  }
-}
+// 🔹 function login (tetap namanya)
+window.login = function () {
+  const email = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      window.location.href = "dashboard.html";
+    })
+    .catch((error) => {
+      alert("Login gagal: " + error.message);
+    });
+};
