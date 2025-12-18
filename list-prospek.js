@@ -12,7 +12,9 @@ onAuthStateChanged(auth, (u) => {
   }
 
   // menyamakan dengan sistem lama
-  user = u.email.startsWith("admin") ? "admin" : u.email;
+  user = u.email.startsWith("admin")
+  ? "admin"
+  : u.email.split("@")[0];
   isAdmin = user === "admin";
   init(); // ✅ WAJIB
 });
