@@ -29,64 +29,29 @@ async function hitungPointBulanan(userLogin) {
 
   if (!totalDatabase) return "0.0";
 
-  /* ===== AKTIVITAS (PELAKU) ===== */
-  let survey = 0;
-  let booking = 0;
-  let totalAktivitas = 0;
+ /* ===== AKTIVITAS (PELAKU) ===== */
+let survey = 0;
+let booking = 0;
+let totalAktivitas = 0;
 
-  snap.docs.forEach(docSnap=>{
-    const p = docSnap.data();
-    (p.comments||[]).forEach(c=>{
-      if (c.user !== userLogin) return;
-      if (!c.createdAt) return;
+snap.docs.forEach(docSnap=>{
+  const p = docSnap.data();
+  (p.comments||[]).forEach(c=>{
+    if (c.user !== userLogin) return;
+    if (!c.createdAt) return;
 
-      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-      if (d.getFullYear() !== tahun) return;
-      if (d.getMonth() !== bulan) return;
+    const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+    if (d.getFullYear() !== tahun) return;
+    if (d.getMonth() !== bulan) return;
 
-      totalAktivitas++;
+    totalAktivitas++;
 
-      if (c.progress === "Survey") survey++;
-      if (c.progress === "Booking") booking++;
-    });
+    if (c.progress === "Survey") survey++;
+    if (c.progress === "Booking") booking++;
   });
+});
 
- 
-// ===== TARGET BARU (SISTEM KONSISTENSI) =====
-const TARGET_INPUT_HARIAN   = 5;   // input prospek / hari
-const TARGET_KOMENTAR_HARI  = 10;  // komentar / hari
-
-const TARGET_PROSPEK_AKTIF  = 150; // per bulan
-const TARGET_SURVEY_BULAN   = 15;  // per bulan
-const TARGET_BOOKING_BULAN  = 2;   // per bulan
-
-
-
-  // ===== HITUNG HARI =====
-const hari = new Date(tahun, bulan + 1, 0).getDate();
-
-// ===== HARIAN =====
-const inputPerHari    = totalDatabase / hari;
-const komentarPerHari = totalAktivitas / hari;
-
-// ===== RATE (0 - 1) =====
-const inputRate =
-  Math.min(inputPerHari / TARGET_INPUT_HARIAN, 1);
-
-const komentarRate =
-  Math.min(komentarPerHari / TARGET_KOMENTAR_HARI, 1);
-
-const prospekAktifRate =
-  Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
-
-const surveyRate =
-  Math.min(survey / TARGET_SURVEY_BULAN, 1);
-
-const bookingRate =
-  Math.min(booking / TARGET_BOOKING_BULAN, 1);
-
-
-  // hitung prospek aktif versi laporan
+/* ===== HITUNG PROSPEK AKTIF ===== */
 const prospekAktifSet = new Set();
 snap.docs.forEach(docSnap=>{
   const p = docSnap.data();
@@ -101,13 +66,30 @@ snap.docs.forEach(docSnap=>{
     prospekAktifSet.add(p.noTelp);
   });
 });
-
 const prospekAktif = prospekAktifSet.size;
-const prospekAktifRate = totalDatabase
-  ? prospekAktif / totalDatabase
-  : 0;
 
-// ===== SKOR AKHIR (TOTAL 100 POINT) =====
+/* ===== TARGET BARU ===== */
+const TARGET_INPUT_HARIAN   = 5;
+const TARGET_KOMENTAR_HARI  = 10;
+const TARGET_PROSPEK_AKTIF  = 150;
+const TARGET_SURVEY_BULAN   = 15;
+const TARGET_BOOKING_BULAN  = 2;
+
+/* ===== HITUNG HARI ===== */
+const hari = new Date(tahun, bulan + 1, 0).getDate();
+
+/* ===== HARIAN ===== */
+const inputPerHari    = totalDatabase / hari;
+const komentarPerHari = totalAktivitas / hari;
+
+/* ===== RATE ===== */
+const inputRate        = Math.min(inputPerHari / TARGET_INPUT_HARIAN, 1);
+const komentarRate     = Math.min(komentarPerHari / TARGET_KOMENTAR_HARI, 1);
+const prospekAktifRate = Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
+const surveyRate       = Math.min(survey / TARGET_SURVEY_BULAN, 1);
+const bookingRate      = Math.min(booking / TARGET_BOOKING_BULAN, 1);
+
+/* ===== SKOR AKHIR ===== */
 const skorAkhir =
   (inputRate        * 15) +
   (komentarRate     * 15) +
@@ -115,7 +97,7 @@ const skorAkhir =
   (surveyRate       * 15) +
   (bookingRate      * 40);
 
-  return skorAkhir.toFixed(1);
+return skorAkhir.toFixed(1);
 }
 
 function labelKinerja(skor){
@@ -393,6 +375,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   });
 
 }
+
 
 
 
