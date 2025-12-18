@@ -25,7 +25,7 @@ onAuthStateChanged(auth, (u) => {
   }
 
   // SAMAKAN DENGAN SISTEM LOGIN LAMA
-  user = u.email.startsWith("admin") ? "admin" : u.email;
+  user = u.email.startsWith("admin") ? "admin" : u.email.split("@")[0];
   namaUser = u.email.split("@")[0];
   role = user === "admin" ? "admin" : "sales";
 
@@ -209,5 +209,6 @@ document.body.style.paddingTop = "80px";
   });
 
 }
+
 
 
