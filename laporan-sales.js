@@ -107,11 +107,14 @@ prospek.forEach(p=>{
 });
 
 
-const totalDatabasePeriode = dataSales.filter(p=>{
+const totalDatabasePeriode = prospek.filter(p=>{
+  if (p.namaUser !== sales) return false;
   if (!p.createdAt) return false;
+
   const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
   if (d.getFullYear() !== tahun) return false;
   if (bulan !== "all" && d.getMonth() !== Number(bulan)) return false;
+
   return true;
 }).length;
 
