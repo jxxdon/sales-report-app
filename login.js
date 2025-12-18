@@ -4,8 +4,8 @@ import { signInWithEmailAndPassword }
 import { auth } from "./firebase.js";
 
 window.login = function () {
-  const email = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("username").value.trim();
+const password = document.getElementById("password").value;
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
@@ -15,3 +15,4 @@ window.login = function () {
       alert("Login gagal: " + error.message);
     });
 };
+
