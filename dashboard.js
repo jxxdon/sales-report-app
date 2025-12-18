@@ -53,6 +53,10 @@ function initDashboard() {
   const storedNamaUser = localStorage.getItem("namaUser") || storedUser;
   const storedRole = localStorage.getItem("role");
 
+  // 🔒 SEMBUNYIKAN STATISTIK UNTUK SALES
+  if (storedRole !== "admin") {
+    document.getElementById("btnStatistik")?.remove();
+  }
 
   /* ================== HEADER + LOGOUT ================== */
  const header = document.createElement("div");
@@ -209,6 +213,7 @@ document.body.style.paddingTop = "80px";
   });
 
 }
+
 
 
 
