@@ -135,7 +135,7 @@ function hitungSkorHarian(sales, bulan, tahun, prospek) {
       Math.min((inputHariIni / TARGET_INPUT_HARIAN), 1);
 
     const komentarRate =
-      Math.min((totalKomentar / (TARGET_KOMENTAR_HARI * day)), 1);
+  Math.min((totalKomentar / day) / TARGET_KOMENTAR_HARI, 1);
 
     const prospekAktifRate =
       Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
@@ -396,7 +396,11 @@ onSnapshot(collection(db,"prospek"), snap=>{
   prospek = snap.docs.map(d=>d.data());
   const salesList = [...new Set(prospek.map(p=>p.namaUser).filter(Boolean))];
   selectSales.innerHTML = salesList.map(s=>`<option>${s}</option>`).join("");
-  if(salesList.length){ initPeriode(); render(salesList[0]); }
+ if (salesList.length) {
+  initPeriode();
+  render(selectSales.value || salesList[0]);
+}
+
 });
 
 selectSales.onchange = e => render(e.target.value);
