@@ -33,11 +33,17 @@ const BULAN = [
   "Januari","Februari","Maret","April","Mei","Juni",
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
+/* ===== RUMUS BARU (SISTEM KONSISTENSI 100 POINT) ===== */
 
-const MIN_DATABASE    = 150;
-const MAX_SURVEY_RATE = 0.10;
-const MAX_BOOKING     = 1;
-const TARGET_FOLLOWUP = 10;
+// target harian
+const TARGET_INPUT_HARIAN   = 5;   // input prospek / hari
+const TARGET_KOMENTAR_HARI  = 10;  // komentar / hari
+
+// target bulanan
+const TARGET_PROSPEK_AKTIF  = 150; // per bulan
+const TARGET_SURVEY_BULAN   = 15;  // per bulan
+const TARGET_BOOKING_BULAN  = 2;   // per bulan
+
 
 /* =====================
    HELPER
@@ -131,6 +137,25 @@ function render(sales){
   const totalAktivitas = Object.values(histori).reduce((a,b)=>a+b,0);
   const hari = bulan==="all" ? 365 : new Date(tahun,Number(bulan)+1,0).getDate();
   const aktivitasPerHari = totalAktivitas / hari;
+// ===== HARIAN =====
+const inputPerHari    = totalDatabasePeriode / hari;
+const komentarPerHari = totalAktivitas / hari;
+
+// ===== RATE (0 - 1) =====
+const inputRate =
+  Math.min(inputPerHari / TARGET_INPUT_HARIAN, 1);
+
+const komentarRate =
+  Math.min(komentarPerHari / TARGET_KOMENTAR_HARI, 1);
+
+const prospekAktifRate =
+  Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
+
+const surveyRate =
+  Math.min(histori.Survey / TARGET_SURVEY_BULAN, 1);
+
+const bookingRate =
+  Math.min(histori.Booking / TARGET_BOOKING_BULAN, 1);
 
   /* ===== HIGHLIGHT ===== */
   sumBaru.textContent     = prospekAktif;
@@ -203,29 +228,22 @@ function render(sales){
   html += `</div>`;
 
   /* ===== SCORE ===== */
-  const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
-
-  const prospekAktifRate = rateRaw(prospekAktif, totalDatabase);
-  const surveyRate      = Math.min(rateRaw(histori.Survey, MAX_SURVEY_RATE*totalDatabase),1);
-  const followUpRate    = Math.min(rateRaw(aktivitasPerHari, TARGET_FOLLOWUP),1);
-
-  const skorProses =
-    (prospekAktifRate * 20) +
-    (surveyRate * 25) +
-    (followUpRate * 25);
-
-  const bookingRate = Math.min(rateRaw(histori.Booking, MAX_BOOKING),1);
-  const skorBooking = bookingRate * 30;
-
-  const skorAkhir = (skorProses * penaltyDatabase) + skorBooking;
+ // ===== SKOR AKHIR (TOTAL 100 POINT) =====
+const skorAkhir =
+  (inputRate        * 15) +
+  (komentarRate     * 15) +
+  (prospekAktifRate * 15) +
+  (surveyRate       * 15) +
+  (bookingRate      * 40);
 
   html += `
   <div class="section" style="border:2px solid #2563eb;border-radius:18px;padding:18px;margin-top:30px">
     <h3 style="text-align:center">Penilaian Kinerja Sales</h3>
-    ${row("Prospek", rateDisplay(prospekAktif, totalDatabase))}
-    ${row("Survey", rateDisplay(histori.Survey, MAX_SURVEY_RATE*totalDatabase))}
-    ${row("Booking", rateDisplay(histori.Booking, MAX_BOOKING))}
-    ${row("Follow Up", rateDisplay(aktivitasPerHari, TARGET_FOLLOWUP))}
+   ${row("Input Harian",    (inputRate * 100).toFixed(1) + "%")}
+${row("Komentar Harian", (komentarRate * 100).toFixed(1) + "%")}
+${row("Prospek Aktif",   (prospekAktifRate * 100).toFixed(1) + "%")}
+${row("Survey Bulanan",  (surveyRate * 100).toFixed(1) + "%")}
+${row("Booking",         (bookingRate * 100).toFixed(1) + "%")}
     <hr>
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>`;
