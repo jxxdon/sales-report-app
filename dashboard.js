@@ -1,3 +1,21 @@
+import { onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+import { auth } from "./firebase.js";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // ❌ Belum login → balik ke halaman login
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ✅ Sudah login → dashboard boleh jalan
+  console.log("Login sebagai:", user.email);
+});
+
+
+
 import { db } from "./firebase.js";
 import {
   doc,
@@ -200,6 +218,7 @@ location.reload();
     btn.textContent = "💾 Simpan Prospek";
   }
 });
+
 
 
 
