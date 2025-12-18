@@ -22,37 +22,60 @@ async function hitungPointBulanan(userLogin) {
   const bulan = now.getMonth();
   const tahun = now.getFullYear();
 
-  const data = snap.docs
+  /* ===== DATABASE (OWNER) ===== */
+  const totalDatabase = snap.docs
     .map(d=>d.data())
-    .filter(p=>p.namaUser === userLogin)
-    .filter(p=>{
-      if(!p.createdAt) return false;
-      const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
-      return d.getMonth()===bulan && d.getFullYear()===tahun;
-    });
+    .filter(p=>p.namaUser === userLogin).length;
 
-  if(!data.length) return "0.0";
+  if (!totalDatabase) return "0.0";
 
+  /* ===== AKTIVITAS (PELAKU) ===== */
   let survey = 0;
   let booking = 0;
+  let totalAktivitas = 0;
 
-  data.forEach(p=>{
+  snap.docs.forEach(docSnap=>{
+    const p = docSnap.data();
     (p.comments||[]).forEach(c=>{
-      if(c.progress==="Survey") survey++;
-      if(c.progress==="Booking") booking++;
+      if (c.user !== userLogin) return;
+      if (!c.createdAt) return;
+
+      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+      if (d.getFullYear() !== tahun) return;
+      if (d.getMonth() !== bulan) return;
+
+      totalAktivitas++;
+
+      if (c.progress === "Survey") survey++;
+      if (c.progress === "Booking") booking++;
     });
   });
 
-  const MIN_DATABASE = 150;
-  const penaltyDatabase = Math.min(data.length / MIN_DATABASE, 1);
+  /* ===== RUMUS (SAMA DENGAN LAPORAN) ===== */
+  const MIN_DATABASE    = 150;
+  const MAX_SURVEY_RATE = 0.10;
+  const MAX_BOOKING     = 1;
+  const TARGET_FOLLOWUP = 10;
+
+  const penaltyDatabase = Math.min(totalDatabase / MIN_DATABASE, 1);
+
+  const hari = new Date(tahun, bulan + 1, 0).getDate();
+  const aktivitasPerHari = totalAktivitas / hari;
+
+  const surveyRate   = Math.min(survey / (MAX_SURVEY_RATE * totalDatabase), 1);
+  const followUpRate = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
 
   const skorProses =
-    20 +
-    (Math.min(survey/(0.1*data.length),1) * 25);
+    (1 * 20) +               // prospek aktif diasumsikan 1 di dashboard
+    (surveyRate * 25) +
+    (followUpRate * 25);
 
-  const skorBooking = Math.min(booking/1,1) * 30;
+  const bookingRate = Math.min(booking / MAX_BOOKING, 1);
+  const skorBooking = bookingRate * 30;
 
-  return ((skorProses * penaltyDatabase) + skorBooking).toFixed(1);
+  const skorAkhir = (skorProses * penaltyDatabase) + skorBooking;
+
+  return skorAkhir.toFixed(1);
 }
 
 
@@ -272,6 +295,7 @@ hitungPointBulanan(storedNamaUser).then(skor => {
   });
 
 }
+
 
 
 
