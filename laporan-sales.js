@@ -2,6 +2,8 @@ import { db } from "./firebase.js";
 import { collection, onSnapshot }
 from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+// ===== CHART INSTANCE (ANTI DUPLIKAT) =====
+let chartKonsistensi = null;
 /* =====================
    ELEMENT
 ===================== */
@@ -332,6 +334,58 @@ ${row("Booking",         (bookingRate * 100).toFixed(1) + "%")}
     <canvas id="chartKonsistensi" height="120"></canvas>
   </div>
 `;
+// ===== RENDER GRAFIK KONSISTENSI =====
+const canvas = document.getElementById("chartKonsistensi");
+if (canvas && typeof Chart !== "undefined") {
+
+  const dataHarian = hitungSkorHarian(
+    sales,
+    filterBulan.value,
+    Number(filterTahun.value),
+    prospek
+  );
+
+  const labels = dataHarian.map(d => d.day);
+  const values = dataHarian.map(d => d.score);
+
+  if (chartKonsistensi) {
+    chartKonsistensi.destroy();
+  }
+
+  chartKonsistensi = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Skor Konsistensi Harian",
+        data: values,
+        tension: 0.35,
+        fill: false,
+        borderWidth: 2,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          title: {
+            display: true,
+            text: "Skor"
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: "Tanggal"
+          }
+        }
+      }
+    }
+  });
+}
 
 }
 
