@@ -87,18 +87,26 @@ function render(sales){
   periodeEl.textContent =
     bulan==="all" ? `Tahun : ${tahun}` : `Bulan : ${BULAN[bulan]} | Tahun : ${tahun}`;
 
-  const dataSales = prospek.filter(p=>p.namaUser===sales);
-  const totalDatabase = dataSales.length;
+ 
+const totalDatabase = prospek.filter(p=>p.namaUser===sales).length;
+const aktivitasSales = [];
+prospek.forEach(p=>{
+  (p.comments||[]).forEach(c=>{
+    if(c.user !== sales) return;
+    if(!c.createdAt) return;
 
-  const dataPeriode = dataSales.filter(p=>{
-    return (p.comments||[]).some(c=>{
-      if(!c.createdAt) return false;
-      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-      if(d.getFullYear()!==tahun) return false;
-      if(bulan!=="all" && d.getMonth()!==Number(bulan)) return false;
-      return true;
+    const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+    if(d.getFullYear() !== tahun) return;
+    if(bulan !== "all" && d.getMonth() !== Number(bulan)) return;
+
+    aktivitasSales.push({
+      progress: c.progress,
+      prospekId: p.noTelp || ""
     });
   });
+});
+
+
 const totalDatabasePeriode = dataSales.filter(p=>{
   if (!p.createdAt) return false;
   const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
@@ -110,18 +118,16 @@ const totalDatabasePeriode = dataSales.filter(p=>{
 
   const histori = {};
   PROGRESS_LIST.forEach(p=>histori[p]=0);
+aktivitasSales.forEach(a=>{
+  if(histori[a.progress] !== undefined){
+    histori[a.progress]++;
+  }
+});
 
-  dataPeriode.forEach(p=>{
-    (p.comments||[]).forEach(c=>{
-      if(!c.createdAt) return;
-      const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
-      if(d.getFullYear()!==tahun) return;
-      if(bulan!=="all" && d.getMonth()!==Number(bulan)) return;
-      if(histori[c.progress]!==undefined) histori[c.progress]++;
-    });
-  });
+ const prospekAktif = new Set(
+  aktivitasSales.map(a => a.prospekId)
+).size;
 
-  const prospekAktif = dataPeriode.length;
   const totalAktivitas = Object.values(histori).reduce((a,b)=>a+b,0);
   const hari = bulan==="all" ? 365 : new Date(tahun,Number(bulan)+1,0).getDate();
   const aktivitasPerHari = totalAktivitas / hari;
