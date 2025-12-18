@@ -65,10 +65,32 @@ async function hitungPointBulanan(userLogin) {
   const surveyRate   = Math.min(survey / (MAX_SURVEY_RATE * totalDatabase), 1);
   const followUpRate = Math.min(aktivitasPerHari / TARGET_FOLLOWUP, 1);
 
-  const skorProses =
-    (1 * 20) +               // prospek aktif diasumsikan 1 di dashboard
-    (surveyRate * 25) +
-    (followUpRate * 25);
+  // hitung prospek aktif versi laporan
+const prospekAktifSet = new Set();
+snap.docs.forEach(docSnap=>{
+  const p = docSnap.data();
+  (p.comments||[]).forEach(c=>{
+    if (c.user !== userLogin) return;
+    if (!c.createdAt) return;
+
+    const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+    if (d.getFullYear() !== tahun) return;
+    if (d.getMonth() !== bulan) return;
+
+    prospekAktifSet.add(p.noTelp);
+  });
+});
+
+const prospekAktif = prospekAktifSet.size;
+const prospekAktifRate = totalDatabase
+  ? prospekAktif / totalDatabase
+  : 0;
+
+const skorProses =
+  (prospekAktifRate * 20) +
+  (surveyRate * 25) +
+  (followUpRate * 25);
+
 
   const bookingRate = Math.min(booking / MAX_BOOKING, 1);
   const skorBooking = bookingRate * 30;
@@ -295,6 +317,7 @@ hitungPointBulanan(storedNamaUser).then(skor => {
   });
 
 }
+
 
 
 
