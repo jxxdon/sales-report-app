@@ -367,7 +367,7 @@ if (canvas && typeof Chart !== "undefined") {
   },
   {
     label: "Target Ideal",
-    data: labels.map(() => 100),
+    data: labels.map(() => 70),
     borderDash: [6, 6],
     borderWidth: 1,
     pointRadius: 0
