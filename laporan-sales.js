@@ -330,8 +330,13 @@ ${row("Booking",         (bookingRate * 100).toFixed(1) + "%")}
     ${row("<strong>Skor Akhir</strong>", `<strong>${skorAkhir.toFixed(1)}</strong>`)}
   </div>`;
 
-  laporanContent.innerHTML = html + `
-  <div class="section" style="margin-top:40px">
+ laporanContent.innerHTML = html + `
+  <div class="section"
+       style="
+         margin-top:40px;
+         page-break-inside:avoid;
+         break-inside:avoid;
+       ">
     <h3>Grafik Konsistensi Harian</h3>
     <canvas id="chartKonsistensi" height="120"></canvas>
 
