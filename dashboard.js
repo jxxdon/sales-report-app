@@ -12,6 +12,50 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+import { collection, getDocs }
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+async function hitungPointBulanan(userLogin) {
+  const snap = await getDocs(collection(db,"prospek"));
+
+  const now = new Date();
+  const bulan = now.getMonth();
+  const tahun = now.getFullYear();
+
+  const data = snap.docs
+    .map(d=>d.data())
+    .filter(p=>p.namaUser === userLogin)
+    .filter(p=>{
+      if(!p.createdAt) return false;
+      const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
+      return d.getMonth()===bulan && d.getFullYear()===tahun;
+    });
+
+  if(!data.length) return "0.0";
+
+  let survey = 0;
+  let booking = 0;
+
+  data.forEach(p=>{
+    (p.comments||[]).forEach(c=>{
+      if(c.progress==="Survey") survey++;
+      if(c.progress==="Booking") booking++;
+    });
+  });
+
+  const MIN_DATABASE = 150;
+  const penaltyDatabase = Math.min(data.length / MIN_DATABASE, 1);
+
+  const skorProses =
+    20 +
+    (Math.min(survey/(0.1*data.length),1) * 25);
+
+  const skorBooking = Math.min(booking/1,1) * 30;
+
+  return ((skorProses * penaltyDatabase) + skorBooking).toFixed(1);
+}
+
+
 // ===== variabel yang DIPAKAI OLEH KODE LAMA =====
 let user = null;
 let namaUser = null;
@@ -76,7 +120,16 @@ header.style = `
 `;
 
 const welcome = document.createElement("div");
-welcome.innerHTML = `<strong>Selamat datang,</strong> ${storedNamaUser}`;
+welcome.innerHTML = `
+  <div style="font-weight:bold">
+    Selamat datang, ${storedNamaUser}
+  </div>
+  <div id="pointKinerja"
+       style="font-size:13px;color:#ffc107">
+    Point bulan ini: menghitung...
+  </div>
+`;
+
 
 const rightWrap = document.createElement("div");
 rightWrap.style = "display:flex; gap:10px; align-items:center;";
@@ -106,6 +159,12 @@ header.appendChild(rightWrap);
 
 document.body.insertBefore(header, document.body.firstChild);
 document.body.style.paddingTop = "80px";
+hitungPointBulanan(storedNamaUser).then(skor => {
+  const el = document.getElementById("pointKinerja");
+  if (el) {
+    el.textContent = `Point bulan ini: ${skor}`;
+  }
+});
 
 
   /* ================== NORMALISASI NO TELP ================== */
@@ -213,6 +272,7 @@ document.body.style.paddingTop = "80px";
   });
 
 }
+
 
 
 
