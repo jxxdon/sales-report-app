@@ -1,3 +1,23 @@
+import { onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { auth } from "./firebase.js";
+
+let user = null;
+let isAdmin = false;
+
+onAuthStateChanged(auth, (u) => {
+  if (!u) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  // menyamakan dengan sistem lama
+  user = u.email.startsWith("admin") ? "admin" : u.email;
+  isAdmin = user === "admin";
+ init(); // ⬅️ WAJIB
+  
+});
+
 import { db } from "./firebase.js";
 import {
   collection,
@@ -13,9 +33,6 @@ import {
 /* =====================
    USER
 ===================== */
-const user = localStorage.getItem("user")?.trim().toLowerCase();
-if (!user) window.location.href = "index.html";
-const isAdmin = user === "admin";
 
 /* =====================
    ELEMENT
