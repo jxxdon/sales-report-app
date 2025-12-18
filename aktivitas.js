@@ -90,7 +90,7 @@ function initAktivitas() {
 
       el.innerHTML = `
         <div class="row">
-          <div class="user">${d.email || "-"}</div>
+          <div class="user">Sales ${d.user?.replace("sales", "") || "-"}</div>
           <div class="badge ${type}">
             ${type === "input" ? "Input Prospek" : "Komentar"}
           </div>
