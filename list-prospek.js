@@ -16,10 +16,6 @@ onAuthStateChanged(auth, (u) => {
   isAdmin = user === "admin";
   init(); // ✅ WAJIB
 });
-  
-
-  
-});
 
 import { db } from "./firebase.js";
 import {
