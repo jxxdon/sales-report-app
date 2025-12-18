@@ -254,7 +254,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   const label = labelKinerja(Number(skor));
 
   el.innerHTML = `
-    <span>Point bulan ini: <strong>${skor}</strong></span>
+    <span>Power: <strong>${skor}</strong></span>
     <span
       title="${label.desc}"
       style="
@@ -375,6 +375,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   });
 
 }
+
 
 
 
