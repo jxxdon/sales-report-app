@@ -14,22 +14,9 @@ onAuthStateChanged(auth, (u) => {
   // menyamakan dengan sistem lama
   user = u.email.startsWith("admin") ? "admin" : u.email;
   isAdmin = user === "admin";
-
-  function init() {
-
-  const openId = localStorage.getItem("openProspekId");
-  if (openId) {
-    localStorage.removeItem("openProspekId");
-
-    onSnapshot(doc(db, "prospek", openId), snap => {
-      if (snap.exists()) {
-        openDetail(openId, snap.data());
-      }
-    });
-  }
-
-  loadProspek();
-}
+  init(); // ✅ WAJIB
+});
+  
 
   
 });
@@ -362,4 +349,18 @@ searchInput.addEventListener("input",e=>{
 /* =====================
    INIT
 ===================== */
+function init() {
 
+  const openId = localStorage.getItem("openProspekId");
+  if (openId) {
+    localStorage.removeItem("openProspekId");
+
+    onSnapshot(doc(db, "prospek", openId), snap => {
+      if (snap.exists()) {
+        openDetail(openId, snap.data());
+      }
+    });
+  }
+
+  loadProspek();
+}
