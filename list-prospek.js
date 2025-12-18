@@ -14,7 +14,23 @@ onAuthStateChanged(auth, (u) => {
   // menyamakan dengan sistem lama
   user = u.email.startsWith("admin") ? "admin" : u.email;
   isAdmin = user === "admin";
- init(); // ⬅️ WAJIB
+
+  function init() {
+
+  const openId = localStorage.getItem("openProspekId");
+  if (openId) {
+    localStorage.removeItem("openProspekId");
+
+    onSnapshot(doc(db, "prospek", openId), snap => {
+      if (snap.exists()) {
+        openDetail(openId, snap.data());
+      }
+    });
+  }
+
+  loadProspek();
+}
+
   
 });
 
@@ -346,20 +362,4 @@ searchInput.addEventListener("input",e=>{
 /* =====================
    INIT
 ===================== */
-window.addEventListener("DOMContentLoaded", () => {
-
-  // 🔔 AUTO OPEN MODAL DARI LOG AKTIVITAS
-  const openId = localStorage.getItem("openProspekId");
-  if (openId) {
-    localStorage.removeItem("openProspekId");
-
-    onSnapshot(doc(db, "prospek", openId), snap => {
-      if (snap.exists()) {
-        openDetail(openId, snap.data());
-      }
-    });
-  }
-
-  loadProspek();
-});
 
