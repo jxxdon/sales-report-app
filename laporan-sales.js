@@ -4,6 +4,8 @@ from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 // ===== CHART INSTANCE (ANTI DUPLIKAT) =====
 let chartKonsistensi = null;
+let chartBandingSales = null;
+
 /* =====================
    ELEMENT
 ===================== */
@@ -332,8 +334,12 @@ ${row("Booking",         (bookingRate * 100).toFixed(1) + "%")}
   <div class="section" style="margin-top:40px">
     <h3>Grafik Konsistensi Harian</h3>
     <canvas id="chartKonsistensi" height="120"></canvas>
+
+    <h3 style="margin-top:30px">Perbandingan Konsistensi Antar Sales</h3>
+    <canvas id="chartBandingSales" height="140"></canvas>
   </div>
 `;
+
 // ===== RENDER GRAFIK KONSISTENSI =====
 const canvas = document.getElementById("chartKonsistensi");
 if (canvas && typeof Chart !== "undefined") {
@@ -352,48 +358,54 @@ if (canvas && typeof Chart !== "undefined") {
     chartKonsistensi.destroy();
   }
 
-  chartKonsistensi = new Chart(canvas, {
+  // ===== RENDER GRAFIK BANDING ANTAR SALES =====
+const canvasBanding = document.getElementById("chartBandingSales");
+if (canvasBanding && typeof Chart !== "undefined") {
+
+  const datasets = [];
+  const colors = [
+    "#2563eb", "#16a34a", "#dc2626",
+    "#7c3aed", "#ea580c", "#0891b2"
+  ];
+
+  const salesList = [...new Set(prospek.map(p=>p.namaUser).filter(Boolean))];
+
+  salesList.forEach((s, i) => {
+    const dataHarian = hitungSkorHarian(
+      s,
+      filterBulan.value,
+      Number(filterTahun.value),
+      prospek
+    );
+
+    datasets.push({
+      label: s,
+      data: dataHarian.map(d=>d.score),
+      borderColor: colors[i % colors.length],
+      tension: 0.3,
+      fill: false,
+      pointRadius: 0
+    });
+  });
+
+  if (chartBandingSales) {
+    chartBandingSales.destroy();
+  }
+
+  chartBandingSales = new Chart(canvasBanding, {
     type: "line",
     data: {
-      labels,
-      datasets: [
-  {
-    label: "Skor Konsistensi Harian",
-    data: values,
-    tension: 0.35,
-    fill: false,
-    borderWidth: 2,
-    pointRadius: 3
-  },
-  {
-    label: "Target Ideal",
-    data: labels.map(() => 70),
-    borderDash: [6, 6],
-    borderWidth: 1,
-    pointRadius: 0
-  }
-]
+      labels: datasets[0]?.data.map((_,i)=>i+1),
+      datasets
     },
     options: {
       responsive: true,
       scales: {
-        y: {
-          min: 0,
-          max: 100,
-          title: {
-            display: true,
-            text: "Skor"
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: "Tanggal"
-          }
-        }
+        y: { min: 0, max: 100 }
       }
     }
   });
+}
 }
 
 }
