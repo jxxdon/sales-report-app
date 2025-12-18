@@ -51,11 +51,7 @@ async function hitungPointBulanan(userLogin) {
     });
   });
 
-  /* ===== RUMUS (SAMA DENGAN LAPORAN) ===== */
-  const MIN_DATABASE    = 150;
-  const MAX_SURVEY_RATE = 0.10;
-  const MAX_BOOKING     = 1;
-  const TARGET_FOLLOWUP = 10;
+ 
 // ===== TARGET BARU (SISTEM KONSISTENSI) =====
 const TARGET_INPUT_HARIAN   = 5;   // input prospek / hari
 const TARGET_KOMENTAR_HARI  = 10;  // komentar / hari
@@ -400,6 +396,7 @@ hitungPointBulanan(storedNamaUser).then(skor=>{
   });
 
 }
+
 
 
 
