@@ -84,6 +84,84 @@ function initPeriode(){
 /* =====================
    RENDER
 ===================== */
+function hitungSkorHarian(sales, bulan, tahun, prospek) {
+  const lastDay =
+    bulan === "all"
+      ? 31
+      : new Date(tahun, Number(bulan) + 1, 0).getDate();
+
+  const result = [];
+
+  for (let day = 1; day <= lastDay; day++) {
+    const dateStart = new Date(tahun, Number(bulan), day, 0, 0, 0);
+    const dateEnd   = new Date(tahun, Number(bulan), day, 23, 59, 59);
+
+    // ===== INPUT PROSPEK (HARI INI) =====
+    const inputHariIni = prospek.filter(p => {
+      if (p.namaUser !== sales) return false;
+      if (!p.createdAt) return false;
+      const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
+      return d >= dateStart && d <= dateEnd;
+    }).length;
+
+    // ===== AKTIVITAS s/d HARI INI =====
+    let totalKomentar = 0;
+    let survey = 0;
+    let booking = 0;
+    const prospekAktifSet = new Set();
+
+    prospek.forEach(p => {
+      (p.comments || []).forEach(c => {
+        if (c.user !== sales) return;
+        if (!c.createdAt) return;
+
+        const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+        if (d > dateEnd) return;
+
+        totalKomentar++;
+        prospekAktifSet.add(p.noTelp);
+
+        if (c.progress === "Survey") survey++;
+        if (c.progress === "Booking") booking++;
+      });
+    });
+
+    const prospekAktif = prospekAktifSet.size;
+
+    // ===== RATE =====
+    const inputRate =
+      Math.min((inputHariIni / TARGET_INPUT_HARIAN), 1);
+
+    const komentarRate =
+      Math.min((totalKomentar / (TARGET_KOMENTAR_HARI * day)), 1);
+
+    const prospekAktifRate =
+      Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
+
+    const surveyRate =
+      Math.min(survey / TARGET_SURVEY_BULAN, 1);
+
+    const bookingRate =
+      Math.min(booking / TARGET_BOOKING_BULAN, 1);
+
+    // ===== SKOR =====
+    const skor =
+      (inputRate        * 15) +
+      (komentarRate     * 15) +
+      (prospekAktifRate * 15) +
+      (surveyRate       * 15) +
+      (bookingRate      * 40);
+
+    result.push({
+      day,
+      score: Number(skor.toFixed(1))
+    });
+  }
+
+  return result;
+}
+
+
 function render(sales){
   const tahun = Number(filterTahun.value);
   const bulan = filterBulan.value;
