@@ -213,7 +213,11 @@ function loadProspek(keyword = "") {
       const status = getStatus(d.createdAt);
       const card = document.createElement("div");
       card.className = "prospek-card";
-      const ketertarikan = (d.tipeTertarik || []).join(", ");
+      const ketertarikan =
+  Array.isArray(d.tipeTertarik) && d.tipeTertarik.length
+    ? d.tipeTertarik.join(", ")
+    : "-";
+
 const catatan = d.catatan || "-";
 
 card.innerHTML = `
