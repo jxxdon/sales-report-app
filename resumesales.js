@@ -4,44 +4,45 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-/* =====================
-   TARGET (WAJIB SAMA)
-===================== */
+/* =================================================
+   KONFIG TARGET (SAMA DENGAN LAPORAN SALES)
+================================================= */
 const TARGET_INPUT_HARIAN   = 5;
 const TARGET_KOMENTAR_HARI = 10;
 const TARGET_PROSPEK_AKTIF = 150;
 const TARGET_SURVEY_BULAN  = 15;
 const TARGET_BOOKING_BULAN = 2;
 
-/* =====================
+/* =================================================
    ELEMENT
-===================== */
+================================================= */
 const gridEl  = document.getElementById("resumeGrid");
-const bulanEl = document.getElementById("bulan");
+const bulanEl = document.getElementById("bulan"); // <select> TANPA value angka
 const tahunEl = document.getElementById("tahun");
 
-/* =====================
+/* =================================================
    STATE
-===================== */
+================================================= */
 let prospek = [];
 
-/* =====================
+/* =================================================
    HELPER
-===================== */
+================================================= */
 function toDate(ts){
-  if(!ts) return null;
+  if (!ts) return null;
   return ts.toDate ? ts.toDate() : new Date(ts);
 }
 
-/* =====================
-   LOGIC RESUME (IDENTIK LAPORAN SALES)
-===================== */
+/* =================================================
+   CORE LOGIC — IDENTIK LAPORAN SALES
+================================================= */
 function hitungResumeSales(sales, bulan, tahun, prospek){
 
   /* ===== DATABASE PERIODE ===== */
   const databasePeriode = prospek.filter(p=>{
-    if(p.namaUser !== sales) return false;
-    if(!p.createdAt) return false;
+    if (p.namaUser !== sales) return false;
+    if (!p.createdAt) return false;
+
     const d = toDate(p.createdAt);
     return d.getFullYear() === tahun && d.getMonth() === bulan;
   });
@@ -53,12 +54,12 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
 
   prospek.forEach(p=>{
     (p.comments || []).forEach(c=>{
-      if(c.user !== sales) return;
-      if(!c.createdAt) return;
+      if (c.user !== sales) return;
+      if (!c.createdAt) return;
 
       const d = toDate(c.createdAt);
-      if(d.getFullYear() !== tahun) return;
-      if(d.getMonth() !== bulan) return;
+      if (d.getFullYear() !== tahun) return;
+      if (d.getMonth() !== bulan) return;
 
       aktivitas.push({
         progress: c.progress,
@@ -71,14 +72,14 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
 
   /* ===== PROSPEK AKTIF ===== */
   const prospekAktif = new Set(
-    aktivitas.map(a=>a.prospekId)
+    aktivitas.map(a => a.prospekId)
   ).size;
 
   /* ===== SURVEY & BOOKING ===== */
-  const survey  = aktivitas.filter(a=>a.progress==="Survey").length;
-  const booking = aktivitas.filter(a=>a.progress==="Booking").length;
+  const survey  = aktivitas.filter(a=>a.progress === "Survey").length;
+  const booking = aktivitas.filter(a=>a.progress === "Booking").length;
 
-  /* ===== RATE (SAMA PERSIS) ===== */
+  /* ===== RATE ===== */
   const hari = new Date(tahun, bulan + 1, 0).getDate();
 
   const inputPerHari    = totalDatabasePeriode / hari;
@@ -99,7 +100,7 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
   const bookingRate =
     Math.min(booking / TARGET_BOOKING_BULAN, 1);
 
-  /* ===== SKOR AKHIR (100 POINT SYSTEM) ===== */
+  /* ===== SKOR AKHIR (100 POINT) ===== */
   const point =
     (inputRate        * 15) +
     (komentarRate     * 15) +
@@ -116,25 +117,34 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
   };
 }
 
-/* =====================
-   RENDER
-===================== */
+/* =================================================
+   RENDER UI
+================================================= */
 function render(){
 
-  const bulan = Number(bulanEl.value);
+  // 🔑 INI KUNCI SUPAYA TIDAK NaN
+  const bulan = bulanEl.selectedIndex; // 0–11
   const tahun = Number(tahunEl.value);
+
+  if (isNaN(bulan) || isNaN(tahun)) return;
 
   gridEl.innerHTML = "";
 
   const salesList = [
     ...new Set(
       prospek
-        .map(p=>p.namaUser)
+        .map(p => p.namaUser)
         .filter(s => s && s.toLowerCase() !== "admin")
     )
   ];
 
-  salesList.sort().forEach(sales=>{
+  if (!salesList.length) {
+    gridEl.innerHTML = `<div style="opacity:.6">Belum ada data sales</div>`;
+    return;
+  }
+
+  salesList.sort().forEach(sales => {
+
     const data = hitungResumeSales(
       sales,
       bulan,
@@ -156,16 +166,16 @@ function render(){
   });
 }
 
-/* =====================
+/* =================================================
    EVENT
-===================== */
+================================================= */
 bulanEl.onchange = render;
 tahunEl.onchange = render;
 
-/* =====================
-   FIRESTORE
-===================== */
-onSnapshot(collection(db,"prospek"), snap=>{
-  prospek = snap.docs.map(d=>d.data());
+/* =================================================
+   FIRESTORE LISTENER
+================================================= */
+onSnapshot(collection(db, "prospek"), snap=>{
+  prospek = snap.docs.map(d => d.data());
   render();
 });
