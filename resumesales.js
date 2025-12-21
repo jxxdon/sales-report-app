@@ -109,12 +109,14 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
     (bookingRate      * 40);
 
   return {
-    prospekBaru   : totalDatabasePeriode,
-    prospekAktif,
-    survey,
-    booking,
-    point: Number(point.toFixed(1))
-  };
+  prospekBaru   : totalDatabasePeriode,
+  prospekAktif,
+  followUp     : totalAktivitas, // ⬅️ INI TAMBAHAN
+  survey,
+  booking,
+  point: Number(point.toFixed(1))
+};
+
 }
 
 /* =================================================
@@ -159,6 +161,7 @@ function render(){
 
         <div class="line">${data.prospekBaru} Prospek Baru</div>
         <div class="line">${data.prospekAktif} Prospek Aktif</div>
+        <div class="line">${data.followUp}x Follow Up</div>
         <div class="line">${data.survey}x Survey</div>
         <div class="line">${data.booking} Booking</div>
       </div>
