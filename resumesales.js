@@ -5,7 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
-   TARGET & KONFIG (SAMA PERSIS DENGAN LAPORAN SALES)
+   TARGET (WAJIB SAMA)
 ===================== */
 const TARGET_INPUT_HARIAN   = 5;
 const TARGET_KOMENTAR_HARI = 10;
@@ -13,17 +13,12 @@ const TARGET_PROSPEK_AKTIF = 150;
 const TARGET_SURVEY_BULAN  = 15;
 const TARGET_BOOKING_BULAN = 2;
 
-const BULAN = [
-  "Januari","Februari","Maret","April","Mei","Juni",
-  "Juli","Agustus","September","Oktober","November","Desember"
-];
-
 /* =====================
    ELEMENT
 ===================== */
-const gridEl   = document.getElementById("resumeGrid");
-const bulanEl  = document.getElementById("bulan");
-const tahunEl  = document.getElementById("tahun");
+const gridEl  = document.getElementById("resumeGrid");
+const bulanEl = document.getElementById("bulan");
+const tahunEl = document.getElementById("tahun");
 
 /* =====================
    STATE
@@ -39,30 +34,31 @@ function toDate(ts){
 }
 
 /* =====================
-   LOGIC INTI (COPY DARI LAPORAN SALES)
+   LOGIC RESUME (IDENTIK LAPORAN SALES)
 ===================== */
 function hitungResumeSales(sales, bulan, tahun, prospek){
 
-  /* ===== PROSPEK BARU (PERIODE) ===== */
-  const prospekPeriode = prospek.filter(p=>{
+  /* ===== DATABASE PERIODE ===== */
+  const databasePeriode = prospek.filter(p=>{
     if(p.namaUser !== sales) return false;
     if(!p.createdAt) return false;
     const d = toDate(p.createdAt);
-    return d.getFullYear()===tahun && d.getMonth()===bulan;
+    return d.getFullYear() === tahun && d.getMonth() === bulan;
   });
 
-  const prospekBaru = prospekPeriode.length;
+  const totalDatabasePeriode = databasePeriode.length;
 
-  /* ===== AKTIVITAS (PERIODE) ===== */
+  /* ===== AKTIVITAS PERIODE ===== */
   const aktivitas = [];
 
   prospek.forEach(p=>{
-    (p.comments||[]).forEach(c=>{
+    (p.comments || []).forEach(c=>{
       if(c.user !== sales) return;
       if(!c.createdAt) return;
+
       const d = toDate(c.createdAt);
-      if(d.getFullYear()!==tahun) return;
-      if(d.getMonth()!==bulan) return;
+      if(d.getFullYear() !== tahun) return;
+      if(d.getMonth() !== bulan) return;
 
       aktivitas.push({
         progress: c.progress,
@@ -71,22 +67,28 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
     });
   });
 
-  /* ===== RINGKASAN ===== */
+  const totalAktivitas = aktivitas.length;
+
+  /* ===== PROSPEK AKTIF ===== */
   const prospekAktif = new Set(
     aktivitas.map(a=>a.prospekId)
   ).size;
 
+  /* ===== SURVEY & BOOKING ===== */
   const survey  = aktivitas.filter(a=>a.progress==="Survey").length;
   const booking = aktivitas.filter(a=>a.progress==="Booking").length;
 
-  /* ===== RATE ===== */
-  const hari = new Date(tahun, bulan+1, 0).getDate();
+  /* ===== RATE (SAMA PERSIS) ===== */
+  const hari = new Date(tahun, bulan + 1, 0).getDate();
+
+  const inputPerHari    = totalDatabasePeriode / hari;
+  const komentarPerHari = totalAktivitas / hari;
 
   const inputRate =
-    Math.min((prospekBaru / hari) / TARGET_INPUT_HARIAN, 1);
+    Math.min(inputPerHari / TARGET_INPUT_HARIAN, 1);
 
   const komentarRate =
-    Math.min((aktivitas.length / hari) / TARGET_KOMENTAR_HARI, 1);
+    Math.min(komentarPerHari / TARGET_KOMENTAR_HARI, 1);
 
   const prospekAktifRate =
     Math.min(prospekAktif / TARGET_PROSPEK_AKTIF, 1);
@@ -97,7 +99,7 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
   const bookingRate =
     Math.min(booking / TARGET_BOOKING_BULAN, 1);
 
-  /* ===== POINT FINAL (100 POINT SYSTEM) ===== */
+  /* ===== SKOR AKHIR (100 POINT SYSTEM) ===== */
   const point =
     (inputRate        * 15) +
     (komentarRate     * 15) +
@@ -106,7 +108,7 @@ function hitungResumeSales(sales, bulan, tahun, prospek){
     (bookingRate      * 40);
 
   return {
-    prospekBaru,
+    prospekBaru   : totalDatabasePeriode,
     prospekAktif,
     survey,
     booking,
@@ -128,7 +130,7 @@ function render(){
     ...new Set(
       prospek
         .map(p=>p.namaUser)
-        .filter(s=>s && s.toLowerCase()!=="admin")
+        .filter(s => s && s.toLowerCase() !== "admin")
     )
   ];
 
