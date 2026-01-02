@@ -16,23 +16,6 @@ const titleRangeEl    = document.getElementById("titleRange");
 const btnCurrent  = document.getElementById("btnCurrent");
 const selectMonth = document.getElementById("selectMonth");
 const selectYear  = document.getElementById("selectYear");
-/* =====================
-   INIT YEAR DROPDOWN (AUTO)
-===================== */
-const currentYear = new Date().getFullYear();
-selectYear.innerHTML = "";
-
-for (let y = currentYear - 1; y <= currentYear; y++) {
-  const opt = document.createElement("option");
-  opt.value = y;
-  opt.textContent = y;
-  if (y === currentYear) opt.selected = true;
-  selectYear.appendChild(opt);
-}
-
-year = currentYear;
-selectYear.value = currentYear;
-
 const asalProspekDataEl = document.getElementById("asalProspekData");
 const ketertarikanDataEl = document.getElementById("ketertarikanData");
 const asalKotaDataEl = document.getElementById("asalKotaData");
@@ -46,6 +29,21 @@ let year  = new Date().getFullYear();
 
 let rawProspek   = [];
 let rawAktivitas = [];
+
+const currentYear = new Date().getFullYear();
+selectYear.innerHTML = "";
+
+for (let y = currentYear - 3; y <= currentYear; y++) {
+  const opt = document.createElement("option");
+  opt.value = y;
+  opt.textContent = y;
+  if (y === currentYear) opt.selected = true;
+  selectYear.appendChild(opt);
+}
+
+year = currentYear;
+selectYear.value = currentYear;
+render();
 
 /* =====================
    HELPER
