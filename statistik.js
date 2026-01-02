@@ -20,20 +20,18 @@ const selectYear  = document.getElementById("selectYear");
    INIT YEAR DROPDOWN (AUTO)
 ===================== */
 const currentYear = new Date().getFullYear();
+selectYear.innerHTML = "";
 
-// reset dropdown (JANGAN KOSONG)
-selectYear.innerHTML = '<option value="">Tahun</option>';
-
-for (let y = currentYear - 3; y <= currentYear; y++) {
+for (let y = currentYear - 1; y <= currentYear; y++) {
   const opt = document.createElement("option");
   opt.value = y;
   opt.textContent = y;
+  if (y === currentYear) opt.selected = true;
   selectYear.appendChild(opt);
 }
 
-// sync state
-selectYear.value = currentYear;
 year = currentYear;
+selectYear.value = currentYear;
 
 const asalProspekDataEl = document.getElementById("asalProspekData");
 const ketertarikanDataEl = document.getElementById("ketertarikanData");
