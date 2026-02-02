@@ -29,9 +29,12 @@ function initTipeUnit() {
 
   prospek.forEach(p => {
     (p.tipeTertarik || []).forEach(t => {
-      if (t && t.toLowerCase() !== "tertarik") {
-        set.add(t);
-      }
+      if (!t) return;
+
+      const v = t.toLowerCase();
+      if (v === "tertarik" || v === "prospek") return;
+
+      set.add(t);
     });
   });
 
@@ -43,6 +46,7 @@ function initTipeUnit() {
     tipeUnitEl.appendChild(opt);
   });
 }
+
 
 
 /* ===== INIT SALES ===== */
