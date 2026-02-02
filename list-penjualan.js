@@ -18,9 +18,6 @@ import {
 
 // =========================
 // FLAG ADMIN (DI SINI)
-// =========================
-const IS_ADMIN = isAdmin;
-const CURRENT_SALES = user;
 
 
 let currentPenjualanId = null;
@@ -42,13 +39,25 @@ window.closeModalBayar = closeModalBayar;
 
 const listEl = document.getElementById("list");
 
-const colRef = collection(db, "laporan_penjualan");
+onAuthStateChanged(auth, u => {
+  if (!u) {
+    window.location.href = "index.html";
+    return;
+  }
 
-const q = IS_ADMIN
-  ? colRef
-  : query(colRef, where("sales", "==", CURRENT_SALES));
+  const user = u.email.startsWith("admin")
+    ? "admin"
+    : u.email.split("@")[0];
 
-onSnapshot(q, snap => {
+  const isAdmin = user === "admin";
+
+  const colRef = collection(db, "laporan_penjualan");
+
+  const q = isAdmin
+    ? colRef
+    : query(colRef, where("sales", "==", user));
+
+  onSnapshot(q, snap => {
 
   listEl.innerHTML = "";
 
