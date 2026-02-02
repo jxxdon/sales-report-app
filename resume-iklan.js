@@ -45,11 +45,22 @@ function render() {
   const bulan = filterBulan.value;
 
   const data = laporan.filter(x => {
-    const d = x.createdAt.toDate();
-    if (d.getFullYear() !== tahun) return false;
-    if (bulan !== "all" && d.getMonth() !== Number(bulan)) return false;
-    return true;
-  });
+  const start = x.startDate.toDate();
+  const end   = x.endDate.toDate();
+
+  const rangeStart =
+    bulan === "all"
+      ? new Date(tahun, 0, 1)
+      : new Date(tahun, Number(bulan), 1);
+
+  const rangeEnd =
+    bulan === "all"
+      ? new Date(tahun, 11, 31, 23, 59, 59)
+      : new Date(tahun, Number(bulan) + 1, 0, 23, 59, 59);
+
+  return start <= rangeEnd && end >= rangeStart;
+});
+
 
   if (!data.length) {
     contentEl.innerHTML = "<p>Tidak ada data</p>";
