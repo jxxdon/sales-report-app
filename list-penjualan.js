@@ -160,35 +160,54 @@ listEl.addEventListener("click", async e => {
   const id = btn.dataset.id;
   if (!id) return;
 
-  if (btn.classList.contains("btn-update-data")) {
-  const snap = await getDoc(doc(db, "laporan_penjualan", id));
-  const data = snap.data();
+ if (btn.classList.contains("btn-update-data")) {
+  const ref = doc(db, "laporan_penjualan", id);
+  const snap = await getDoc(ref);
+  const lama = snap.data();
 
-  const nama = prompt("Nama Pembeli", data.namaPembeli || "");
-  if (nama === null) return;
+  // ambil input baru
+  const baru = {
+    namaPembeli: prompt("Nama Pembeli", lama.namaPembeli || ""),
+    noTelpPembeli: prompt("No. Telp", lama.noTelpPembeli || ""),
+    sales: prompt("Sales", lama.sales || ""),
+    caraBayar: prompt("Cara Bayar", lama.caraBayar || ""),
+    tipeUnit: prompt("Tipe Unit", lama.tipeUnit || ""),
+    noBlok: prompt("No Blok", lama.noBlok || "")
+  };
 
-  const telp = prompt("No. Telp", data.noTelpPembeli || "");
-  if (telp === null) return;
+  // kalau user cancel di salah satu prompt
+  if (Object.values(baru).some(v => v === null)) return;
 
-  const sales = prompt("Sales", data.sales || "");
-  if (sales === null) return;
+  const updateData = {};
+  const history = [];
 
-  const cara = prompt("Cara Bayar", data.caraBayar || "");
-  if (cara === null) return;
+  const label = {
+    namaPembeli: "Nama",
+    noTelpPembeli: "No Telp",
+    sales: "Sales",
+    caraBayar: "Cara Bayar",
+    tipeUnit: "Tipe Unit",
+    noBlok: "No Blok"
+  };
 
-  const tipe = prompt("Tipe Unit", data.tipeUnit || "");
-  if (tipe === null) return;
+  for (const key in baru) {
+    if ((baru[key] || "") !== (lama[key] || "")) {
+      updateData[key] = baru[key];
 
-  const blok = prompt("No Blok", data.noBlok || "");
-  if (blok === null) return;
+      history.push({
+        tanggal: new Date().toLocaleDateString("id-ID"),
+        catatan: `Update data ${label[key]} ; ${lama[key] || "-"} jadi ${baru[key]}`,
+        createdAt: new Date()
+      });
+    }
+  }
 
-  await updateDoc(doc(db, "laporan_penjualan", id), {
-    namaPembeli: nama,
-    noTelpPembeli: telp,
-    sales,
-    caraBayar: cara,
-    tipeUnit: tipe,
-    noBlok: blok
+  // kalau tidak ada yang berubah → stop
+  if (!history.length) return;
+
+  await updateDoc(ref, {
+    ...updateData,
+    riwayatUpdate: arrayUnion(...history)
   });
 
   return;
