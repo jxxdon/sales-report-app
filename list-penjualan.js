@@ -81,7 +81,7 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
         <div class="payment-note">
           ${p.tanggal} | Bayar :
           Rp ${p.jumlah.toLocaleString("id-ID")} |
-          Kurang Rp ${(x.hargaJual - p.totalBayar).toLocaleString("id-ID")}
+          Kurang Rp ${(x.hargaJual - x.jumlahPembayaran).toLocaleString("id-ID")}
           [edit] [delete]
         </div>
       `).join("")}
@@ -107,7 +107,7 @@ listEl.addEventListener("click", e => {
     alert("Update Data: " + id);
   }
 
- iif (btn.classList.contains("btn-update-bayar")) {
+if (btn.classList.contains("btn-update-bayar")) {
   currentPenjualanId = id;
   document.getElementById("modalBayar").style.display = "block";
 }
