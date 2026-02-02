@@ -31,27 +31,21 @@ const PLATFORM_MAP = {
 };
 
 /* =====================
-   LOAD PROSPEK + INIT
+   LOAD PROSPEK
 ===================== */
 onSnapshot(collection(db, "prospek"), snap => {
-  const data = snap.docs.map(d => d.data());
-
-  // guard: jangan render kalau belum ada data
-  if (!data.length) return;
-
-  prospek = data;
+  prospek = snap.docs.map(d => d.data());
+  if (!prospek.length) return;
   initTipeDanSales();
 });
-
 
 /* =====================
    INIT TIPE & SALES
 ===================== */
 function initTipeDanSales() {
 
-  /* ===== TIPE IKLAN ===== */
+  // ===== TIPE IKLAN =====
   const tipeSet = new Set();
-
   prospek.forEach(p => {
     if (Array.isArray(p.tipeTertarik)) {
       p.tipeTertarik.forEach(t => {
@@ -60,22 +54,17 @@ function initTipeDanSales() {
     }
   });
 
-  // fallback minimal
-  const tipeList =
-    tipeSet.size
-      ? ["Umum", ...Array.from(tipeSet).sort()]
-      : ["Umum"];
-
+  const tipeList = ["Umum", ...Array.from(tipeSet).sort()];
   tipeEl.innerHTML = "";
+
   tipeList.forEach(t => {
     const opt = document.createElement("option");
     opt.value = t;
-    opt.textContent =
-      t === "Umum" ? "Umum (Walk-in)" : t;
+    opt.textContent = t === "Umum" ? "Umum (Walk-in)" : t;
     tipeEl.appendChild(opt);
   });
 
-  /* ===== SALES ===== */
+  // ===== SALES =====
   const salesSet = new Set(
     prospek
       .map(p => p.namaUser)
@@ -83,32 +72,6 @@ function initTipeDanSales() {
   );
 
   salesEl.innerHTML = `<option value="">Semua Sales</option>`;
-
-  if (!salesSet.size) {
-    const opt = document.createElement("option");
-    opt.disabled = true;
-    opt.textContent = "Belum ada sales";
-    salesEl.appendChild(opt);
-    return;
-  }
-
-  Array.from(salesSet).sort().forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    salesEl.appendChild(opt);
-  });
-}
-
-  /* ===== SALES ===== */
-  const salesSet = new Set(
-    prospek
-      .map(p => p.namaUser)
-      .filter(s => s && s !== "admin")
-  );
-
-  salesEl.innerHTML = `<option value="">Semua Sales</option>`;
-
   Array.from(salesSet).sort().forEach(s => {
     const opt = document.createElement("option");
     opt.value = s;
@@ -136,4 +99,37 @@ btnHitung.onclick = async () => {
 
   const hasil = prospek.filter(p => {
     const d = p.createdAt?.toDate?.();
-    if (!
+    if (!d) return false;
+    if (d < startDate || d > endDate) return false;
+    if (!PLATFORM_MAP[platform].includes(
+      (p.asalProspek || "").toLowerCase()
+    )) return false;
+    if (sales && p.namaUser !== sales) return false;
+
+    if (tipeIklan === "Umum") {
+      return !p.tipeTertarik || p.tipeTertarik.length === 0;
+    }
+    return (p.tipeTertarik || []).includes(tipeIklan);
+  });
+
+  const jumlahLead = hasil.length;
+  const cpl = jumlahLead ? Math.round(anggaran / jumlahLead) : 0;
+
+  hasilEl.style.display = "block";
+  hasilEl.innerHTML = `
+    <div><b>Lead</b>: ${jumlahLead}</div>
+    <div><b>CPL</b>: Rp ${cpl.toLocaleString("id-ID")}</div>
+  `;
+
+  await addDoc(collection(db, "laporan_iklan"), {
+    createdAt: new Date(),
+    startDate,
+    endDate,
+    platform,
+    tipeIklan,
+    sales: sales || "ALL",
+    anggaran,
+    jumlahLead,
+    cpl
+  });
+};
