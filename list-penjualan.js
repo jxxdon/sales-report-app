@@ -118,7 +118,8 @@ onAuthStateChanged(auth, u => {
   Update Status
 </button>
 
-${IS_ADMIN ? `
+${isAdmin ? `
+
 <button class="btn btn-delete-penjualan" data-id="${doc.id}" style="color:#b91c1c">
   Delete
 </button>
@@ -156,6 +157,7 @@ ${IS_ADMIN ? `
   if (!snap.size) {
     listEl.innerHTML = "<p>Belum ada data penjualan</p>";
   }
+});
 });
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
@@ -211,7 +213,7 @@ listEl.addEventListener("click", async e => {
   if (!btn) return;
   
 if (btn.classList.contains("btn-delete-penjualan")) {
-  if (!IS_ADMIN) return;
+  if (!isAdmin) return;
 
   const id = btn.dataset.id;
   if (!id) return;
