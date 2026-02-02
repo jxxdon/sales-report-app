@@ -107,10 +107,11 @@ listEl.addEventListener("click", e => {
     alert("Update Data: " + id);
   }
 
- if (btn.classList.contains("btn-update-bayar")) {
+ iif (btn.classList.contains("btn-update-bayar")) {
   currentPenjualanId = id;
   document.getElementById("modalBayar").style.display = "block";
 }
+
 
   if (btn.classList.contains("btn-update-status")) {
     alert("Update Status: " + id);
