@@ -19,8 +19,8 @@ import {
 // =========================
 // FLAG ADMIN (DI SINI)
 // =========================
-const IS_ADMIN = false;           // true kalau admin
-const CURRENT_SALES = "sales1";  // ganti sesuai sales login
+const IS_ADMIN = isAdmin;
+const CURRENT_SALES = user;
 
 
 let currentPenjualanId = null;
