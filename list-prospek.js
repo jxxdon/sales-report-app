@@ -65,14 +65,21 @@ btnWa.style.cssText = `
 
 btnWa.onclick = () => {
   if (!currentDocId) return;
-  onSnapshot(doc(db, "prospek", currentDocId), snap => {
-    const d = snap.data();
-    if (!d?.noTelp) return;
-    let phone = d.noTelp.replace(/\D/g, "");
-    if (phone.startsWith("0")) phone = "62" + phone.slice(1);
-    window.open(`https://wa.me/${phone}`, "_blank");
-  });
+
+  if (unsubscribeWa) unsubscribeWa();
+
+  unsubscribeWa = onSnapshot(
+    doc(db, "prospek", currentDocId),
+    snap => {
+      const d = snap.data();
+      if (!d?.noTelp) return;
+      let phone = d.noTelp.replace(/\D/g, "");
+      if (phone.startsWith("0")) phone = "62" + phone.slice(1);
+      window.open(`https://wa.me/${phone}`, "_blank");
+    }
+  );
 };
+
 
 /* =====================
    SHORTLIST
@@ -136,6 +143,8 @@ let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
 let visibleCount = 10;
+let unsubscribeWa = null;
+let unsubscribeComments = null;
 
 /* =====================
    CONST
@@ -281,7 +290,7 @@ function renderProgress(){
   });
 }
 
-function loadComments(){
+let
   onSnapshot(doc(db,"prospek",currentDocId),snap=>{
     commentList.innerHTML="";
     (snap.data().comments||[]).forEach(c=>{
@@ -339,7 +348,12 @@ window.addEventListener("scroll",()=>{
   }
 });
 
-closeModal.onclick=()=>modal.style.display="none";
+closeModal.onclick = () => {
+  if (unsubscribeWa) unsubscribeWa();           // tutup listener WA
+  if (unsubscribeComments) unsubscribeComments(); // tutup listener komentar
+  modal.style.display = "none";
+};
+
 
 searchInput.addEventListener("input",e=>{
   clearTimeout(window._d);
