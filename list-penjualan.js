@@ -80,15 +80,15 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 </div>
 
 
-      ${(x.pembayaran || []).map((p, idx) => `
+  ${(x.pembayaran || []).map((p, idx) => `
   <div class="payment-note">
     ${p.tanggal} | ${p.catatan || "-"} |
-    Bayar : Rp ${p.jumlah.toLocaleString("id-ID")} |
-    Kurang Rp ${(x.hargaJual - x.jumlahPembayaran).toLocaleString("id-ID")}
+    Bayar : Rp ${p.jumlah.toLocaleString("id-ID")}
     <a href="#" class="pay-edit" data-id="${doc.id}" data-idx="${idx}">[edit]</a>
     <a href="#" class="pay-delete" data-id="${doc.id}" data-idx="${idx}">[delete]</a>
   </div>
 `).join("")}
+
 
     `;
 
