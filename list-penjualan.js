@@ -161,8 +161,39 @@ listEl.addEventListener("click", async e => {
   if (!id) return;
 
   if (btn.classList.contains("btn-update-data")) {
-    alert("Update Data: " + id);
-  }
+  const snap = await getDoc(doc(db, "laporan_penjualan", id));
+  const data = snap.data();
+
+  const nama = prompt("Nama Pembeli", data.namaPembeli || "");
+  if (nama === null) return;
+
+  const telp = prompt("No. Telp", data.noTelpPembeli || "");
+  if (telp === null) return;
+
+  const sales = prompt("Sales", data.sales || "");
+  if (sales === null) return;
+
+  const cara = prompt("Cara Bayar", data.caraBayar || "");
+  if (cara === null) return;
+
+  const tipe = prompt("Tipe Unit", data.tipeUnit || "");
+  if (tipe === null) return;
+
+  const blok = prompt("No Blok", data.noBlok || "");
+  if (blok === null) return;
+
+  await updateDoc(doc(db, "laporan_penjualan", id), {
+    namaPembeli: nama,
+    noTelpPembeli: telp,
+    sales,
+    caraBayar: cara,
+    tipeUnit: tipe,
+    noBlok: blok
+  });
+
+  return;
+}
+
 
   if (btn.classList.contains("btn-update-bayar")) {
     currentPenjualanId = id;
