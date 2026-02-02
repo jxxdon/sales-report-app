@@ -131,6 +131,7 @@ searchInput.parentNode.insertBefore(
    STATE
 ===================== */
 let unsubscribe = null;
+let unsubscribeOpenDetail = null; 
 let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
@@ -355,14 +356,26 @@ function init() {
 
   const openId = localStorage.getItem("openProspekId");
   if (openId) {
-    localStorage.removeItem("openProspekId");
+  localStorage.removeItem("openProspekId");
 
-    onSnapshot(doc(db, "prospek", openId), snap => {
+  if (unsubscribeOpenDetail) unsubscribeOpenDetail();
+
+  unsubscribeOpenDetail = onSnapshot(
+    doc(db, "prospek", openId),
+    snap => {
       if (snap.exists()) {
         openDetail(openId, snap.data());
       }
-    });
-  }
+    }
+  );
+}
+
 
   loadProspek();
 }
+
+window.addEventListener("beforeunload", () => {
+  if (unsubscribe) unsubscribe();                 // list
+  if (unsubscribeOpenDetail) unsubscribeOpenDetail(); // detail
+});
+
