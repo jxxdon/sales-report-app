@@ -65,21 +65,14 @@ btnWa.style.cssText = `
 
 btnWa.onclick = () => {
   if (!currentDocId) return;
-
-  if (unsubscribeWa) unsubscribeWa();
-
-  unsubscribeWa = onSnapshot(
-    doc(db, "prospek", currentDocId),
-    snap => {
-      const d = snap.data();
-      if (!d?.noTelp) return;
-      let phone = d.noTelp.replace(/\D/g, "");
-      if (phone.startsWith("0")) phone = "62" + phone.slice(1);
-      window.open(`https://wa.me/${phone}`, "_blank");
-    }
-  );
+  onSnapshot(doc(db, "prospek", currentDocId), snap => {
+    const d = snap.data();
+    if (!d?.noTelp) return;
+    let phone = d.noTelp.replace(/\D/g, "");
+    if (phone.startsWith("0")) phone = "62" + phone.slice(1);
+    window.open(`https://wa.me/${phone}`, "_blank");
+  });
 };
-
 
 /* =====================
    SHORTLIST
@@ -138,13 +131,10 @@ searchInput.parentNode.insertBefore(
    STATE
 ===================== */
 let unsubscribe = null;
-let unsubscribeOpenDetail = null; 
 let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
 let visibleCount = 10;
-let unsubscribeWa = null;
-let unsubscribeComments = null;
 
 /* =====================
    CONST
@@ -291,21 +281,16 @@ function renderProgress(){
 }
 
 function loadComments(){
-  if (unsubscribeComments) unsubscribeComments(); // tutup listener lama
-
-  unsubscribeComments = onSnapshot(
-    doc(db,"prospek",currentDocId),
-    snap=>{
-      commentList.innerHTML="";
-      (snap.data().comments||[]).forEach(c=>{
-        commentList.innerHTML+=`
-          <div style="margin-bottom:12px">
-            <strong>${c.progress}</strong> - ${c.text}<br>
-            <small>${c.user} ; ${formatDate(c.createdAt)}</small>
-          </div>`;
-      });
-    }
-  );
+  onSnapshot(doc(db,"prospek",currentDocId),snap=>{
+    commentList.innerHTML="";
+    (snap.data().comments||[]).forEach(c=>{
+      commentList.innerHTML+=`
+        <div style="margin-bottom:12px">
+          <strong>${c.progress}</strong> - ${c.text}<br>
+          <small>${c.user} ; ${formatDate(c.createdAt)}</small>
+        </div>`;
+    });
+  });
 }
 
 /* =====================
@@ -353,12 +338,7 @@ window.addEventListener("scroll",()=>{
   }
 });
 
-closeModal.onclick = () => {
-  if (unsubscribeWa) unsubscribeWa();           // tutup listener WA
-  if (unsubscribeComments) unsubscribeComments(); // tutup listener komentar
-  modal.style.display = "none";
-};
-
+closeModal.onclick=()=>modal.style.display="none";
 
 searchInput.addEventListener("input",e=>{
   clearTimeout(window._d);
@@ -375,26 +355,14 @@ function init() {
 
   const openId = localStorage.getItem("openProspekId");
   if (openId) {
-  localStorage.removeItem("openProspekId");
+    localStorage.removeItem("openProspekId");
 
-  if (unsubscribeOpenDetail) unsubscribeOpenDetail();
-
-  unsubscribeOpenDetail = onSnapshot(
-    doc(db, "prospek", openId),
-    snap => {
+    onSnapshot(doc(db, "prospek", openId), snap => {
       if (snap.exists()) {
         openDetail(openId, snap.data());
       }
-    }
-  );
-}
-
+    });
+  }
 
   loadProspek();
 }
-
-window.addEventListener("beforeunload", () => {
-  if (unsubscribe) unsubscribe();                 // list
-  if (unsubscribeOpenDetail) unsubscribeOpenDetail(); // detail
-});
-
