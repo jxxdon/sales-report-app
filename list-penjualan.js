@@ -6,10 +6,12 @@ import {
 
 import {
   doc,
+  getDoc,
   updateDoc,
   arrayUnion,
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
 
 let currentPenjualanId = null;
 let currentEditIndex = null;
@@ -99,7 +101,7 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 });
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
-listEl.addEventListener("click", e => {
+listEl.addEventListener("click", async e => {
   const btn = e.target.closest("button");
   if (!btn) return;
 
