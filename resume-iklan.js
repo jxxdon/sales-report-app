@@ -39,6 +39,13 @@ onSnapshot(collection(db, "laporan_iklan"), snap => {
 filterTahun.onchange = render;
 filterBulan.onchange = render;
 
+/* ===== PRORATA HELPER ===== */
+function hitungIrisanHari(start, end, rangeStart, rangeEnd) {
+  const s = start > rangeStart ? start : rangeStart;
+  const e = end < rangeEnd ? end : rangeEnd;
+  if (s > e) return 0;
+  return Math.floor((e - s) / 86400000) + 1;
+}
 /* ===== RENDER ===== */
 function render() {
   const tahun = Number(filterTahun.value);
@@ -73,10 +80,37 @@ function render() {
   let totalWalkIn = 0;
 
   data.forEach(x => {
-    totalDana += x.anggaran;
-    totalLead += x.jumlahLead;
-    if (x.tipeIklan === "Umum") totalWalkIn += x.jumlahLead;
-  });
+  const start = x.startDate.toDate();
+  const end   = x.endDate.toDate();
+
+  const rangeStart =
+    bulan === "all"
+      ? new Date(tahun, 0, 1)
+      : new Date(tahun, Number(bulan), 1);
+
+  const rangeEnd =
+    bulan === "all"
+      ? new Date(tahun, 11, 31, 23, 59, 59)
+      : new Date(tahun, Number(bulan) + 1, 0, 23, 59, 59);
+
+  const totalHari =
+    Math.floor((end - start) / 86400000) + 1;
+
+  const hariTerpakai =
+    hitungIrisanHari(start, end, rangeStart, rangeEnd);
+
+  if (!hariTerpakai || !totalHari) return;
+
+  const danaHarian = x.anggaran / totalHari;
+
+  totalDana += danaHarian * hariTerpakai;
+  totalLead += x.jumlahLead * (hariTerpakai / totalHari);
+
+  if (x.tipeIklan === "Umum") {
+    totalWalkIn += x.jumlahLead * (hariTerpakai / totalHari);
+  }
+});
+
 
   /* ===== PER SALES ===== */
   const bySales = {};
