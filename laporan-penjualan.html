@@ -12,14 +12,20 @@
       box-shadow:0 20px 40px rgba(0,0,0,.08)
     }
     label { display:block; margin-top:14px; font-weight:600 }
-    input, select {
+    input, select, textarea {
       width:100%; padding:12px; margin-top:6px;
-      border-radius:10px; border:1px solid #d1d5db
+      border-radius:10px; border:1px solid #d1d5db;
+      box-sizing:border-box
+    }
+    textarea { resize:vertical }
+    .checklist label {
+      display:inline-block; margin-right:16px; font-weight:normal
     }
     button {
       margin-top:24px; width:100%; padding:14px;
       border:none; border-radius:12px;
-      background:#16a34a; color:#fff; font-size:1.05em
+      background:#16a34a; color:#fff;
+      font-size:1.05em; cursor:pointer
     }
   </style>
 </head>
@@ -30,6 +36,12 @@
 
   <label>Tanggal Booking</label>
   <input type="date" id="tanggalBooking">
+
+  <label>Nama Pembeli</label>
+  <input id="namaPembeli" placeholder="Nama pembeli">
+
+  <label>Nomor Telp Pembeli</label>
+  <input id="telpPembeli" placeholder="08xxxxxxxxxx">
 
   <label>Tipe Unit</label>
   <select id="tipeUnit"></select>
@@ -49,10 +61,24 @@
   <label>Jumlah Pembayaran</label>
   <input type="number" id="jumlahBayar">
 
-  <label>Sisa Pembayaran</label>
-  <input type="number" id="sisaBayar" readonly>
+  <label>Cara Bayar</label>
+  <select id="caraBayar">
+    <option value="KPR">KPR</option>
+    <option value="Cash Keras">Cash Keras</option>
+    <option value="Cash Bertahap">Cash Bertahap</option>
+  </select>
 
-  <button id="btnSimpan">💾 Simpan Laporan</button>
+  <label>Sudah Termasuk</label>
+  <div class="checklist">
+    <label><input type="checkbox" id="inclPPN"> PPN</label>
+    <label><input type="checkbox" id="inclBPHTB"> BPHTB</label>
+    <label><input type="checkbox" id="inclAJB"> AJB</label>
+  </div>
+
+  <label>Catatan</label>
+  <textarea id="catatan" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+
+  <button id="btnSimpan">💾 Simpan Laporan Penjualan</button>
 </div>
 
 <script type="module" src="laporan-penjualan.js"></script>
