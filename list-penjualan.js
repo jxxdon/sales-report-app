@@ -12,6 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentPenjualanId = null;
+let currentEditIndex = null;
 
 function closeModalBayar() {
   document.getElementById("modalBayar").style.display = "none";
@@ -77,14 +78,16 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 </div>
 
 
-      ${(x.pembayaran || []).map(p => `
-        <div class="payment-note">
-          ${p.tanggal} | Bayar :
-          Rp ${p.jumlah.toLocaleString("id-ID")} |
-          Kurang Rp ${(x.hargaJual - x.jumlahPembayaran).toLocaleString("id-ID")}
-          [edit] [delete]
-        </div>
-      `).join("")}
+      ${(x.pembayaran || []).map((p, idx) => `
+  <div class="payment-note">
+    ${p.tanggal} | ${p.catatan || "-"} |
+    Bayar : Rp ${p.jumlah.toLocaleString("id-ID")} |
+    Kurang Rp ${(x.hargaJual - x.jumlahPembayaran).toLocaleString("id-ID")}
+    <a href="#" class="pay-edit" data-id="${doc.id}" data-idx="${idx}">[edit]</a>
+    <a href="#" class="pay-delete" data-id="${doc.id}" data-idx="${idx}">[delete]</a>
+  </div>
+`).join("")}
+
     `;
 
     listEl.appendChild(card);
@@ -109,6 +112,46 @@ listEl.addEventListener("click", e => {
 
 if (btn.classList.contains("btn-update-bayar")) {
   currentPenjualanId = id;
+  document.getElementById("modalBayar").style.display = "block";
+}
+
+  if (e.target.classList.contains("pay-delete")) {
+  e.preventDefault();
+
+  const id  = e.target.dataset.id;
+  const idx = Number(e.target.dataset.idx);
+
+  if (!confirm("Hapus pembayaran ini?")) return;
+
+  const snap = await getDoc(doc(db, "laporan_penjualan", id));
+  const data = snap.data();
+
+  const pembayaranBaru = data.pembayaran.filter((_, i) => i !== idx);
+  const totalBayar = pembayaranBaru.reduce((s, p) => s + p.jumlah, 0);
+
+  await updateDoc(doc(db, "laporan_penjualan", id), {
+    pembayaran: pembayaranBaru,
+    jumlahPembayaran: totalBayar
+  });
+}
+
+  if (e.target.classList.contains("pay-edit")) {
+  e.preventDefault();
+
+  const id  = e.target.dataset.id;
+  const idx = Number(e.target.dataset.idx);
+
+  const snap = await getDoc(doc(db, "laporan_penjualan", id));
+  const p = snap.data().pembayaran[idx];
+
+  currentPenjualanId = id;
+  currentEditIndex = idx;
+
+  document.getElementById("bayarTanggal").value = 
+    new Date(p.createdAt.seconds * 1000).toISOString().slice(0,10);
+  document.getElementById("bayarJumlah").value = p.jumlah;
+  document.getElementById("bayarCatatan").value = p.catatan || "";
+
   document.getElementById("modalBayar").style.display = "block";
 }
 
