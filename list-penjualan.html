@@ -98,21 +98,36 @@
   </div>
 </div>
 
-<div id="modalStatus" class="modal" style="display:none">
-  <div class="modal-box">
+<div id="modalStatus" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  z-index:1000">
+  
+  <div style="
+    background:#fff;
+    max-width:360px;
+    margin:15% auto;
+    padding:18px;
+    border-radius:14px">
+    
     <h3>Pilih Status</h3>
 
-    <div class="status-options">
-      <button data-status="Booking">Booking</button>
-      <button data-status="Down Payment">Down Payment</button>
-      <button data-status="Proses Pelunasan">Proses Pelunasan</button>
-      <button data-status="Lunas">Lunas</button>
-      <button data-status="Batal">Batal</button>
+    <div class="status-options" style="display:grid; gap:8px">
+      <button data-status="Booking" class="btn">Booking</button>
+      <button data-status="Down Payment" class="btn">Down Payment</button>
+      <button data-status="Proses Pelunasan" class="btn">Proses Pelunasan</button>
+      <button data-status="Lunas" class="btn">Lunas</button>
+      <button data-status="Batal" class="btn">Batal</button>
     </div>
 
-    <button onclick="closeModalStatus()">Batal</button>
+    <div style="margin-top:12px">
+      <button onclick="closeModalStatus()" class="btn">Batal</button>
+    </div>
   </div>
 </div>
+
   
   
 <script type="module" src="list-penjualan.js"></script>
