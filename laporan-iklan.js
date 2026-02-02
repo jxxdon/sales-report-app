@@ -34,9 +34,15 @@ const PLATFORM_MAP = {
    LOAD PROSPEK + INIT
 ===================== */
 onSnapshot(collection(db, "prospek"), snap => {
-  prospek = snap.docs.map(d => d.data());
+  const data = snap.docs.map(d => d.data());
+
+  // guard: jangan render kalau belum ada data
+  if (!data.length) return;
+
+  prospek = data;
   initTipeDanSales();
 });
+
 
 /* =====================
    INIT TIPE & SALES
@@ -47,22 +53,52 @@ function initTipeDanSales() {
   const tipeSet = new Set();
 
   prospek.forEach(p => {
-    (p.tipeTertarik || []).forEach(t => {
-      if (t) tipeSet.add(t);
-    });
+    if (Array.isArray(p.tipeTertarik)) {
+      p.tipeTertarik.forEach(t => {
+        if (t && t.trim()) tipeSet.add(t.trim());
+      });
+    }
   });
 
-  const tipeList = ["Umum", ...Array.from(tipeSet).sort()];
+  // fallback minimal
+  const tipeList =
+    tipeSet.size
+      ? ["Umum", ...Array.from(tipeSet).sort()]
+      : ["Umum"];
 
   tipeEl.innerHTML = "";
   tipeList.forEach(t => {
     const opt = document.createElement("option");
     opt.value = t;
-    opt.textContent = t === "Umum"
-      ? "Umum (Walk-in)"
-      : t;
+    opt.textContent =
+      t === "Umum" ? "Umum (Walk-in)" : t;
     tipeEl.appendChild(opt);
   });
+
+  /* ===== SALES ===== */
+  const salesSet = new Set(
+    prospek
+      .map(p => p.namaUser)
+      .filter(s => s && s !== "admin")
+  );
+
+  salesEl.innerHTML = `<option value="">Semua Sales</option>`;
+
+  if (!salesSet.size) {
+    const opt = document.createElement("option");
+    opt.disabled = true;
+    opt.textContent = "Belum ada sales";
+    salesEl.appendChild(opt);
+    return;
+  }
+
+  Array.from(salesSet).sort().forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    salesEl.appendChild(opt);
+  });
+}
 
   /* ===== SALES ===== */
   const salesSet = new Set(
