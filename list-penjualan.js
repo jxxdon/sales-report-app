@@ -170,11 +170,14 @@ listEl.addEventListener("click", async e => {
 
   /* ===== PRIORITAS: LINK EDIT / DELETE ===== */
   
-  if (e.target.classList.contains("pay-delete")) {
+ const del = e.target.closest(".pay-delete");
+if (del) {
+
     e.preventDefault();
 
-    const id  = e.target.dataset.id;
-    const idx = Number(e.target.dataset.idx);
+   const id = del.dataset.id;
+const idx = Number(del.dataset.idx);
+
 
     if (!confirm("Hapus pembayaran ini?")) return;
 
