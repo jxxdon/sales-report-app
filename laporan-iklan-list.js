@@ -3,10 +3,19 @@ import {
   collection,
   query,
   orderBy,
-  onSnapshot
+  onSnapshot,
+  doc,
+  deleteDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const listEl = document.getElementById("list");
+const modal = document.getElementById("modal");
+const editAnggaranEl = document.getElementById("editAnggaran");
+const btnUpdate = document.getElementById("btnUpdate");
+
+let currentId = null;
+let currentLead = 0;
 
 const q = query(
   collection(db, "laporan_iklan"),
@@ -18,25 +27,26 @@ onSnapshot(q, snap => {
 
   snap.docs.forEach(d => {
     const x = d.data();
+    const id = d.id;
 
     const card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-      <div class="row"><b>Platform</b><span>${x.platform}</span></div>
-      <div class="row"><b>Iklan</b><span>${x.tipeIklan}</span></div>
-      <div class="row"><b>Sales</b><span>${x.sales}</span></div>
-      <div class="row"><b>Periode</b>
-        <span>
-          ${x.startDate.toDate().toLocaleDateString("id-ID")}
-          -
-          ${x.endDate.toDate().toLocaleDateString("id-ID")}
-        </span>
+      <div><b>${x.platform}</b> | ${x.tipeIklan} | ${x.sales}</div>
+      <div>Periode:
+        ${x.startDate.toDate().toLocaleDateString("id-ID")} -
+        ${x.endDate.toDate().toLocaleDateString("id-ID")}
       </div>
-      <div class="row"><b>Lead</b><span>${x.jumlahLead}</span></div>
-      <div class="row"><b>CPL</b>
-        <span>Rp ${x.cpl.toLocaleString("id-ID")}</span>
-      </div>
+      <div>Lead: ${x.jumlahLead}</div>
+      <div>CPL: Rp ${x.cpl.toLocaleString("id-ID")}</div>
+
+      <button onclick="editLaporan('${id}', ${x.anggaran}, ${x.jumlahLead})">
+        Edit
+      </button>
+      <button onclick="hapusLaporan('${id}')">
+        Hapus
+      </button>
     `;
 
     listEl.appendChild(card);
@@ -46,3 +56,37 @@ onSnapshot(q, snap => {
     listEl.innerHTML = "<p>Belum ada laporan iklan</p>";
   }
 });
+
+/* ===== EDIT ===== */
+window.editLaporan = (id, anggaran, lead) => {
+  currentId = id;
+  currentLead = lead;
+  editAnggaranEl.value = anggaran;
+  modal.style.display = "block";
+};
+
+window.closeModal = () => {
+  modal.style.display = "none";
+};
+
+btnUpdate.onclick = async () => {
+  const anggaran = Number(editAnggaranEl.value);
+  if (!anggaran) return alert("Anggaran tidak valid");
+
+  const cpl = currentLead
+    ? Math.round(anggaran / currentLead)
+    : 0;
+
+  await updateDoc(doc(db, "laporan_iklan", currentId), {
+    anggaran,
+    cpl
+  });
+
+  closeModal();
+};
+
+/* ===== HAPUS ===== */
+window.hapusLaporan = async (id) => {
+  if (!confirm("Hapus laporan ini?")) return;
+  await deleteDoc(doc(db, "laporan_iklan", id));
+};
