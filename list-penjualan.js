@@ -235,9 +235,7 @@ listEl.addEventListener("click", async e => {
   const snap = await getDoc(ref);
   const data = snap.data();
 
-  const statusLama = data.status || "Booking";
-
-  const statusValid = [
+  const statusList = [
     "Booking",
     "Down Payment",
     "Proses Pelunasan",
@@ -245,12 +243,20 @@ listEl.addEventListener("click", async e => {
     "Batal"
   ];
 
-  const statusBaru = prompt(
-    "Pilih Status:\n" + statusValid.join(" / "),
-    statusLama
+  const statusLama = data.status || "Booking";
+
+  const pilihan = prompt(
+    "Pilih Status:\n" +
+    statusList.map((s, i) => `${i + 1}. ${s}`).join("\n") +
+    `\n\nStatus sekarang: ${statusLama}`
   );
 
-  if (!statusBaru || !statusValid.includes(statusBaru)) return;
+  const idx = Number(pilihan) - 1;
+
+  if (isNaN(idx) || !statusList[idx]) return;
+
+  const statusBaru = statusList[idx];
+
   if (statusBaru === statusLama) return;
 
   await updateDoc(ref, {
