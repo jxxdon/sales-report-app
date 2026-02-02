@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Penjualan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family:sans-serif; background:#f3f4f6; padding:24px }
+    .card {
+      max-width:720px; margin:auto; background:#fff;
+      padding:24px; border-radius:16px;
+      box-shadow:0 20px 40px rgba(0,0,0,.08)
+    }
+    label { display:block; margin-top:14px; font-weight:600 }
+    input, select {
+      width:100%; padding:12px; margin-top:6px;
+      border-radius:10px; border:1px solid #d1d5db
+    }
+    button {
+      margin-top:24px; width:100%; padding:14px;
+      border:none; border-radius:12px;
+      background:#16a34a; color:#fff; font-size:1.05em
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Laporan Penjualan</h2>
+
+  <label>Tanggal Booking</label>
+  <input type="date" id="tanggalBooking">
+
+  <label>Tipe Unit</label>
+  <select id="tipeUnit"></select>
+
+  <label>No Blok</label>
+  <input id="noBlok" placeholder="Contoh: A12">
+
+  <label>Harga Jual</label>
+  <input type="number" id="hargaJual">
+
+  <label>Harga HPP</label>
+  <input type="number" id="hargaHPP">
+
+  <label>Sales</label>
+  <select id="salesSelect"></select>
+
+  <label>Jumlah Pembayaran</label>
+  <input type="number" id="jumlahBayar">
+
+  <label>Sisa Pembayaran</label>
+  <input type="number" id="sisaBayar" readonly>
+
+  <button id="btnSimpan">💾 Simpan Laporan</button>
+</div>
+
+<script type="module" src="laporan-penjualan.js"></script>
+</body>
+</html>
