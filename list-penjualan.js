@@ -219,9 +219,41 @@ listEl.addEventListener("click", async e => {
     document.getElementById("modalBayar").style.display = "block";
   }
 
-  if (btn.classList.contains("btn-update-status")) {
-    alert("Update Status: " + id);
-  }
+ if (btn.classList.contains("btn-update-status")) {
+  const ref = doc(db, "laporan_penjualan", id);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  const statusLama = data.status || "Booking";
+
+  const statusValid = [
+    "Booking",
+    "Down Payment",
+    "Proses Pelunasan",
+    "Lunas",
+    "Batal"
+  ];
+
+  const statusBaru = prompt(
+    "Pilih Status:\n" + statusValid.join(" / "),
+    statusLama
+  );
+
+  if (!statusBaru || !statusValid.includes(statusBaru)) return;
+  if (statusBaru === statusLama) return;
+
+  await updateDoc(ref, {
+    status: statusBaru,
+    riwayatUpdate: arrayUnion({
+      tanggal: new Date().toLocaleDateString("id-ID"),
+      catatan: `Status berubah dari ${statusLama} menjadi ${statusBaru}`,
+      createdAt: new Date()
+    })
+  });
+
+  return;
+}
+
 });
 
 
