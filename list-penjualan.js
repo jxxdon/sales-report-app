@@ -101,7 +101,7 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 });
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
-lislistEl.addEventListener("click", async e => {
+listEl.addEventListener("click", async e => {
 
   /* ===== PRIORITAS: LINK EDIT / DELETE ===== */
   if (e.target.classList.contains("pay-delete")) {
