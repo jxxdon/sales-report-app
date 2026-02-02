@@ -107,11 +107,40 @@ listEl.addEventListener("click", e => {
     alert("Update Data: " + id);
   }
 
-  if (btn.classList.contains("btn-update-bayar")) {
-    alert("Update Pembayaran: " + id);
-  }
+ if (btn.classList.contains("btn-update-bayar")) {
+  currentPenjualanId = id;
+  document.getElementById("modalBayar").style.display = "block";
+}
 
   if (btn.classList.contains("btn-update-status")) {
     alert("Update Status: " + id);
   }
 });
+
+document.getElementById("btnSimpanBayar").onclick = async () => {
+  if (!currentPenjualanId) return;
+
+  const tgl = document.getElementById("bayarTanggal").value;
+  const jml = Number(document.getElementById("bayarJumlah").value);
+  const cat = document.getElementById("bayarCatatan").value;
+
+  if (!tgl || !jml) {
+    alert("Lengkapi tanggal & jumlah");
+    return;
+  }
+
+  await updateDoc(
+    doc(db, "laporan_penjualan", currentPenjualanId),
+    {
+      pembayaran: arrayUnion({
+        tanggal: new Date(tgl).toLocaleDateString("id-ID"),
+        jumlah: jml,
+        catatan: cat,
+        createdAt: new Date()
+      }),
+      jumlahPembayaran: increment(jml)
+    }
+  );
+
+  closeModalBayar();
+};
