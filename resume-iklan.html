@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Iklan</title>
+  <style>
+    body { font-family:sans-serif; background:#f3f4f6; padding:24px }
+    h2 { margin-top:0 }
+    .box {
+      background:#fff;
+      padding:16px;
+      border-radius:12px;
+      margin-bottom:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,.08)
+    }
+    .row {
+      display:flex;
+      justify-content:space-between;
+      margin:6px 0;
+    }
+    select { padding:8px; margin-right:8px }
+  </style>
+</head>
+<body>
+
+<h2>Resume Iklan</h2>
+
+<select id="filterTahun"></select>
+<select id="filterBulan">
+  <option value="all">Tahunan</option>
+</select>
+
+<div id="content"></div>
+
+<script type="module" src="resume-iklan.js"></script>
+</body>
+</html>
