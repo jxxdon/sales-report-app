@@ -181,18 +181,37 @@ document.getElementById("btnSimpanBayar").onclick = async () => {
     return;
   }
 
-  await updateDoc(
-    doc(db, "laporan_penjualan", currentPenjualanId),
-    {
-      pembayaran: arrayUnion({
-        tanggal: new Date(tgl).toLocaleDateString("id-ID"),
-        jumlah: jml,
-        catatan: cat,
-        createdAt: new Date()
-      }),
-      jumlahPembayaran: increment(jml)
-    }
-  );
+  const ref = doc(db, "laporan_penjualan", currentPenjualanId);
+  const snap = await getDoc(ref);
+  const data = snap.data();
 
+  let pembayaran = data.pembayaran || [];
+
+  if (currentEditIndex !== null) {
+    // MODE EDIT
+    pembayaran[currentEditIndex] = {
+      ...pembayaran[currentEditIndex],
+      tanggal: new Date(tgl).toLocaleDateString("id-ID"),
+      jumlah: jml,
+      catatan: cat
+    };
+  } else {
+    // MODE TAMBAH
+    pembayaran.push({
+      tanggal: new Date(tgl).toLocaleDateString("id-ID"),
+      jumlah: jml,
+      catatan: cat,
+      createdAt: new Date()
+    });
+  }
+
+  const totalBayar = pembayaran.reduce((s, p) => s + p.jumlah, 0);
+
+  await updateDoc(ref, {
+    pembayaran,
+    jumlahPembayaran: totalBayar
+  });
+
+  currentEditIndex = null;
   closeModalBayar();
 };
