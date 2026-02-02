@@ -50,10 +50,17 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
       </div>
 
       <div class="actions">
-        <button class="btn">Update Data</button>
-        <button class="btn">Update Pembayaran</button>
-        <button class="btn">Update Status</button>
-      </div>
+  <button class="btn btn-update-data" data-id="${doc.id}">
+    Update Data
+  </button>
+  <button class="btn btn-update-bayar" data-id="${doc.id}">
+    Update Pembayaran
+  </button>
+  <button class="btn btn-update-status" data-id="${doc.id}">
+    Update Status
+  </button>
+</div>
+
 
       ${(x.pembayaran || []).map(p => `
         <div class="payment-note">
@@ -70,5 +77,26 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 
   if (!snap.size) {
     listEl.innerHTML = "<p>Belum ada data penjualan</p>";
+  }
+});
+
+// ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
+listEl.addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+  if (!id) return;
+
+  if (btn.classList.contains("btn-update-data")) {
+    alert("Update Data: " + id);
+  }
+
+  if (btn.classList.contains("btn-update-bayar")) {
+    alert("Update Pembayaran: " + id);
+  }
+
+  if (btn.classList.contains("btn-update-status")) {
+    alert("Update Status: " + id);
   }
 });
