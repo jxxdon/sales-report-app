@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Daftar Penjualan</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background:#f3f4f6;
+      padding:24px;
+    }
+    .card {
+      background:#fff;
+      border-radius:14px;
+      padding:16px 18px;
+      margin-bottom:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
+    }
+    .header {
+      font-size:.9em;
+      color:#555;
+      margin-bottom:6px;
+    }
+    .unit {
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .price {
+      font-weight:600;
+      color:#2563eb;
+    }
+    .small {
+      font-size:.85em;
+      color:#666;
+    }
+    .status {
+      margin-top:6px;
+      font-weight:600;
+    }
+    .actions {
+      margin-top:10px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .btn {
+      padding:4px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#f9fafb;
+      font-size:.8em;
+      cursor:pointer;
+    }
+    .payment-note {
+      margin-top:8px;
+      font-size:.8em;
+      font-style:italic;
+      color:#555;
+      border-left:3px solid #ddd;
+      padding-left:8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Daftar Penjualan</h2>
+<div id="list"></div>
+
+<script type="module" src="list-penjualan.js"></script>
+</body>
+</html>
