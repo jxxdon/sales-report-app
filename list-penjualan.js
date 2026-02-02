@@ -4,6 +4,21 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+import {
+  doc,
+  updateDoc,
+  arrayUnion,
+  increment
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+let currentPenjualanId = null;
+
+function closeModalBayar() {
+  document.getElementById("modalBayar").style.display = "none";
+  currentPenjualanId = null;
+}
+window.closeModalBayar = closeModalBayar;
+
 const listEl = document.getElementById("list");
 
 onSnapshot(collection(db, "laporan_penjualan"), snap => {
