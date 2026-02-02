@@ -101,7 +101,53 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 });
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
-listEl.addEventListener("click", async e => {
+lislistEl.addEventListener("click", async e => {
+
+  /* ===== PRIORITAS: LINK EDIT / DELETE ===== */
+  if (e.target.classList.contains("pay-delete")) {
+    e.preventDefault();
+
+    const id  = e.target.dataset.id;
+    const idx = Number(e.target.dataset.idx);
+
+    if (!confirm("Hapus pembayaran ini?")) return;
+
+    const snap = await getDoc(doc(db, "laporan_penjualan", id));
+    const data = snap.data();
+
+    const pembayaranBaru = data.pembayaran.filter((_, i) => i !== idx);
+    const totalBayar = pembayaranBaru.reduce((s, p) => s + p.jumlah, 0);
+
+    await updateDoc(doc(db, "laporan_penjualan", id), {
+      pembayaran: pembayaranBaru,
+      jumlahPembayaran: totalBayar
+    });
+
+    return;
+  }
+
+  if (e.target.classList.contains("pay-edit")) {
+    e.preventDefault();
+
+    const id  = e.target.dataset.id;
+    const idx = Number(e.target.dataset.idx);
+
+    const snap = await getDoc(doc(db, "laporan_penjualan", id));
+    const p = snap.data().pembayaran[idx];
+
+    currentPenjualanId = id;
+    currentEditIndex = idx;
+
+    document.getElementById("bayarTanggal").value =
+      new Date(p.createdAt.seconds * 1000).toISOString().slice(0,10);
+    document.getElementById("bayarJumlah").value = p.jumlah;
+    document.getElementById("bayarCatatan").value = p.catatan || "";
+
+    document.getElementById("modalBayar").style.display = "block";
+    return;
+  }
+
+  /* ===== BARU HANDLE BUTTON ===== */
   const btn = e.target.closest("button");
   if (!btn) return;
 
@@ -112,56 +158,16 @@ listEl.addEventListener("click", async e => {
     alert("Update Data: " + id);
   }
 
-if (btn.classList.contains("btn-update-bayar")) {
-  currentPenjualanId = id;
-  document.getElementById("modalBayar").style.display = "block";
-}
-
-  if (e.target.classList.contains("pay-delete")) {
-  e.preventDefault();
-
-  const id  = e.target.dataset.id;
-  const idx = Number(e.target.dataset.idx);
-
-  if (!confirm("Hapus pembayaran ini?")) return;
-
-  const snap = await getDoc(doc(db, "laporan_penjualan", id));
-  const data = snap.data();
-
-  const pembayaranBaru = data.pembayaran.filter((_, i) => i !== idx);
-  const totalBayar = pembayaranBaru.reduce((s, p) => s + p.jumlah, 0);
-
-  await updateDoc(doc(db, "laporan_penjualan", id), {
-    pembayaran: pembayaranBaru,
-    jumlahPembayaran: totalBayar
-  });
-}
-
-  if (e.target.classList.contains("pay-edit")) {
-  e.preventDefault();
-
-  const id  = e.target.dataset.id;
-  const idx = Number(e.target.dataset.idx);
-
-  const snap = await getDoc(doc(db, "laporan_penjualan", id));
-  const p = snap.data().pembayaran[idx];
-
-  currentPenjualanId = id;
-  currentEditIndex = idx;
-
-  document.getElementById("bayarTanggal").value = 
-    new Date(p.createdAt.seconds * 1000).toISOString().slice(0,10);
-  document.getElementById("bayarJumlah").value = p.jumlah;
-  document.getElementById("bayarCatatan").value = p.catatan || "";
-
-  document.getElementById("modalBayar").style.display = "block";
-}
-
+  if (btn.classList.contains("btn-update-bayar")) {
+    currentPenjualanId = id;
+    document.getElementById("modalBayar").style.display = "block";
+  }
 
   if (btn.classList.contains("btn-update-status")) {
     alert("Update Status: " + id);
   }
 });
+
 
 document.getElementById("btnSimpanBayar").onclick = async () => {
   if (!currentPenjualanId) return;
