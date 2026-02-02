@@ -1,7 +1,9 @@
 import { db } from "./firebase.js";
 import {
   collection,
-  onSnapshot
+  onSnapshot,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 import {
@@ -13,10 +15,13 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+
 // =========================
 // FLAG ADMIN (DI SINI)
 // =========================
-const IS_ADMIN = true; // true = admin, false = user biasa
+const IS_ADMIN = false;           // true kalau admin
+const CURRENT_SALES = "sales1";  // ganti sesuai sales login
+
 
 let currentPenjualanId = null;
 let currentEditIndex = null;
@@ -37,7 +42,14 @@ window.closeModalBayar = closeModalBayar;
 
 const listEl = document.getElementById("list");
 
-onSnapshot(collection(db, "laporan_penjualan"), snap => {
+const colRef = collection(db, "laporan_penjualan");
+
+const q = IS_ADMIN
+  ? colRef
+  : query(colRef, where("sales", "==", CURRENT_SALES));
+
+onSnapshot(q, snap => {
+
   listEl.innerHTML = "";
 
   snap.docs.forEach(doc => {
