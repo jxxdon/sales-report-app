@@ -53,15 +53,21 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
           | HPP Rp ${x.hargaHPP.toLocaleString("id-ID")}
         </span>
       </div>
+      
+<div class="small">
+  ${x.namaPembeli} - ${x.noTelpPembeli || "-"}
+</div>
 
-      <div class="small">
-        ${x.namaPembeli} - ${x.noTelpPembeli || "-"}
-      </div>
+<div class="small">
+  Jumlah Dibayar :
+  Rp ${(x.jumlahPembayaran || 0).toLocaleString("id-ID")}
+</div>
 
-      <div class="small">
-        Sisa Pembayaran :
-        Rp ${(x.hargaJual - x.jumlahPembayaran).toLocaleString("id-ID")}
-      </div>
+<div class="small">
+  Sisa Pembayaran :
+  Rp ${(x.hargaJual - (x.jumlahPembayaran || 0)).toLocaleString("id-ID")}
+</div>
+
 
       <div class="status">
         Status : ${x.status || "Booking"}
