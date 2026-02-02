@@ -98,6 +98,45 @@
     .required {
       color: #ff6b6b;
     }
+
+    /* ===============================
+   PILIHAN PRODUK → CHIP MUNGIL
+================================ */
+
+.checkbox-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:8px 0 18px;
+}
+
+.checkbox-item{
+  padding:0;
+  border:none;
+  background:none;
+}
+
+.checkbox-item label{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 12px;
+  border:1.5px solid #d1d5db;
+  border-radius:999px;
+  font-size:12px;
+  cursor:pointer;
+  background:#f9fafb;
+}
+
+.checkbox-item input{
+  display:none;
+}
+
+.checkbox-item input:checked + span{
+  background:#5d5af8;
+  color:#fff;
+  border-color:#5d5af8;
+}
+
   </style>
 </head>
 
@@ -223,6 +262,7 @@
 <script type="module" src="dashboard.js"></script>
 </body>
 </html>
+
 
 
 
