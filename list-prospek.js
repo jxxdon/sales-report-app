@@ -290,17 +290,22 @@ function renderProgress(){
   });
 }
 
-let
-  onSnapshot(doc(db,"prospek",currentDocId),snap=>{
-    commentList.innerHTML="";
-    (snap.data().comments||[]).forEach(c=>{
-      commentList.innerHTML+=`
-        <div style="margin-bottom:12px">
-          <strong>${c.progress}</strong> - ${c.text}<br>
-          <small>${c.user} ; ${formatDate(c.createdAt)}</small>
-        </div>`;
-    });
-  });
+function loadComments(){
+  if (unsubscribeComments) unsubscribeComments(); // tutup listener lama
+
+  unsubscribeComments = onSnapshot(
+    doc(db,"prospek",currentDocId),
+    snap=>{
+      commentList.innerHTML="";
+      (snap.data().comments||[]).forEach(c=>{
+        commentList.innerHTML+=`
+          <div style="margin-bottom:12px">
+            <strong>${c.progress}</strong> - ${c.text}<br>
+            <small>${c.user} ; ${formatDate(c.createdAt)}</small>
+          </div>`;
+      });
+    }
+  );
 }
 
 /* =====================
