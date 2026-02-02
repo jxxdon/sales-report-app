@@ -15,6 +15,14 @@ import {
 
 let currentPenjualanId = null;
 let currentEditIndex = null;
+let currentStatusId = null;
+
+function closeModalStatus() {
+  document.getElementById("modalStatus").style.display = "none";
+  currentStatusId = null;
+}
+window.closeModalStatus = closeModalStatus;
+
 
 function closeModalBayar() {
   document.getElementById("modalBayar").style.display = "none";
@@ -230,46 +238,12 @@ listEl.addEventListener("click", async e => {
     document.getElementById("modalBayar").style.display = "block";
   }
 
- if (btn.classList.contains("btn-update-status")) {
-  const ref = doc(db, "laporan_penjualan", id);
-  const snap = await getDoc(ref);
-  const data = snap.data();
-
-  const statusList = [
-    "Booking",
-    "Down Payment",
-    "Proses Pelunasan",
-    "Lunas",
-    "Batal"
-  ];
-
-  const statusLama = data.status || "Booking";
-
-  const pilihan = prompt(
-    "Pilih Status:\n" +
-    statusList.map((s, i) => `${i + 1}. ${s}`).join("\n") +
-    `\n\nStatus sekarang: ${statusLama}`
-  );
-
-  const idx = Number(pilihan) - 1;
-
-  if (isNaN(idx) || !statusList[idx]) return;
-
-  const statusBaru = statusList[idx];
-
-  if (statusBaru === statusLama) return;
-
-  await updateDoc(ref, {
-    status: statusBaru,
-    riwayatUpdate: arrayUnion({
-      tanggal: new Date().toLocaleDateString("id-ID"),
-      catatan: `Status berubah dari ${statusLama} menjadi ${statusBaru}`,
-      createdAt: new Date()
-    })
-  });
-
+if (btn.classList.contains("btn-update-status")) {
+  currentStatusId = id;
+  document.getElementById("modalStatus").style.display = "block";
   return;
 }
+
 
 });
 
@@ -320,3 +294,33 @@ document.getElementById("btnSimpanBayar").onclick = async () => {
   currentEditIndex = null;
   closeModalBayar();
 };
+
+document
+  .querySelector("#modalStatus .status-options")
+  .addEventListener("click", async e => {
+    const btn = e.target.closest("button");
+    if (!btn || !currentStatusId) return;
+
+    const statusBaru = btn.dataset.status;
+
+    const ref = doc(db, "laporan_penjualan", currentStatusId);
+    const snap = await getDoc(ref);
+    const data = snap.data();
+
+    const statusLama = data.status || "Booking";
+    if (statusBaru === statusLama) {
+      closeModalStatus();
+      return;
+    }
+
+    await updateDoc(ref, {
+      status: statusBaru,
+      riwayatUpdate: arrayUnion({
+        tanggal: new Date().toLocaleDateString("id-ID"),
+        catatan: `Status berubah dari ${statusLama} menjadi ${statusBaru}`,
+        createdAt: new Date()
+      })
+    });
+
+    closeModalStatus();
+  });
