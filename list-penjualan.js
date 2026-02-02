@@ -9,7 +9,7 @@ import {
   getDoc,
   updateDoc,
   arrayUnion,
-  increment
+  increment,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -141,19 +141,6 @@ ${IS_ADMIN ? `
 listEl.addEventListener("click", async e => {
 
   /* ===== PRIORITAS: LINK EDIT / DELETE ===== */
-if (btn.classList.contains("btn-delete-penjualan")) {
-  if (!IS_ADMIN) return;
-
-  const id = btn.dataset.id;
-  if (!id) return;
-
-  if (!confirm("Yakin ingin menghapus data penjualan ini?")) return;
-
-  await deleteDoc(doc(db, "laporan_penjualan", id));
-
-  return;
-}
-
   
   if (e.target.classList.contains("pay-delete")) {
     e.preventDefault();
@@ -201,6 +188,18 @@ if (btn.classList.contains("btn-delete-penjualan")) {
   /* ===== BARU HANDLE BUTTON ===== */
   const btn = e.target.closest("button");
   if (!btn) return;
+  
+if (btn.classList.contains("btn-delete-penjualan")) {
+  if (!IS_ADMIN) return;
+
+  const id = btn.dataset.id;
+  if (!id) return;
+
+  if (!confirm("Yakin ingin menghapus data penjualan ini?")) return;
+
+  await deleteDoc(doc(db, "laporan_penjualan", id));
+  return;
+}
 
   const id = btn.dataset.id;
   if (!id) return;
