@@ -86,14 +86,25 @@ onSnapshot(collection(db, "laporan_penjualan"), snap => {
 </div>
 
 
-  ${(x.pembayaran || []).map((p, idx) => `
+  ${[
+  ...(x.riwayatUpdate || []),
+  ...(x.pembayaran || []).map(p => ({
+    tanggal: p.tanggal,
+    catatan: `${p.catatan || "-"} | Bayar : Rp ${p.jumlah.toLocaleString("id-ID")}`,
+    createdAt: p.createdAt
+  }))
+]
+.sort((a, b) => {
+  const ta = a.createdAt?.seconds || a.createdAt?.getTime?.() || 0;
+  const tb = b.createdAt?.seconds || b.createdAt?.getTime?.() || 0;
+  return tb - ta; // TERBARU DI ATAS
+})
+.map(h => `
   <div class="payment-note">
-    ${p.tanggal} | ${p.catatan || "-"} |
-    Bayar : Rp ${p.jumlah.toLocaleString("id-ID")}
-    <a href="#" class="pay-edit" data-id="${doc.id}" data-idx="${idx}">[edit]</a>
-    <a href="#" class="pay-delete" data-id="${doc.id}" data-idx="${idx}">[delete]</a>
+    ${h.tanggal} | ${h.catatan}
   </div>
 `).join("")}
+
 
 
     `;
