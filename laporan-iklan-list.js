@@ -33,21 +33,32 @@ onSnapshot(q, snap => {
     card.className = "card";
 
     card.innerHTML = `
-      <div><b>${x.platform}</b> | ${x.tipeIklan} | ${x.sales}</div>
-      <div>Periode:
-        ${x.startDate.toDate().toLocaleDateString("id-ID")} -
-        ${x.endDate.toDate().toLocaleDateString("id-ID")}
-      </div>
-      <div>Lead: ${x.jumlahLead}</div>
-      <div>CPL: Rp ${x.cpl.toLocaleString("id-ID")}</div>
+  <div><b>${x.platform}</b> | ${x.tipeIklan} | ${x.sales}</div>
 
-      <button onclick="editLaporan('${id}', ${x.anggaran}, ${x.jumlahLead})">
-        Edit
-      </button>
-      <button onclick="hapusLaporan('${id}')">
-        Hapus
-      </button>
-    `;
+  <div>Tanggal Laporan:
+    ${x.createdAt.toDate().toLocaleDateString("id-ID")}
+  </div>
+
+  <div>Periode Iklan:
+    ${x.startDate.toDate().toLocaleDateString("id-ID")} -
+    ${x.endDate.toDate().toLocaleDateString("id-ID")}
+  </div>
+
+  <div>Dana Dihabiskan:
+    Rp ${x.anggaran.toLocaleString("id-ID")}
+  </div>
+
+  <div>Lead: ${x.jumlahLead}</div>
+  <div>CPL: Rp ${x.cpl.toLocaleString("id-ID")}</div>
+
+  <button onclick="editLaporan('${id}', ${x.anggaran}, ${x.jumlahLead})">
+    Edit
+  </button>
+  <button onclick="hapusLaporan('${id}')">
+    Hapus
+  </button>
+`;
+
 
     listEl.appendChild(card);
   });
