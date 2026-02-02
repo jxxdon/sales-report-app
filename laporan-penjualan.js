@@ -26,8 +26,13 @@ onSnapshot(collection(db, "prospek"), snap => {
 /* ===== INIT TIPE UNIT (DARI tipeTertarik) ===== */
 function initTipeUnit() {
   const set = new Set();
+
   prospek.forEach(p => {
-    (p.tipeTertarik || []).forEach(t => set.add(t));
+    (p.tipeTertarik || []).forEach(t => {
+      if (t && t.toLowerCase() !== "tertarik") {
+        set.add(t);
+      }
+    });
   });
 
   tipeUnitEl.innerHTML = "";
@@ -38,6 +43,7 @@ function initTipeUnit() {
     tipeUnitEl.appendChild(opt);
   });
 }
+
 
 /* ===== INIT SALES ===== */
 function initSales() {
