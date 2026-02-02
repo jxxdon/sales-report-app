@@ -221,7 +221,6 @@ const idx = Number(del.dataset.idx);
   if (!btn) return;
   
 if (btn.classList.contains("btn-delete-penjualan")) {
-  if (!isAdmin) return;
 
   const id = btn.dataset.id;
   if (!id) return;
