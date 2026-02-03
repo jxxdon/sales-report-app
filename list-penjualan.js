@@ -45,6 +45,71 @@ window.closeModalBayar = closeModalBayar;
 const listEl = document.getElementById("list");
 const searchEl = document.getElementById("searchPembeli");
 let allDocs = [];
+function hitungRekap(docs) {
+  const now = new Date();
+  const bulan = now.getMonth();
+  const tahun = now.getFullYear();
+
+  const hasil = {
+    bi:{u:0,o:0,h:0}, bl:{u:0,o:0,h:0},
+    ti:{u:0,o:0,h:0}, tl:{u:0,o:0,h:0}
+  };
+
+  docs.forEach(d => {
+    const x = d.data();
+    if (x.status === "Batal") return;          // ❌ batal tidak dihitung
+    if (!x.hargaJual) return;
+
+    const t = x.tanggalBooking?.toDate?.();
+    if (!t) return;
+
+    const b = t.getMonth();
+    const y = t.getFullYear();
+
+    const unit = 1; // ✔️ setiap card = 1 unit
+
+    if (y === tahun && b === bulan) {
+      hasil.bi.u += unit;
+      hasil.bi.o += x.hargaJual;
+      hasil.bi.h += x.hargaHPP;
+    }
+
+    if (y === tahun && b === bulan-1) {
+      hasil.bl.u += unit;
+      hasil.bl.o += x.hargaJual;
+      hasil.bl.h += x.hargaHPP;
+    }
+
+    if (y === tahun) {
+      hasil.ti.u += unit;
+      hasil.ti.o += x.hargaJual;
+      hasil.ti.h += x.hargaHPP;
+    }
+
+    if (y === tahun-1) {
+      hasil.tl.u += unit;
+      hasil.tl.o += x.hargaJual;
+      hasil.tl.h += x.hargaHPP;
+    }
+  });
+
+  const rp = n => "Rp " + n.toLocaleString("id-ID");
+
+  document.getElementById("bi-unit").textContent = hasil.bi.u;
+  document.getElementById("bl-unit").textContent = hasil.bl.u;
+  document.getElementById("bi-omset").textContent = rp(hasil.bi.o);
+  document.getElementById("bl-omset").textContent = rp(hasil.bl.o);
+  document.getElementById("bi-hpp").textContent = rp(hasil.bi.h);
+  document.getElementById("bl-hpp").textContent = rp(hasil.bl.h);
+
+  document.getElementById("ti-unit").textContent = hasil.ti.u;
+  document.getElementById("tl-unit").textContent = hasil.tl.u;
+  document.getElementById("ti-omset").textContent = rp(hasil.ti.o);
+  document.getElementById("tl-omset").textContent = rp(hasil.tl.o);
+  document.getElementById("ti-hpp").textContent = rp(hasil.ti.h);
+  document.getElementById("tl-hpp").textContent = rp(hasil.tl.h);
+}
+
 
 onAuthStateChanged(auth, u => {
   if (!u) {
@@ -66,7 +131,8 @@ onAuthStateChanged(auth, u => {
 
  onSnapshot(q, snap => {
   allDocs = snap.docs;
-
+hitungRekap(snap.docs);
+   
   if (!snap.size) {
     listEl.innerHTML = "<p>Belum ada data penjualan</p>";
     return;
