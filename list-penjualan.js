@@ -65,10 +65,9 @@ onAuthStateChanged(auth, u => {
     : query(colRef, where("sales", "==", user));
 
   onSnapshot(q, snap => {
-
- allDocs = snap.docs;
-renderList(allDocs);
-
+  allDocs = snap.docs;
+  tampilkanData(allDocs);
+});
     
     const x = doc.data();
 
@@ -395,24 +394,6 @@ await updateDoc(ref, updateData);
     closeModalStatus();
   });
 
-function renderList(docs) {
-  listEl.innerHTML = "";
-
-  docs.forEach(doc => {
-    const x = doc.data();
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <div class="header">
-        ${x.namaPembeli || "-"}
-      </div>
-      <!-- isi card lama kamu BIARKAN -->
-    `;
-
-    listEl.appendChild(card);
-  });
-}
 
 searchEl.addEventListener("input", e => {
   const keyword = e.target.value.toLowerCase();
