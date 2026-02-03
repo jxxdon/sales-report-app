@@ -368,14 +368,25 @@ document
       return;
     }
 
-    await updateDoc(ref, {
-      status: statusBaru,
-      riwayatUpdate: arrayUnion({
-        tanggal: new Date().toLocaleDateString("id-ID"),
-        catatan: `Status berubah dari ${statusLama} menjadi ${statusBaru}`,
-        createdAt: new Date()
-      })
-    });
+   const updateData = {
+  status: statusBaru,
+  riwayatUpdate: arrayUnion({
+    tanggal: new Date().toLocaleDateString("id-ID"),
+    catatan: `Status berubah dari ${statusLama} menjadi ${statusBaru}`,
+    createdAt: new Date()
+  })
+};
+
+// KHUSUS JIKA BATAL
+if (statusBaru === "Batal") {
+  updateData.hargaJual = 0;
+  updateData.hargaHPP = 0;
+  updateData.jumlahPembayaran = 0;
+  updateData.pembayaran = [];
+}
+
+await updateDoc(ref, updateData);
+
 
     closeModalStatus();
   });
