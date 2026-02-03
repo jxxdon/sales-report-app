@@ -18,9 +18,9 @@ let currentId = null;
 let currentLead = 0;
 
 const q = query(
-  collection(db, "laporan_iklan"),
-  orderBy("createdAt", "desc")
+  collection(db, "laporan_iklan")
 );
+
 
 onSnapshot(q, snap => {
   listEl.innerHTML = "";
