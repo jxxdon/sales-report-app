@@ -67,7 +67,7 @@ onAuthStateChanged(auth, u => {
   onSnapshot(q, snap => {
   allDocs = snap.docs;
   tampilkanData(allDocs);
-});
+
     
     const x = doc.data();
 
@@ -160,6 +160,7 @@ ${isAdmin ? `
 
     listEl.appendChild(card);
   });
+});
 
   if (!snap.size) {
     listEl.innerHTML = "<p>Belum ada data penjualan</p>";
