@@ -404,5 +404,6 @@ searchEl.addEventListener("input", e => {
       .includes(keyword)
   );
 
-  renderList(filtered);
+  tampilkanData(filtered);
+
 });
