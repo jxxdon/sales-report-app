@@ -81,7 +81,7 @@ const statusFinal = statusMap[rawStatus] || "Booking";
 statusCount[statusFinal] += 1;
 
     
-    if (x.status === "Batal") return;          // ❌ batal tidak dihitung
+   if (statusFinal === "Batal") return;          // ❌ batal tidak dihitung
     if (!x.hargaJual) return;
 
     const t = x.tanggalBooking?.toDate?.();
