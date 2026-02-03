@@ -86,4 +86,29 @@ namaPembeliEl.onblur = () => {
 
 /* ===== SIMPAN ===== */
 btnSimpan.onclick = async () => {
+  try {
+    await addDoc(collection(db, "laporan_penjualan"), {
+      tanggalBooking: tanggalBookingEl.value,
+      namaPembeli: namaPembeliEl.value,
+      telpPembeli: telpPembeliEl.value,
+      tipeUnit: tipeUnitEl.value,
+      noBlok: noBlokEl.value,
+      hargaJual: Number(hargaJualEl.value || 0),
+      hargaHPP: Number(hargaHPPEl.value || 0),
+      sales: salesEl.value,
+      jumlahBayar: Number(bayarEl.value || 0),
+      caraBayar: caraBayarEl.value,
+      inclPPN: inclPPNEl.checked,
+      inclBPHTB: inclBPHTBEl.checked,
+      inclAJB: inclAJBEl.checked,
+      catatan: catatanEl.value,
+      createdAt: new Date()
+    });
+
+    alert("Penjualan berhasil disimpan");
+  } catch (err) {
+    console.error(err);
+    alert("Gagal simpan penjualan");
+  }
 };
+
