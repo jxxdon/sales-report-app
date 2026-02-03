@@ -43,6 +43,8 @@ function closeModalBayar() {
 window.closeModalBayar = closeModalBayar;
 
 const listEl = document.getElementById("list");
+const searchEl = document.getElementById("searchPembeli");
+let allDocs = [];
 
 onAuthStateChanged(auth, u => {
   if (!u) {
@@ -64,9 +66,10 @@ onAuthStateChanged(auth, u => {
 
   onSnapshot(q, snap => {
 
-  listEl.innerHTML = "";
+ allDocs = snap.docs;
+renderList(allDocs);
 
-  snap.docs.forEach(doc => {
+    
     const x = doc.data();
 
     const tanggal =
@@ -391,3 +394,34 @@ await updateDoc(ref, updateData);
 
     closeModalStatus();
   });
+
+function renderList(docs) {
+  listEl.innerHTML = "";
+
+  docs.forEach(doc => {
+    const x = doc.data();
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="header">
+        ${x.namaPembeli || "-"}
+      </div>
+      <!-- isi card lama kamu BIARKAN -->
+    `;
+
+    listEl.appendChild(card);
+  });
+}
+
+searchEl.addEventListener("input", e => {
+  const keyword = e.target.value.toLowerCase();
+
+  const filtered = allDocs.filter(d =>
+    (d.data().namaPembeli || "")
+      .toLowerCase()
+      .includes(keyword)
+  );
+
+  renderList(filtered);
+});
