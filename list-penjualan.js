@@ -64,11 +64,15 @@ onAuthStateChanged(auth, u => {
     ? colRef
     : query(colRef, where("sales", "==", user));
 
-  onSnapshot(q, snap => {
+ onSnapshot(q, snap => {
   allDocs = snap.docs;
-  tampilkanData(allDocs);
 
-    
+  if (!snap.size) {
+    listEl.innerHTML = "<p>Belum ada data penjualan</p>";
+    return;
+  }
+
+  snap.docs.forEach(doc => {
     const x = doc.data();
 
     const tanggal =
@@ -162,11 +166,7 @@ ${isAdmin ? `
   });
 });
 
-  if (!snap.size) {
-    listEl.innerHTML = "<p>Belum ada data penjualan</p>";
-  }
-});
-});
+ 
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
 listEl.addEventListener("click", async e => {
