@@ -59,6 +59,28 @@
       border-left:3px solid #ddd;
       padding-left:8px;
     }
+    @media (max-width: 600px) {
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .actions .btn {
+    width: 100%;
+    padding: 6px 4px;
+    font-size: 0.75em;
+    text-align: center;
+  }
+
+  /* tombol delete full lebar di bawah */
+  .actions .btn-delete-penjualan {
+    grid-column: 1 / -1;
+  }
+
+}
+
   </style>
 </head>
 <body>
