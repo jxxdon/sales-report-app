@@ -1,8 +1,11 @@
 import { db } from "./firebase.js";
 import {
   collection,
-  onSnapshot,
-  addDoc
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ===== ELEMENT ===== */
@@ -82,30 +85,3 @@ namaPembeliEl.onblur = () => {
 
 /* ===== SIMPAN ===== */
 btnSimpan.onclick = async () => {
-  if (!tanggalBookingEl.value || !namaPembeliEl.value) {
-    alert("Lengkapi data wajib");
-    return;
-  }
-
-  await addDoc(collection(db, "laporan_penjualan"), {
-    tanggalBooking: new Date(tanggalBookingEl.value),
-    namaPembeli: namaPembeliEl.value,
-    noTelpPembeli: telpPembeliEl.value,
-    tipeUnit: tipeUnitEl.value,
-    noBlok: noBlokEl.value,
-    hargaJual: Number(hargaJualEl.value),
-    hargaHPP: Number(hargaHPPEl.value),
-    sales: salesEl.value,
-    jumlahPembayaran: Number(bayarEl.value),
-    caraBayar: caraBayarEl.value,
-    termasuk: {
-      ppn: inclPPNEl.checked,
-      bphtb: inclBPHTBEl.checked,
-      ajb: inclAJBEl.checked
-    },
-    catatan: catatanEl.value || "",
-    createdAt: new Date()
-  });
-
-  alert("Laporan penjualan tersimpan");
-};
