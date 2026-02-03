@@ -132,6 +132,13 @@ statusCount[statusFinal] += 1;
   document.getElementById("tl-omset").textContent = rp(hasil.tl.o);
   document.getElementById("ti-hpp").textContent = rp(hasil.ti.h);
   document.getElementById("tl-hpp").textContent = rp(hasil.tl.h);
+
+document.getElementById("st-booking").textContent = statusCount.Booking;
+document.getElementById("st-dp").textContent = statusCount["Down Payment"];
+document.getElementById("st-proses").textContent = statusCount["Proses Pelunasan"];
+document.getElementById("st-lunas").textContent = statusCount.Lunas;
+document.getElementById("st-batal").textContent = statusCount.Batal;
+
 }
 
 
