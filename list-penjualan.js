@@ -382,6 +382,7 @@ if (statusBaru === "Batal") {
   updateData.hargaJual = 0;
   updateData.hargaHPP = 0;
   updateData.jumlahPembayaran = 0;
+  updateData.sisaPembayaran = 0;
   updateData.pembayaran = [];
 }
 
