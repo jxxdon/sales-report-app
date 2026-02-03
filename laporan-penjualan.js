@@ -88,7 +88,7 @@ namaPembeliEl.onblur = () => {
 btnSimpan.onclick = async () => {
   try {
     await addDoc(collection(db, "laporan_penjualan"), {
-      tanggalBooking: tanggalBookingEl.value,
+      tanggalBooking: new Date(tanggalBookingEl.value),
       namaPembeli: namaPembeliEl.value,
       telpPembeli: telpPembeliEl.value,
       tipeUnit: tipeUnitEl.value,
