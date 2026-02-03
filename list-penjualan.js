@@ -158,15 +158,12 @@ ${isAdmin ? `
   </div>
 `).join("")}
 
-
-
     `;
 
     listEl.appendChild(card);
   });
 });
 
- 
 
 // ===== EVENT TOMBOL CARD (WAJIB DI LUAR onSnapshot) =====
 listEl.addEventListener("click", async e => {
