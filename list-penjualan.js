@@ -67,10 +67,19 @@ function hitungRekap(docs) {
     const x = d.data();
 
 // ✅ HITUNG STATUS DULU (1 card = 1 orang)
-  const status = x.status || "Booking";
-  if (statusCount[status] !== undefined) {
-    statusCount[status] += 1;
-  }
+ const rawStatus = (x.status || "Booking").toString().trim().toLowerCase();
+
+const statusMap = {
+  booking: "Booking",
+  "down payment": "Down Payment",
+  "proses pelunasan": "Proses Pelunasan",
+  lunas: "Lunas",
+  batal: "Batal"
+};
+
+const statusFinal = statusMap[rawStatus] || "Booking";
+statusCount[statusFinal] += 1;
+
     
     if (x.status === "Batal") return;          // ❌ batal tidak dihitung
     if (!x.hargaJual) return;
