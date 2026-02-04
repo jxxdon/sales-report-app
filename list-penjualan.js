@@ -56,12 +56,13 @@ function hitungRekap(docs) {
   };
 
   const statusCount = {
-    Booking: 0,
-    "Down Payment": 0,
-    "Proses Pelunasan": 0,
-    Lunas: 0,
-    Batal: 0
-  };
+  Booking: 0,
+  "Down Payment": 0,
+  "Proses Pelunasan": 0,
+  Lunas: 0,
+  "Serah Terima": 0,
+  Batal: 0
+};
   
   docs.forEach(d => {
     const x = d.data();
@@ -74,6 +75,7 @@ const statusMap = {
   "down payment": "Down Payment",
   "proses pelunasan": "Proses Pelunasan",
   lunas: "Lunas",
+  "serah terima": "Serah Terima",
   batal: "Batal"
 };
 
@@ -137,6 +139,7 @@ document.getElementById("st-booking").textContent = statusCount.Booking;
 document.getElementById("st-dp").textContent = statusCount["Down Payment"];
 document.getElementById("st-proses").textContent = statusCount["Proses Pelunasan"];
 document.getElementById("st-lunas").textContent = statusCount.Lunas;
+document.getElementById("st-serah").textContent = statusCount["Serah Terima"];
 document.getElementById("st-batal").textContent = statusCount.Batal;
 
 }
