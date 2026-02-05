@@ -84,14 +84,15 @@ function render(){
     if(!hariPakai) return;
 
     const tipeUnit = x.tipeUnit || "Umum";
-
+    const anggaran = Number(x.anggaran||0);
+    
     danaByTipeUnit[tipeUnit] ??= 0;
     danaByTipeUnit[tipeUnit] +=
     (hariPakai === totalHari)
     ? anggaran
     : anggaran * (hariPakai / totalHari);
 
-    const anggaran = Number(x.anggaran||0);
+   
     total += (hariPakai===totalHari)
       ? anggaran
       : anggaran*(hariPakai/totalHari);
@@ -112,7 +113,6 @@ function render(){
       </div>
     </div>
   `;
-}
 const listTipe = Object.entries(danaByTipeUnit)
   .sort((a,b)=>b[1]-a[1]);
 
@@ -150,3 +150,5 @@ hasil.innerHTML += `
     </table>
   </div>
 `;
+}
+
