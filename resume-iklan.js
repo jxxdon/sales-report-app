@@ -83,7 +83,7 @@ function render(){
     const hariPakai = irisanHari(start,end,rangeStart,rangeEnd);
     if(!hariPakai) return;
 
-    const tipeUnit = x.tipeUnit || "Umum";
+    const tipeUnit = x.tipeIklan || "Umum";
     const anggaran = Number(x.anggaran||0);
     
     danaByTipeUnit[tipeUnit] ??= 0;
