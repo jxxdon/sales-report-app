@@ -20,9 +20,9 @@ let laporanIklan = [];
   const now = new Date();
   const y = now.getFullYear();
 
-  elBulan.innerHTML = BULAN
-    .map((b,i)=>`<option value="${i}">${b}</option>`)
-    .join("");
+  elBulan.innerHTML =
+  `<option value="all">Tahunan</option>` +
+  BULAN.map((b,i)=>`<option value="${i}">${b}</option>`).join("");
 
   elTahun.innerHTML =
     Array.from({length:6},(_,i)=>y-i)
@@ -64,11 +64,18 @@ function render(){
     return;
   }
 
-  const bulan = Number(elBulan.value);
-  const tahun = Number(elTahun.value);
+const bulanValue = elBulan.value;
 
-  const rangeStart = new Date(tahun,bulan,1);
-  const rangeEnd   = new Date(tahun,bulan+1,0,23,59,59);
+const rangeStart =
+  bulanValue === "all"
+    ? new Date(tahun, 0, 1)
+    : new Date(tahun, Number(bulanValue), 1);
+
+const rangeEnd =
+  bulanValue === "all"
+    ? new Date(tahun, 11, 31, 23, 59, 59)
+    : new Date(tahun, Number(bulanValue) + 1, 0, 23, 59, 59);
+
 
   let total = 0;
   danaByTipeUnit = {};
@@ -106,7 +113,10 @@ function render(){
       : anggaran*(hariPakai/totalHari);
   });
 
-  const hariBulan = new Date(tahun,bulan+1,0).getDate();
+ const hariPeriode =
+  bulanValue === "all"
+    ? jumlahHari(rangeStart, rangeEnd)
+    : new Date(tahun, Number(bulanValue)+1, 0).getDate();
 
   hasil.innerHTML = `
     <div class="box">
