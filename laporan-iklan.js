@@ -100,8 +100,8 @@ function render() {
 
     if (!hariTerpakai || !totalHari) return;
 
-    const danaTotal = Number(x.danaDihabiskan ?? x.anggaran ?? 0);
-    if (!danaTotal) return;
+   const danaTotal = Number(x.anggaran || 0);
+
 
     const danaPakai = (hariTerpakai === totalHari)
       ? danaTotal
