@@ -1,45 +1,46 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Resume Iklan</title>
-  <div style="margin-bottom:16px">
-    <a href="laporan-iklan.html">
-    <button>⬅️ Kembali ke Input Laporan</button>
-  </a>
-  <a href="laporan-iklan-list.html">
-    <button>⬅️ Kembali ke Daftar Laporan</button>
-  </a>
-</div>
+  <meta charset="UTF-8" />
+  <title>Rekap Laporan Iklan</title>
   <style>
-    body { font-family:sans-serif; background:#f3f4f6; padding:24px }
-    h2 { margin-top:0 }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      padding: 20px;
+    }
     .box {
-      background:#fff;
-      padding:16px;
-      border-radius:12px;
-      margin-bottom:16px;
-      box-shadow:0 6px 20px rgba(0,0,0,.08)
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
     }
     .row {
-      display:flex;
-      justify-content:space-between;
-      margin:6px 0;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
     }
-    select { padding:8px; margin-right:8px }
+    select {
+      padding: 6px 10px;
+      margin-right: 8px;
+    }
+    h2, h3 {
+      margin: 0 0 10px;
+    }
   </style>
 </head>
 <body>
 
-<h2>Resume Iklan</h2>
+  <h2>Rekap Laporan Iklan</h2>
 
-<select id="filterTahun"></select>
-<select id="filterBulan">
-  <option value="all">Tahunan</option>
-</select>
+  <div class="box">
+    <select id="filterBulan"></select>
+    <select id="filterTahun"></select>
+  </div>
 
-<div id="content"></div>
+  <div id="hasil"></div>
 
-<script type="module" src="resume-iklan.js"></script>
+  <script type="module" src="resume-iklan.js"></script>
 </body>
 </html>
