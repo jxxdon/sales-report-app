@@ -42,13 +42,23 @@ onSnapshot(collection(db, "laporan_iklan"), snap => {
 filterTahun.onchange = render;
 filterBulan.onchange = render;
 
+/* ================= AMBIL TANGGAL LAPORAN (AMAN) ================= */
+function ambilTanggalLaporan(x) {
+  if (x.tanggalLaporan?.toDate) return x.tanggalLaporan.toDate();
+  if (x.createdAt?.toDate) return x.createdAt.toDate();
+  if (x.timestamp?.toDate) return x.timestamp.toDate();
+  return null; // data lama
+}
+
 /* ================= RENDER ================= */
 function render() {
   const tahun = Number(filterTahun.value);
   const bulan = filterBulan.value;
 
   const data = laporan.filter(x => {
-    const tgl = x.tanggalLaporan.toDate();
+    const tgl = ambilTanggalLaporan(x);
+    if (!tgl) return true; // data lama tetap dihitung
+
     if (tgl.getFullYear() !== tahun) return false;
     if (bulan === "all") return true;
     return tgl.getMonth() === Number(bulan);
@@ -77,13 +87,17 @@ function render() {
       totalWalkIn += lead;
     }
 
-    bySales[x.sales] ??= { dana: 0, lead: 0 };
-    bySales[x.sales].dana += dana;
-    bySales[x.sales].lead += lead;
+    // === PER SALES ===
+    const sales = x.sales || "ALL";
+    bySales[sales] ??= { dana: 0, lead: 0 };
+    bySales[sales].dana += dana;
+    bySales[sales].lead += lead;
 
-    byTipe[x.tipeIklan] ??= { dana: 0, lead: 0 };
-    byTipe[x.tipeIklan].dana += dana;
-    byTipe[x.tipeIklan].lead += lead;
+    // === PER TIPE IKLAN ===
+    const tipe = x.tipeIklan || "-";
+    byTipe[tipe] ??= { dana: 0, lead: 0 };
+    byTipe[tipe].dana += dana;
+    byTipe[tipe].lead += lead;
   });
 
   /* ================= OUTPUT ================= */
