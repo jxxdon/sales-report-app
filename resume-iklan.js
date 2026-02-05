@@ -63,7 +63,7 @@ function render(){
     hasil.innerHTML = "<p>Data iklan belum ada</p>";
     return;
   }
-
+const tahun = Number(elTahun.value);
 const bulanValue = elBulan.value;
 
 const rangeStart =
@@ -120,15 +120,28 @@ const rangeEnd =
 
   hasil.innerHTML = `
     <div class="box">
-      <h3>Bulan Berjalan : ${BULAN[bulan]} ${tahun}</h3>
-      <div class="row">
-        <b>Total Anggaran Iklan</b>
-        <span>Rp ${Math.round(total).toLocaleString("id-ID")},-</span>
-      </div>
-      <div class="row">
-        <b>Rata-rata Anggaran per Hari</b>
-        <span>Rp ${Math.round(total/hariBulan).toLocaleString("id-ID")},-</span>
-      </div>
+  <h3>
+    Periode :
+    ${bulanValue === "all"
+      ? "Tahun " + tahun
+      : BULAN[Number(bulanValue)] + " " + tahun}
+  </h3>
+
+  <div class="row">
+    <b>Total Anggaran Iklan</b>
+    <span>
+      Rp ${Math.round(total).toLocaleString("id-ID")},-
+    </span>
+  </div>
+
+  <div class="row">
+    <b>Rata-rata Anggaran per Hari</b>
+    <span>
+      Rp ${Math.round(total / hariPeriode).toLocaleString("id-ID")},-
+    </span>
+  </div>
+</div>
+
     </div>
   `;
 const listTipe = Object.entries(danaByTipeUnit)
