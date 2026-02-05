@@ -4,7 +4,7 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const contentEl  = document.getElementById("content");
+const contentEl   = document.getElementById("content");
 const filterTahun = document.getElementById("filterTahun");
 const filterBulan = document.getElementById("filterBulan");
 
@@ -42,33 +42,16 @@ onSnapshot(collection(db, "laporan_iklan"), snap => {
 filterTahun.onchange = render;
 filterBulan.onchange = render;
 
-/* ================= HELPER ================= */
-function hitungIrisanHari(start, end, rangeStart, rangeEnd) {
-  const s = start > rangeStart ? start : rangeStart;
-  const e = end   < rangeEnd   ? end   : rangeEnd;
-  if (s > e) return 0;
-  return Math.floor((e - s) / 86400000) + 1;
-}
-
 /* ================= RENDER ================= */
 function render() {
   const tahun = Number(filterTahun.value);
   const bulan = filterBulan.value;
 
-  const rangeStart =
-    bulan === "all"
-      ? new Date(tahun, 0, 1)
-      : new Date(tahun, Number(bulan), 1);
-
-  const rangeEnd =
-    bulan === "all"
-      ? new Date(tahun, 11, 31, 23, 59, 59)
-      : new Date(tahun, Number(bulan) + 1, 0, 23, 59, 59);
-
   const data = laporan.filter(x => {
-    const start = x.startDate.toDate();
-    const end   = x.endDate.toDate();
-    return start <= rangeEnd && end >= rangeStart;
+    const tgl = x.tanggalLaporan.toDate();
+    if (tgl.getFullYear() !== tahun) return false;
+    if (bulan === "all") return true;
+    return tgl.getMonth() === Number(bulan);
   });
 
   if (!data.length) {
@@ -76,7 +59,6 @@ function render() {
     return;
   }
 
-  /* ===== AKUMULATOR ===== */
   let totalDana = 0;
   let totalLead = 0;
   let totalWalkIn = 0;
@@ -84,61 +66,27 @@ function render() {
   const bySales = {};
   const byTipe  = {};
 
-  /* ===== HITUNG ===== */
   data.forEach(x => {
-    const start = x.startDate.toDate();
-    const end   = x.endDate.toDate();
+    const dana = Number(x.danaDihabiskan || 0);
+    const lead = Number(x.jumlahLead || 0);
 
-    const totalHari =
-      Math.floor((end - start) / 86400000) + 1;
-
-    const hariTerpakai =
-      hitungIrisanHari(start, end, rangeStart, rangeEnd);
-
-    if (!hariTerpakai || !totalHari) return;
-
-    const fullInside =
-      start >= rangeStart && end <= rangeEnd;
-
-    let danaPakai = 0;
-    let leadPakai = 0;
-
-    if (fullInside) {
-      danaPakai = x.anggaran;
-      leadPakai = x.jumlahLead;
-    } else {
-      const rasio = hariTerpakai / totalHari;
-      danaPakai = x.anggaran * rasio;
-      leadPakai = x.jumlahLead * rasio;
-    }
-
-    // ===== TOTAL =====
-    totalDana += danaPakai;
-    totalLead += leadPakai;
+    totalDana += dana;
+    totalLead += lead;
 
     if (x.tipeIklan === "Umum") {
-      totalWalkIn += leadPakai;
+      totalWalkIn += lead;
     }
 
-    // ===== PER SALES =====
     bySales[x.sales] ??= { dana: 0, lead: 0 };
-    bySales[x.sales].dana += danaPakai;
-    bySales[x.sales].lead += leadPakai;
+    bySales[x.sales].dana += dana;
+    bySales[x.sales].lead += lead;
 
-    // ===== PER TIPE =====
     byTipe[x.tipeIklan] ??= { dana: 0, lead: 0 };
-    byTipe[x.tipeIklan].dana += danaPakai;
-    byTipe[x.tipeIklan].lead += leadPakai;
+    byTipe[x.tipeIklan].dana += dana;
+    byTipe[x.tipeIklan].lead += lead;
   });
 
-  /* ===== PEMBULATAN ===== */
-  totalLead = Math.round(totalLead);
-  totalWalkIn = Math.round(totalWalkIn);
-
-  Object.values(bySales).forEach(v => v.lead = Math.round(v.lead));
-  Object.values(byTipe).forEach(v => v.lead = Math.round(v.lead));
-
-  /* ===== OUTPUT ===== */
+  /* ================= OUTPUT ================= */
   contentEl.innerHTML = `
     <div class="box">
       <h3>Ringkasan Total</h3>
