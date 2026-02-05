@@ -1,132 +1,96 @@
-import { db } from "./firebase.js";
-import {
-  collection,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { laporanIklan } from "./laporan-iklan.js";
 
-const contentEl   = document.getElementById("content");
-const filterTahun = document.getElementById("filterTahun");
-const filterBulan = document.getElementById("filterBulan");
+const elBulan = document.getElementById("filterBulan");
+const elTahun = document.getElementById("filterTahun");
+const hasil   = document.getElementById("hasil");
 
 const BULAN = [
   "Januari","Februari","Maret","April","Mei","Juni",
   "Juli","Agustus","September","Oktober","November","Desember"
 ];
 
-let laporan = [];
-
 /* ================= INIT FILTER ================= */
 (function initFilter(){
   const now = new Date();
-  const y = now.getFullYear();
+  const tahunSekarang = now.getFullYear();
 
-  filterTahun.innerHTML =
-    Array.from({ length: 6 }, (_, i) =>
-      `<option value="${y - i}">${y - i}</option>`
-    ).join("");
+  elBulan.innerHTML = BULAN
+    .map((b,i)=>`<option value="${i}">${b}</option>`)
+    .join("");
 
-  filterBulan.innerHTML =
-    `<option value="all">Tahunan</option>` +
-    BULAN.map((b, i) => `<option value="${i}">${b}</option>`).join("");
+  elTahun.innerHTML =
+    Array.from({length:6},(_,i)=>tahunSekarang-i)
+      .map(y=>`<option value="${y}">${y}</option>`)
+      .join("");
 
-  filterTahun.value = y;
-  filterBulan.value = "all";
+  elBulan.value = now.getMonth();
+  elTahun.value = tahunSekarang;
 })();
 
-/* ================= LOAD DATA ================= */
-onSnapshot(collection(db, "laporan_iklan"), snap => {
-  laporan = snap.docs.map(d => d.data());
-  render();
-});
+elBulan.onchange = render;
+elTahun.onchange = render;
 
-filterTahun.onchange = render;
-filterBulan.onchange = render;
+/* ================= HELPER ================= */
+function jumlahHari(d1, d2){
+  return Math.floor((d2 - d1) / 86400000) + 1;
+}
 
-/* ================= AMBIL TANGGAL LAPORAN (AMAN) ================= */
-function ambilTanggalLaporan(x) {
-  if (x.tanggalLaporan?.toDate) return x.tanggalLaporan.toDate();
-  if (x.createdAt?.toDate) return x.createdAt.toDate();
-  if (x.timestamp?.toDate) return x.timestamp.toDate();
-  return null; // data lama
+function irisanHari(start, end, rangeStart, rangeEnd){
+  const s = start > rangeStart ? start : rangeStart;
+  const e = end   < rangeEnd   ? end   : rangeEnd;
+  if (s > e) return 0;
+  return jumlahHari(s, e);
 }
 
 /* ================= RENDER ================= */
-function render() {
-  const tahun = Number(filterTahun.value);
-  const bulan = filterBulan.value;
+function render(){
+  const bulan = Number(elBulan.value);
+  const tahun = Number(elTahun.value);
 
-  const data = laporan.filter(x => {
-    const tgl = ambilTanggalLaporan(x);
-    if (!tgl) return true; // data lama tetap dihitung
+  const rangeStart = new Date(tahun, bulan, 1);
+  const rangeEnd   = new Date(tahun, bulan + 1, 0, 23, 59, 59);
 
-    if (tgl.getFullYear() !== tahun) return false;
-    if (bulan === "all") return true;
-    return tgl.getMonth() === Number(bulan);
+  let totalAnggaran = 0;
+
+  laporanIklan.forEach(item => {
+    if (!item.startDate || !item.endDate) return;
+
+    const start = new Date(item.startDate);
+    const end   = new Date(item.endDate);
+
+    const totalHariIklan = jumlahHari(start, end);
+    const hariPakai = irisanHari(start, end, rangeStart, rangeEnd);
+
+    if (!hariPakai) return;
+
+    const anggaran = Number(item.anggaran || 0);
+
+    const nilai =
+      hariPakai === totalHariIklan
+        ? anggaran
+        : anggaran * (hariPakai / totalHariIklan);
+
+    totalAnggaran += nilai;
   });
 
-  if (!data.length) {
-    contentEl.innerHTML = "<p>Tidak ada data</p>";
-    return;
-  }
+  const hariDalamBulan = new Date(tahun, bulan + 1, 0).getDate();
+  const rataPerHari = totalAnggaran / hariDalamBulan;
 
-  let totalDana = 0;
-  let totalLead = 0;
-  let totalWalkIn = 0;
-
-  const bySales = {};
-  const byTipe  = {};
-
-  data.forEach(x => {
-    const dana = Number(x.danaDihabiskan || 0);
-    const lead = Number(x.jumlahLead || 0);
-
-    totalDana += dana;
-    totalLead += lead;
-
-    if (x.tipeIklan === "Umum") {
-      totalWalkIn += lead;
-    }
-
-    // === PER SALES ===
-    const sales = x.sales || "ALL";
-    bySales[sales] ??= { dana: 0, lead: 0 };
-    bySales[sales].dana += dana;
-    bySales[sales].lead += lead;
-
-    // === PER TIPE IKLAN ===
-    const tipe = x.tipeIklan || "-";
-    byTipe[tipe] ??= { dana: 0, lead: 0 };
-    byTipe[tipe].dana += dana;
-    byTipe[tipe].lead += lead;
-  });
-
-  /* ================= OUTPUT ================= */
-  contentEl.innerHTML = `
+  hasil.innerHTML = `
     <div class="box">
-      <h3>Ringkasan Total</h3>
-      <div class="row"><b>Total Dana</b><span>Rp ${totalDana.toLocaleString("id-ID")}</span></div>
-      <div class="row"><b>Total Lead</b><span>${totalLead}</span></div>
-      <div class="row"><b>Walk-in</b><span>${totalWalkIn}</span></div>
-    </div>
+      <h3>Bulan Berjalan : ${BULAN[bulan]} ${tahun}</h3>
 
-    <div class="box">
-      <h3>Per Sales</h3>
-      ${Object.entries(bySales).map(([s,v])=>`
-        <div class="row">
-          <span>${s}</span>
-          <span>${v.lead} lead | Rp ${v.dana.toLocaleString("id-ID")}</span>
-        </div>
-      `).join("")}
-    </div>
+      <div class="row">
+        <b>Total Anggaran Iklan</b>
+        <span>Rp ${Math.round(totalAnggaran).toLocaleString("id-ID")},-</span>
+      </div>
 
-    <div class="box">
-      <h3>Per Tipe Iklan</h3>
-      ${Object.entries(byTipe).map(([t,v])=>`
-        <div class="row">
-          <span>${t}</span>
-          <span>${v.lead} lead | Rp ${v.dana.toLocaleString("id-ID")}</span>
-        </div>
-      `).join("")}
+      <div class="row">
+        <b>Rata-rata Anggaran per Hari</b>
+        <span>Rp ${Math.round(rataPerHari).toLocaleString("id-ID")},-</span>
+      </div>
     </div>
   `;
 }
+
+render();
