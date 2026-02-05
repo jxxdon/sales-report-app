@@ -54,6 +54,8 @@ function irisanHari(start,end,rs,re){
   return jumlahHari(s,e);
 }
 
+let danaByTipeUnit = {};
+
 /* ================= RENDER ================= */
 function render(){
   if(!laporanIklan.length){
@@ -68,6 +70,8 @@ function render(){
   const rangeEnd   = new Date(tahun,bulan+1,0,23,59,59);
 
   let total = 0;
+  danaByTipeUnit = {};
+
 
   laporanIklan.forEach(x=>{
     if(!x.startDate || !x.endDate) return;
@@ -78,6 +82,14 @@ function render(){
     const totalHari = jumlahHari(start,end);
     const hariPakai = irisanHari(start,end,rangeStart,rangeEnd);
     if(!hariPakai) return;
+
+    const tipeUnit = x.tipeUnit || "Umum";
+
+    danaByTipeUnit[tipeUnit] ??= 0;
+    danaByTipeUnit[tipeUnit] +=
+    (hariPakai === totalHari)
+    ? anggaran
+    : anggaran * (hariPakai / totalHari);
 
     const anggaran = Number(x.anggaran||0);
     total += (hariPakai===totalHari)
@@ -101,3 +113,40 @@ function render(){
     </div>
   `;
 }
+const listTipe = Object.entries(danaByTipeUnit)
+  .sort((a,b)=>b[1]-a[1]);
+
+hasil.innerHTML += `
+  <div class="box">
+    <h3>Total Distribusi Anggaran Iklan per Tipe Unit</h3>
+
+    <table width="100%" cellpadding="6">
+      <thead>
+        <tr>
+          <th align="left">Tipe Unit</th>
+          <th align="right">Anggaran</th>
+          <th align="right">%</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${listTipe.map(([tipe, nilai])=>{
+          const persen = total
+            ? (nilai / total * 100)
+            : 0;
+
+          return `
+            <tr>
+              <td>${tipe}</td>
+              <td align="right">
+                Rp ${Math.round(nilai).toLocaleString("id-ID")},-
+              </td>
+              <td align="right">
+                ${persen.toFixed(1)}%
+              </td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  </div>
+`;
