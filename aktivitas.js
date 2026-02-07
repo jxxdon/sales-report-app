@@ -28,38 +28,6 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ================== INIT ==================
-function initAktivitas() {
-
-  const list = document.getElementById("activityList");
-
-  function formatDate(ts) {
-    const d = ts?.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
-  }
-
-  let q;
-  if (isAdmin) {
-  q = query(
-    collection(db, "aktivitas"),
-    orderBy("createdAt", "desc"),
-    limit(50)
-  );
-} else {
-  q = query(
-    collection(db, "aktivitas"),
-    where("user", "==", currentUser.email.split("@")[0]),
-    orderBy("createdAt", "desc"),
-    limit(50)
-  );
-}
-
 
     async function initAktivitas() {
   const list = document.getElementById("activityList");
