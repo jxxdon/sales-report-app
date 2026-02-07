@@ -219,7 +219,7 @@ async function loadProspek(keyword = "", reset = false) {
   lastDoc = snap.docs[snap.docs.length - 1];
   isLoading = false;
 }
-}
+
 
 /* =====================
    DETAIL
