@@ -28,7 +28,8 @@ import {
   doc,
   updateDoc,
   arrayUnion,
-  setDoc
+  setDoc,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* =====================
