@@ -7,7 +7,8 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot
+  limit,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 let currentUser = null;
@@ -45,17 +46,20 @@ function initAktivitas() {
 
   let q;
   if (isAdmin) {
-    q = query(
-      collection(db, "aktivitas"),
-      orderBy("createdAt", "desc")
-    );
-  } else {
-    q = query(
-      collection(db, "aktivitas"),
-      where("user", "==", currentUser.email.split("@")[0]),
-      orderBy("createdAt", "desc")
-    );
-  }
+  q = query(
+    collection(db, "aktivitas"),
+    orderBy("createdAt", "desc"),
+    limit(50)
+  );
+} else {
+  q = query(
+    collection(db, "aktivitas"),
+    where("user", "==", currentUser.email.split("@")[0]),
+    orderBy("createdAt", "desc"),
+    limit(50)
+  );
+}
+
 
   function buildPesanDetail(d) {
     if (d.tipe === "INPUT_PROSPEK") {
@@ -119,5 +123,5 @@ function initAktivitas() {
 
       list.appendChild(el);
     });
-  });
+  })();
 }
