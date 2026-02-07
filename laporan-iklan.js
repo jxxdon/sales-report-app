@@ -13,6 +13,10 @@ import {
 const contentEl   = document.getElementById("content");
 const filterTahun = document.getElementById("filterTahun");
 const filterBulan = document.getElementById("filterBulan");
+if (!document.getElementById("filterTahun")) {
+  console.log("Halaman ini bukan halaman laporan");
+  return;
+}
 
 const BULAN = [
   "Januari","Februari","Maret","April","Mei","Juni",
