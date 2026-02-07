@@ -167,7 +167,7 @@ function formatDate(ts) {
    LOAD PROSPEK (FIXED)
 ===================== */
 function loadProspek(keyword = "") {
-  if (unsubscribe) unsubscribe();
+ 
 
   const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
