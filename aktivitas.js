@@ -61,67 +61,85 @@ function initAktivitas() {
 }
 
 
-  function buildPesanDetail(d) {
-    if (d.tipe === "INPUT_PROSPEK") {
-      if (d.nama || d.telepon) {
-        return `Input Prospek : ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
-      }
-      return d.pesan || "Input Prospek";
-    }
+    async function initAktivitas() {
+  const list = document.getElementById("activityList");
 
-    if (d.progress || d.komentar) {
-      const nama = d.namaProspek ? `di Prospek ${d.namaProspek}` : "";
-      return `Komentar ${nama} : ${d.progress || "-"} - ${d.komentar || "-"}`;
-    }
-
-    return d.pesan || "Komentar";
+  function formatDate(ts) {
+    const d = ts?.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
   }
 
-  onSnapshot(q, snap => {
-    list.innerHTML = "";
+  let q;
+  if (isAdmin) {
+    q = query(
+      collection(db, "aktivitas"),
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+  } else {
+    q = query(
+      collection(db, "aktivitas"),
+      where("user", "==", currentUser.email.split("@")[0]),
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+  }
 
-    if (snap.empty) {
-      list.innerHTML = `<div class="empty">Belum ada aktivitas</div>`;
-      return;
+  function buildPesanDetail(d) {
+    if (d.tipe === "INPUT_PROSPEK") {
+      return `Input Prospek : ${d.nama || "-"} - ${d.telepon || "-"} - ${d.asal || "-"} - ${d.produk || "-"}`;
     }
 
-    snap.forEach(docSnap => {
-      const d = docSnap.data();
-      const type = d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
+    const nama = d.namaProspek ? `di Prospek ${d.namaProspek}` : "";
+    return `Komentar ${nama} : ${d.progress || "-"} - ${d.komentar || "-"}`;
+  }
 
-      const el = document.createElement("div");
-      el.className = "card";
+  list.innerHTML = "";
 
-      el.innerHTML = `
-        <div class="row">
-          <div class="user">Sales ${d.user?.replace("sales", "") || "-"}</div>
-          <div class="badge ${type}">
-            ${type === "input" ? "Input Prospek" : "Komentar"}
-          </div>
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    list.innerHTML = `<div class="empty">Belum ada aktivitas</div>`;
+    return;
+  }
+
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    const type = d.tipe === "INPUT_PROSPEK" ? "input" : "comment";
+
+    const el = document.createElement("div");
+    el.className = "card";
+
+    el.innerHTML = `
+      <div class="row">
+        <div class="user">Sales ${d.user?.replace("sales", "") || "-"}</div>
+        <div class="badge ${type}">
+          ${type === "input" ? "Input Prospek" : "Komentar"}
         </div>
+      </div>
 
-        <div class="text">
-          ${buildPesanDetail(d)}
-        </div>
+      <div class="text">${buildPesanDetail(d)}</div>
+      <div class="time">${formatDate(d.createdAt)}</div>
+    `;
 
-        <div class="time">
-          ${formatDate(d.createdAt)}
-        </div>
-      `;
-
+    if (d.prospekId) {
       el.style.cursor = "pointer";
       el.onclick = () => {
-        if (!d.prospekId) return;
         localStorage.setItem("openProspekId", d.prospekId);
         window.location.href = "list-prospek.html";
       };
+    } else {
+      el.style.opacity = "0.6";
+      el.title = "Aktivitas lama";
+    }
 
-      if (!d.prospekId) {
-        el.style.opacity = "0.6";
-        el.title = "Aktivitas lama";
-      }
-
-      list.appendChild(el);
-    });
-  })();
+    list.appendChild(el);
+  });
 }
