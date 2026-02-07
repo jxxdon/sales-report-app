@@ -1,8 +1,8 @@
 import { db } from "./firebase.js";
 import {
   collection,
-  addDoc,
   getDocs,
+  addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -15,13 +15,14 @@ const endEl      = document.getElementById("endDate");
 const anggaranEl = document.getElementById("anggaran");
 const btn        = document.getElementById("btnHitung");
 
-/* ================= GUARD ================= */
 if (!btn) {
   console.log("Bukan halaman input laporan iklan");
+  throw new Error("Form tidak ditemukan");
 }
 
 /* =====================================================
-   ISI SALES (DARI DASHBOARD / AUTH)
+   SALES — DARI DASHBOARD (AUTH)
+   SELARAS DENGAN aktivitas.user & prospek.user
 ===================================================== */
 const namaUser = localStorage.getItem("namaUser");
 const role     = localStorage.getItem("role");
@@ -43,33 +44,37 @@ if (namaUser) {
 }
 
 /* =====================================================
-   ISI TIPE IKLAN (DARI FIRESTORE MASTER)
-   collection: master_tipe_iklan
+   TIPE IKLAN — DARI DATA NYATA PROSPEK
+   sumber: prospek.tipeTertarik (ARRAY)
 ===================================================== */
 async function loadTipeIklan() {
-  try {
-    const snap = await getDocs(collection(db, "master_tipe_iklan"));
-    tipeEl.innerHTML = "";
+  const snap = await getDocs(collection(db, "prospek"));
+  const tipeSet = new Set();
 
-    snap.forEach(doc => {
-      const { nama } = doc.data();
-      if (!nama) return;
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    (d.tipeTertarik || []).forEach(t => {
+      if (t) tipeSet.add(t);
+    });
+  });
 
+  tipeEl.innerHTML = "";
+
+  Array.from(tipeSet)
+    .sort()
+    .forEach(t => {
       tipeEl.insertAdjacentHTML(
         "beforeend",
-        `<option value="${nama}">${nama}</option>`
+        `<option value="${t}">${t}</option>`
       );
     });
-  } catch (err) {
-    console.error(err);
-    alert("Gagal memuat tipe iklan");
-  }
 }
 
 loadTipeIklan();
 
 /* =====================================================
    SUBMIT LAPORAN IKLAN
+   SIMPAN KE collection: laporan_iklan
 ===================================================== */
 btn.addEventListener("click", async () => {
   const platform  = platformEl.value;
