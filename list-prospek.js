@@ -29,12 +29,8 @@ import {
   updateDoc,
   arrayUnion,
   setDoc,
-  getDocs,
-  orderBy,
-  limit,
-  startAfter
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
 
 /* =====================
    USER
@@ -140,8 +136,6 @@ let currentDocId = null;
 let currentProspekNama = "";
 let selectedProgress = null;
 let visibleCount = 10;
-let lastDoc = null;
-let isLoading = false;
 
 /* =====================
    CONST
@@ -172,54 +166,87 @@ function formatDate(ts) {
 /* =====================
    LOAD PROSPEK (FIXED)
 ===================== */
-async function loadProspek(keyword = "", reset = false) {
-  if (isLoading) return;
-  isLoading = true;
+async function loadProspek(keyword = "") {
 
-  if (reset) {
-    prospekList.innerHTML = "";
-    lastDoc = null;
-  }
 
   const search = keyword.trim().toLowerCase();
+  const phoneSearch = cleanPhone(keyword);
 
-  let q = query(
-    collection(db, "prospek"),
-    orderBy("createdAt", "desc"),
-    limit(20)
-  );
-
-  if (!isAdmin && !search) {
+  let q;
+  if (isAdmin || search || phoneSearch) {
+    q = query(collection(db,"prospek"));
+  } else {
     q = query(
-      collection(db, "prospek"),
-      where("namaUser", "==", user),
-      orderBy("createdAt", "desc"),
-      limit(20)
+      collection(db,"prospek"),
+      where("namaUser","==",user)
     );
   }
 
-  if (lastDoc) {
-    q = query(q, startAfter(lastDoc));
-  }
-
+  
   const snap = await getDocs(q);
 
-  snap.docs.forEach(docSnap => {
-    const d = docSnap.data();
-    const card = document.createElement("div");
-    card.className = "prospek-card";
-    card.innerHTML = `
-      <div class="nama">${d.nama || "-"}</div>
-      <div class="info">📞 ${d.noTelp || "-"}</div>
-    `;
-    card.onclick = () => openDetail(docSnap.id, d);
-    prospekList.appendChild(card);
+    prospekList.innerHTML = "";
+
+    let docs = snap.docs.sort((a,b)=>{
+      const ta = a.data().createdAt?.toDate?.() || 0;
+      const tb = b.data().createdAt?.toDate?.() || 0;
+      return tb - ta;
+    });
+
+    // FILTER
+    docs = docs.filter(docSnap=>{
+      const d = docSnap.data();
+
+      if (selectedShortlistProgress) {
+        const c = d.comments || [];
+        if (!c.length) return false;
+        if (c[c.length-1]?.progress !== selectedShortlistProgress)
+          return false;
+      }
+
+      if (search) {
+        const n = (d.nama||"").toLowerCase().includes(search);
+        const t = phoneSearch &&
+          cleanPhone(d.noTelp).includes(phoneSearch);
+        if (!n && !t) return false;
+      }
+      return true;
+    });
+
+    docs.slice(0,visibleCount).forEach(docSnap=>{
+      const d = docSnap.data();
+      const status = getStatus(d.createdAt);
+      const card = document.createElement("div");
+      card.className = "prospek-card";
+      const ketertarikan =
+  Array.isArray(d.tipeTertarik) && d.tipeTertarik.length
+    ? d.tipeTertarik.join(", ")
+    : "-";
+
+const catatan = d.catatan || "-";
+
+card.innerHTML = `
+  <div class="nama">${d.nama||"-"}</div>
+  <div class="info">
+    📞 ${d.noTelp||"-"} - ${d.asalKota||"-"} - ${d.asalProspek||"-"} - 
+    ${ketertarikan} - ${catatan}
+  </div>
+  <div class="info">👤 ${d.namaUser||"-"}</div>
+  <div class="status-line">
+    <span class="status ${status==="Personal Lead"?"status-personal":"status-open"}">${status}</span>
+    <span style="color:#888;font-size:.9em;">Klik untuk detail →</span>
+  </div>
+`;
+      card.onclick = ()=>openDetail(docSnap.id,d);
+      prospekList.appendChild(card);
+  
+
+    if (!prospekList.innerHTML) {
+      prospekList.innerHTML =
+        "<p style='text-align:center;color:#999;padding:40px'>Tidak ada prospek</p>";
+    }
   });
-
-  lastDoc = snap.docs[snap.docs.length - 1];
-  isLoading = false;
 }
-
 
 /* =====================
    DETAIL
