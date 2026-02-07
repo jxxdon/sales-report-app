@@ -166,8 +166,8 @@ function formatDate(ts) {
 /* =====================
    LOAD PROSPEK (FIXED)
 ===================== */
-function loadProspek(keyword = "") {
- 
+async function loadProspek(keyword = "") {
+
 
   const search = keyword.trim().toLowerCase();
   const phoneSearch = cleanPhone(keyword);
@@ -182,7 +182,7 @@ function loadProspek(keyword = "") {
     );
   }
 
-  (async () => {
+  
   const snap = await getDocs(q);
 
     prospekList.innerHTML = "";
@@ -239,7 +239,7 @@ card.innerHTML = `
 `;
       card.onclick = ()=>openDetail(docSnap.id,d);
       prospekList.appendChild(card);
-    })();
+  
 
     if (!prospekList.innerHTML) {
       prospekList.innerHTML =
