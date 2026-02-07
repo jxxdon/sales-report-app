@@ -2,6 +2,7 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
+  getDocs,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -16,24 +17,61 @@ const btn        = document.getElementById("btnHitung");
 
 /* ================= GUARD ================= */
 if (!btn) {
-  console.log("Halaman ini bukan form laporan iklan");
+  console.log("Bukan halaman input laporan iklan");
 }
 
-/* ================= CONTOH DATA SELECT ================= */
-// hapus bagian ini kalau datanya sudah diisi dari tempat lain
-const TIPE_IKLAN = ["Kost", "Rumah", "Ruko", "Tanah"];
-const SALES = ["ALL", "Andi", "Budi", "Citra"];
+/* =====================================================
+   ISI SALES (DARI DASHBOARD / AUTH)
+===================================================== */
+const namaUser = localStorage.getItem("namaUser");
+const role     = localStorage.getItem("role");
 
-TIPE_IKLAN.forEach(t =>
-  tipeEl.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`)
-);
+salesEl.innerHTML = "";
 
-SALES.forEach(s =>
-  salesEl.insertAdjacentHTML("beforeend", `<option value="${s}">${s}</option>`)
-);
+if (role === "admin") {
+  salesEl.insertAdjacentHTML(
+    "beforeend",
+    `<option value="ALL">ALL</option>`
+  );
+}
 
-/* ================= SUBMIT ================= */
-btn?.addEventListener("click", async () => {
+if (namaUser) {
+  salesEl.insertAdjacentHTML(
+    "beforeend",
+    `<option value="${namaUser}" selected>${namaUser}</option>`
+  );
+}
+
+/* =====================================================
+   ISI TIPE IKLAN (DARI FIRESTORE MASTER)
+   collection: master_tipe_iklan
+===================================================== */
+async function loadTipeIklan() {
+  try {
+    const snap = await getDocs(collection(db, "master_tipe_iklan"));
+    tipeEl.innerHTML = "";
+
+    snap.forEach(doc => {
+      const { nama } = doc.data();
+      if (!nama) return;
+
+      tipeEl.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${nama}">${nama}</option>`
+      );
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Gagal memuat tipe iklan");
+  }
+}
+
+loadTipeIklan();
+
+/* =====================================================
+   SUBMIT LAPORAN IKLAN
+===================================================== */
+btn.addEventListener("click", async () => {
   const platform  = platformEl.value;
   const tipeIklan = tipeEl.value;
   const sales     = salesEl.value;
@@ -51,6 +89,9 @@ btn?.addEventListener("click", async () => {
     return;
   }
 
+  btn.disabled = true;
+  btn.textContent = "Menyimpan...";
+
   try {
     await addDoc(collection(db, "laporan_iklan"), {
       platform,
@@ -64,12 +105,14 @@ btn?.addEventListener("click", async () => {
 
     alert("Laporan iklan berhasil disimpan");
 
-    // reset
     startEl.value = "";
     endEl.value = "";
     anggaranEl.value = "";
   } catch (err) {
     console.error(err);
     alert("Gagal menyimpan laporan iklan");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Hitung & Simpan";
   }
 });
