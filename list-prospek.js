@@ -181,7 +181,9 @@ function loadProspek(keyword = "") {
     );
   }
 
-  unsubscribe = onSnapshot(q, snap => {
+  (async () => {
+  const snap = await getDocs(q);
+
     prospekList.innerHTML = "";
 
     let docs = snap.docs.sort((a,b)=>{
@@ -236,7 +238,7 @@ card.innerHTML = `
 `;
       card.onclick = ()=>openDetail(docSnap.id,d);
       prospekList.appendChild(card);
-    });
+    })();
 
     if (!prospekList.innerHTML) {
       prospekList.innerHTML =
