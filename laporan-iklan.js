@@ -24,24 +24,35 @@ if (!btn) {
    SALES — DARI DASHBOARD (AUTH)
    SELARAS DENGAN aktivitas.user & prospek.user
 ===================================================== */
-const namaUser = localStorage.getItem("namaUser");
-const role     = localStorage.getItem("role");
+async function loadSales() {
+  const snap = await getDocs(collection(db, "aktivitas"));
+  const salesSet = new Set();
 
-salesEl.innerHTML = "";
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.user) salesSet.add(d.user);
+  });
 
-if (role === "admin") {
+  salesEl.innerHTML = "";
+
+  // ALL selalu ada, admin & sales sama
   salesEl.insertAdjacentHTML(
     "beforeend",
     `<option value="ALL">ALL</option>`
   );
+
+  Array.from(salesSet)
+    .sort()
+    .forEach(s => {
+      salesEl.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${s}">${s}</option>`
+      );
+    });
 }
 
-if (namaUser) {
-  salesEl.insertAdjacentHTML(
-    "beforeend",
-    `<option value="${namaUser}" selected>${namaUser}</option>`
-  );
-}
+loadSales();
+
 
 /* =====================================================
    TIPE IKLAN — DARI DATA NYATA PROSPEK
